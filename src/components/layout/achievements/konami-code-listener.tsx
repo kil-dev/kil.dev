@@ -13,22 +13,20 @@ export function KonamiCodeListener() {
   const pathname = usePathname()
   const isHomepage = pathname === '/'
 
-  useEffect(() => {
-    if (!isHomepage) return
+  const konamiSequence = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ] as const
 
-    const konamiSequence = [
-      'ArrowUp',
-      'ArrowUp',
-      'ArrowDown',
-      'ArrowDown',
-      'ArrowLeft',
-      'ArrowRight',
-      'ArrowLeft',
-      'ArrowRight',
-      'b',
-      'a',
-    ]
-
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
     function shouldIgnoreTarget(el: EventTarget | null): boolean {
       if (!el || !(el as Element).closest) return false
       const element = el as Element
@@ -36,43 +34,37 @@ export function KonamiCodeListener() {
       return false
     }
 
-    function onKeyDown(e: KeyboardEvent) {
-      if (shouldIgnoreTarget(e.target)) return
+    if (shouldIgnoreTarget(e.target)) return
 
-      // Handle both 'b'/'B' and 'a'/'A' keys
-      let key = e.key
-      if (key.toLowerCase() === 'b') key = 'b'
-      else if (key.toLowerCase() === 'a') key = 'a'
+    // Normalize 'b'/'B' and 'a'/'A'
+    let key = e.key
+    if (key.toLowerCase() === 'b') key = 'b'
+    else if (key.toLowerCase() === 'a') key = 'a'
 
-      sequenceRef.current.push(key)
+    sequenceRef.current.push(key)
 
-      // Keep only the last 10 keys (length of Konami sequence)
-      if (sequenceRef.current.length > konamiSequence.length) {
-        sequenceRef.current = sequenceRef.current.slice(-konamiSequence.length)
-      }
-
-      // Check if the current sequence matches the Konami code
-      if (sequenceRef.current.length === konamiSequence.length) {
-        const isMatch = sequenceRef.current.every((key, index) => key === konamiSequence[index])
-
-        if (isMatch) {
-          sequenceRef.current = []
-          const id: AchievementId = 'KONAMI_KILLER'
-
-          // Always trigger the animation
-          triggerAnimation()
-
-          // Only award the achievement on the first time
-          if (!has(id)) {
-            unlock(id)
-          }
-        }
-      }
+    // Keep only the last N keys
+    if (sequenceRef.current.length > konamiSequence.length) {
+      sequenceRef.current = sequenceRef.current.slice(-konamiSequence.length)
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [has, unlock, isHomepage, triggerAnimation])
+    // Compare
+    if (sequenceRef.current.length === konamiSequence.length) {
+      const isMatch = sequenceRef.current.every((k, index) => k === konamiSequence[index])
+      if (isMatch) {
+        sequenceRef.current = []
+        const id: AchievementId = 'KONAMI_KILLER'
+        triggerAnimation()
+        if (!has(id)) unlock(id)
+      }
+    }
+  })
+
+  useEffect(() => {
+    if (!isHomepage) return
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isHomepage, onKey])
 
   return null
 }
