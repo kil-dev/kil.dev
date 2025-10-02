@@ -422,6 +422,7 @@ export function ThemeToggle() {
         role="menu"
         aria-label="Select theme"
         aria-hidden={!open}
+        inert={!open}
         tabIndex={-1}
         onKeyDown={handleMenuKeyDown}
         className={cn(
