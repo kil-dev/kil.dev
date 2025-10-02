@@ -8,6 +8,7 @@ import {
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
 import * as React from 'react'
+import { useEffectEvent } from 'react'
 
 type SystemTheme = 'light' | 'dark'
 
