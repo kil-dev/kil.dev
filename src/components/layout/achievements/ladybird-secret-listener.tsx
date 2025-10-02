@@ -2,21 +2,21 @@
 
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { type AchievementId } from '@/lib/achievements'
-import { useEffect, useEffectEvent, useRef } from 'react'
+import { useCallback, useEffect, useEffectEvent, useRef } from 'react'
 
 export function LadybirdSecretListener() {
   const { has, unlock } = useAchievements()
   const bufferRef = useRef('')
   const target = 'ladybird!'
 
-  const onKey = useEffectEvent((e: KeyboardEvent) => {
-    function shouldIgnoreTarget(el: EventTarget | null): boolean {
-      if (!el || !(el as Element).closest) return false
-      const element = el as Element
-      if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
-      return false
-    }
+  const shouldIgnoreTarget = useCallback((el: EventTarget | null): boolean => {
+    if (!el || !(el as Element).closest) return false
+    const element = el as Element
+    if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
+    return false
+  }, [])
 
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (shouldIgnoreTarget(e.target)) return
     const key = e.key
     if (!key || key.length !== 1) return
