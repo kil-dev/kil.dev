@@ -24,11 +24,13 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
 
   const triggerConfetti = useCallback(() => {
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    void confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      zIndex: 50,
+    void getConfetti().then(confetti => {
+      void confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        zIndex: 50,
+      })
     })
   }, [])
 
@@ -62,8 +64,10 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fire from both corners with slight delay
-    void confetti({ ...leftCorner, zIndex: 50 })
-    void confetti({ ...rightCorner, zIndex: 50 })
+    void getConfetti().then(confetti => {
+      void confetti({ ...leftCorner, zIndex: 50 })
+      void confetti({ ...rightCorner, zIndex: 50 })
+    })
 
     // Clean up the confetti pending flag after animation completes
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
@@ -76,13 +80,15 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
-    void confetti({
-      particleCount: 150,
-      spread: 180,
-      origin: { y: 0 },
-      angle: 270,
-      startVelocity: 45,
-      zIndex: 50,
+    void getConfetti().then(confetti => {
+      void confetti({
+        particleCount: 150,
+        spread: 180,
+        origin: { y: 0 },
+        angle: 270,
+        startVelocity: 45,
+        zIndex: 50,
+      })
     })
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
@@ -95,12 +101,14 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
-    void confetti({
-      particleCount: 200,
-      spread: 360,
-      origin: { x: 0.5, y: 0.5 },
-      startVelocity: 30,
-      zIndex: 50,
+    void getConfetti().then(confetti => {
+      void confetti({
+        particleCount: 200,
+        spread: 360,
+        origin: { x: 0.5, y: 0.5 },
+        startVelocity: 30,
+        zIndex: 50,
+      })
     })
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
