@@ -211,34 +211,39 @@ export function ThemeToggle() {
     return allOptions.filter(opt => opt.value !== currentPreference)
   }, [allOptions, currentPreference])
 
+  const onDocClick = useEffectEvent((e: MouseEvent) => {
+    const target = e.target as Node | null
+    if (containerRef.current && target && !containerRef.current.contains(target)) {
+      setOpen(false)
+      setOpenedViaKeyboard(false)
+      triggerRef.current?.focus()
+    }
+  })
+  const onDocKey = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      setOpen(false)
+      setOpenedViaKeyboard(false)
+      triggerRef.current?.focus()
+    }
+  })
   useEffect(() => {
     if (!open) return
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as Node | null
-      if (containerRef.current && target && !containerRef.current.contains(target)) {
-        setOpen(false)
-        setOpenedViaKeyboard(false)
-      }
+    window.addEventListener('mousedown', onDocClick)
+    window.addEventListener('keydown', onDocKey)
+    return () => {
+      window.removeEventListener('mousedown', onDocClick)
+      window.removeEventListener('keydown', onDocKey)
     }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        setOpen(false)
-        setOpenedViaKeyboard(false)
-        triggerRef.current?.focus()
-      }
-    }
-    window.addEventListener('mousedown', onClick)
-    window.addEventListener('keydown', onKey)
-    // focus first option when opening
+  }, [open, onDocClick, onDocKey])
+
+  // focus first option when opening
+  useEffect(() => {
+    if (!open) return
     const id = window.setTimeout(() => {
       if (openedViaKeyboard) optionRefs.current[0]?.focus()
     }, 0)
-    return () => {
-      window.removeEventListener('mousedown', onClick)
-      window.removeEventListener('keydown', onKey)
-      window.clearTimeout(id)
-    }
+    return () => window.clearTimeout(id)
   }, [open, openedViaKeyboard])
 
   // Removed parent callbacks and md+ width reporting to avoid shifting header
