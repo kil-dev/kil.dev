@@ -94,19 +94,6 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
-    },
-    {
-      "label": "bun build-storybook",
-      "type": "shell",
-      "command": "bun",
-      "args": [
-        "run",
-        "build-storybook"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": []
     }
   ]
 }
