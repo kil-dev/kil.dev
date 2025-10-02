@@ -4,7 +4,7 @@ import { useAchievements } from '@/components/providers/achievements-provider'
 import { useKonamiAnimation } from '@/components/providers/konami-animation-provider'
 import { type AchievementId } from '@/lib/achievements'
 import { usePathname } from 'next/navigation'
-import { useEffect, useEffectEvent, useRef } from 'react'
+import { useCallback, useEffect, useEffectEvent, useRef } from 'react'
 
 export function KonamiCodeListener() {
   const { has, unlock } = useAchievements()
