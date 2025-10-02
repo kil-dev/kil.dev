@@ -260,41 +260,51 @@ export function ThemeProvider({
     }
   }, [initialAppliedTheme])
 
-  // Watch OS theme changes
+  // Watch OS theme and cross-tab storage changes (attach once; read latest state via Effect Events)
+  const onOsThemeChange = useEffectEvent((matches: boolean) => {
+    const sys: SystemTheme = matches ? 'dark' : 'light'
+    setSystemTheme(sys)
+    writeCookieSystemTheme(sys)
+    if ((theme ?? 'system') === 'system') applyClasses('system', sys)
+  })
+
+  const onStorageChange = useEffectEvent((e: StorageEvent) => {
+    if (e.key !== storageKey('theme')) return
+    const { theme: lsTheme, updatedAt } = readStorageThemeMeta()
+    const next = coerceToValidTheme(lsTheme)
+    setThemeState(next)
+    writeCookieTheme(next, updatedAt)
+    applyClasses(next, getSystemTheme())
+  })
+
   React.useEffect(() => {
     if (typeof window === 'undefined') return
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => {
-      const sys = mq.matches ? 'dark' : 'light'
-      setSystemTheme(sys)
-      writeCookieSystemTheme(sys)
-      if ((theme ?? 'system') === 'system') applyClasses('system', sys)
-    }
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== storageKey('theme')) return
-      const { theme: lsTheme, updatedAt } = readStorageThemeMeta()
-      const next = coerceToValidTheme(lsTheme)
-      setThemeState(next)
-      writeCookieTheme(next, updatedAt)
-      applyClasses(next, getSystemTheme())
+    const mediaHandler = (e: MediaQueryListEvent) => onOsThemeChange(e.matches)
+    const storageHandler = (e: StorageEvent) => onStorageChange(e)
+    const legacyMediaHandler: (this: MediaQueryList, ev: MediaQueryListEvent) => void = function (
+      this: MediaQueryList,
+      ev: MediaQueryListEvent,
+    ) {
+      onOsThemeChange(ev.matches)
     }
     try {
-      mq.addEventListener('change', handler)
-      window.addEventListener('storage', onStorage)
+      mq.addEventListener('change', mediaHandler)
+      window.addEventListener('storage', storageHandler)
       return () => {
-        mq.removeEventListener('change', handler)
-        window.removeEventListener('storage', onStorage)
+        mq.removeEventListener('change', mediaHandler)
+        window.removeEventListener('storage', storageHandler)
       }
     } catch {
       // Safari fallback
-      mq.addListener?.(handler)
-      window.addEventListener('storage', onStorage)
+      mq.addListener?.(legacyMediaHandler)
+      window.addEventListener('storage', storageHandler)
       return () => {
-        mq.removeListener?.(handler)
-        window.removeEventListener('storage', onStorage)
+        mq.removeListener?.(legacyMediaHandler)
+        window.removeEventListener('storage', storageHandler)
       }
     }
-  }, [theme])
+  }, [onOsThemeChange, onStorageChange])
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next)
