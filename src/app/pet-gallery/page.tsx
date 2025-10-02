@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: 'A mosaic gallery of pet photos',
 }
 
+export const experimental_ppr = true
+
 export default function PetGalleryPage() {
   return <PetGalleryContent />
 }
