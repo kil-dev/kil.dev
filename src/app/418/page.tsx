@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   title: "418 | I'm a Teapot",
 }
 
+export const experimental_ppr = true
+
 export default function Page() {
   return <ImATeapotContent />
 }

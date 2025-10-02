@@ -6,6 +6,8 @@ import { ACHIEVEMENTS, ACHIEVEMENTS_COOKIE_NAME, type AchievementId } from '@/li
 import { parseUnlockedCookie } from '@/utils/achievements'
 import { cookies } from 'next/headers'
 
+export const experimental_ppr = true
+
 export default async function AchievementsPage() {
   // Read per-user achievement state only for this page to keep other routes static
   const cookieStore = await cookies()

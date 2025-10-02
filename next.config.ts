@@ -4,6 +4,9 @@ import './src/env.js'
 
 const config: NextConfig = {
   typedRoutes: true,
+  experimental: {
+    ppr: 'incremental',
+  },
   images: {
     minimumCacheTTL: 31536000, // 1 year
     formats: ['image/avif', 'image/webp'],

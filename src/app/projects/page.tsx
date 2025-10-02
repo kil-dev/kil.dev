@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: 'A selection of websites and other projects I have worked on.',
 }
 
+export const experimental_ppr = true
+
 export default function ProjectsPage() {
   return <ProjectsContent />
 }

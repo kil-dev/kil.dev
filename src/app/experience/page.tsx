@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Where I've been and the tools I reach for.",
 }
 
+export const experimental_ppr = true
+
 export default function ExperiencePage() {
   return <ExperienceContent />
 }
