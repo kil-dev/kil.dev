@@ -26,14 +26,15 @@ export function KonamiCodeListener() {
     'a',
   ] as const
 
-  const onKey = useEffectEvent((e: KeyboardEvent) => {
-    function shouldIgnoreTarget(el: EventTarget | null): boolean {
-      if (!el || !(el as Element).closest) return false
-      const element = el as Element
-      if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
-      return false
-    }
+  const shouldIgnoreTarget = useCallback((el: EventTarget | null): boolean => {
+    if (!el || !(el as Element).closest) return false
+    const element = el as Element
+    if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
+    return false
+  }, [])
 
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!isHomepage) return
     if (shouldIgnoreTarget(e.target)) return
 
     // Normalize 'b'/'B' and 'a'/'A'
@@ -61,10 +62,9 @@ export function KonamiCodeListener() {
   })
 
   useEffect(() => {
-    if (!isHomepage) return
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isHomepage, onKey])
+  }, [onKey])
 
   return null
 }
