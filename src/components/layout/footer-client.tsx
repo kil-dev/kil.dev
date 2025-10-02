@@ -1,7 +1,7 @@
 'use client'
 
+import { useConfetti } from '@/components/providers/confetti-provider'
 import { useCallback } from 'react'
-import { useConfetti } from '../providers/confetti-provider'
 
 export function FooterClient() {
   const { triggerConfettiFromCorners } = useConfetti()
