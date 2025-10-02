@@ -1,7 +1,14 @@
 'use client'
 
-import confetti from 'canvas-confetti'
+import type confettiImport from 'canvas-confetti'
 import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react'
+
+type ConfettiFn = typeof confettiImport
+
+let confettiPromise: Promise<ConfettiFn> | null = null
+function getConfetti(): Promise<ConfettiFn> {
+  return (confettiPromise ??= import('canvas-confetti').then(m => m.default))
+}
 
 type ConfettiContextValue = {
   triggerConfetti: () => void
