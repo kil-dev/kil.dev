@@ -10,13 +10,18 @@ export function FooterClient() {
     triggerConfettiFromCorners()
   }, [triggerConfettiFromCorners])
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleClick()
+      }
+    },
+    [handleClick],
+  )
+
   return (
-    <button
-      aria-label="Trigger confetti"
-      onClick={handleClick}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') handleClick()
-      }}>
+    <button aria-label="Trigger confetti" onClick={handleClick} onKeyDown={handleKeyDown} className="hover:opacity-80">
       Kilian Tyler
     </button>
   )
