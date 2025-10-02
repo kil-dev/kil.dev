@@ -12,7 +12,7 @@ import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { Laptop, Smartphone } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
 
 function SystemIcon({ className }: { className?: string }) {
   return (
@@ -78,7 +78,7 @@ export function ThemeToggle() {
 
   // Prevent background scrolling when menu is open (all breakpoints)
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof globalThis === 'undefined') return
     if (open) {
       const prev = document.documentElement.style.overflow
       document.documentElement.style.overflow = 'hidden'
@@ -165,8 +165,8 @@ export function ThemeToggle() {
         return
       }
 
-      const viewportWidth = window.innerWidth || 1
-      const viewportHeight = window.innerHeight || 1
+      const viewportWidth = globalThis.innerWidth || 1
+      const viewportHeight = globalThis.innerHeight || 1
       const clickX = event?.clientX ?? viewportWidth / 2
       const clickY = event?.clientY ?? viewportHeight / 2
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
@@ -211,34 +211,39 @@ export function ThemeToggle() {
     return allOptions.filter(opt => opt.value !== currentPreference)
   }, [allOptions, currentPreference])
 
+  const onDocClick = useEffectEvent((e: MouseEvent) => {
+    const target = e.target as Node | null
+    if (containerRef.current && target && !containerRef.current.contains(target)) {
+      setOpen(false)
+      setOpenedViaKeyboard(false)
+      triggerRef.current?.focus()
+    }
+  })
+  const onDocKey = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      setOpen(false)
+      setOpenedViaKeyboard(false)
+      triggerRef.current?.focus()
+    }
+  })
   useEffect(() => {
     if (!open) return
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as Node | null
-      if (containerRef.current && target && !containerRef.current.contains(target)) {
-        setOpen(false)
-        setOpenedViaKeyboard(false)
-      }
+    globalThis.addEventListener('mousedown', onDocClick)
+    globalThis.addEventListener('keydown', onDocKey)
+    return () => {
+      globalThis.removeEventListener('mousedown', onDocClick)
+      globalThis.removeEventListener('keydown', onDocKey)
     }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        setOpen(false)
-        setOpenedViaKeyboard(false)
-        triggerRef.current?.focus()
-      }
-    }
-    window.addEventListener('mousedown', onClick)
-    window.addEventListener('keydown', onKey)
-    // focus first option when opening
-    const id = window.setTimeout(() => {
+  }, [open, onDocClick, onDocKey])
+
+  // focus first option when opening
+  useEffect(() => {
+    if (!open) return
+    const id = globalThis.setTimeout(() => {
       if (openedViaKeyboard) optionRefs.current[0]?.focus()
     }, 0)
-    return () => {
-      window.removeEventListener('mousedown', onClick)
-      window.removeEventListener('keydown', onKey)
-      window.clearTimeout(id)
-    }
+    return () => globalThis.clearTimeout(id)
   }, [open, openedViaKeyboard])
 
   // Removed parent callbacks and md+ width reporting to avoid shifting header
@@ -249,8 +254,8 @@ export function ThemeToggle() {
       return
     }
     setTooltipHold(true)
-    const id = window.setTimeout(() => setTooltipHold(false), 150)
-    return () => window.clearTimeout(id)
+    const id = globalThis.setTimeout(() => setTooltipHold(false), 150)
+    return () => globalThis.clearTimeout(id)
   }, [open])
 
   const handleTriggerKeyDown = useCallback(
@@ -278,15 +283,14 @@ export function ThemeToggle() {
 
   const handleMenuKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const isHorizontal = typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
       const currentIndex = optionRefs.current.findIndex(el => el === document.activeElement)
-      if ((isHorizontal && e.key === 'ArrowRight') || (!isHorizontal && e.key === 'ArrowDown')) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         const nextIndex = currentIndex < 0 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
         optionRefs.current[nextIndex]?.focus()
         return
       }
-      if ((isHorizontal && e.key === 'ArrowLeft') || (!isHorizontal && e.key === 'ArrowUp')) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
         const prevIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
         optionRefs.current[prevIndex]?.focus()
@@ -418,6 +422,7 @@ export function ThemeToggle() {
         role="menu"
         aria-label="Select theme"
         aria-hidden={!open}
+        inert={!open}
         tabIndex={-1}
         onKeyDown={handleMenuKeyDown}
         className={cn(

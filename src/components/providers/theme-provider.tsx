@@ -8,6 +8,7 @@ import {
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
 import * as React from 'react'
+import { useEffectEvent } from 'react'
 
 type SystemTheme = 'light' | 'dark'
 
@@ -106,7 +107,7 @@ function readStorageThemeMeta(): { theme: Theme | undefined; updatedAt: number |
 function writeCookieTheme(value: Theme, updatedAt?: number) {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
-    const isSecure = window.location.protocol === 'https:' || isProduction ? '; secure' : ''
+    const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
     const v = coerceToValidTheme(value)
     const ts = typeof updatedAt === 'number' && Number.isFinite(updatedAt) ? updatedAt : Date.now()
     document.cookie = `${cookieKey('theme')}=${encodeURIComponent(v)}; path=/; max-age=31536000; samesite=lax${isSecure}`
@@ -127,15 +128,15 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   if (!value) return
   try {
     const isProduction = process.env.NODE_ENV === 'production'
-    const isSecure = window.location.protocol === 'https:' || isProduction ? '; secure' : ''
+    const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
     document.cookie = `${cookieKey('systemTheme')}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax${isSecure}`
   } catch {}
 }
 
 function getSystemTheme(): SystemTheme | undefined {
-  if (typeof window === 'undefined') return undefined
+  if (typeof globalThis === 'undefined') return undefined
   try {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
   } catch {}
   return undefined
 }
@@ -259,41 +260,51 @@ export function ThemeProvider({
     }
   }, [initialAppliedTheme])
 
-  // Watch OS theme changes
+  // Watch OS theme and cross-tab storage changes (attach once; read latest state via Effect Events)
+  const onOsThemeChange = useEffectEvent((matches: boolean) => {
+    const sys: SystemTheme = matches ? 'dark' : 'light'
+    setSystemTheme(sys)
+    writeCookieSystemTheme(sys)
+    if ((theme ?? 'system') === 'system') applyClasses('system', sys)
+  })
+
+  const onStorageChange = useEffectEvent((e: StorageEvent) => {
+    if (e.key !== storageKey('theme')) return
+    const { theme: lsTheme, updatedAt } = readStorageThemeMeta()
+    const next = coerceToValidTheme(lsTheme)
+    setThemeState(next)
+    writeCookieTheme(next, updatedAt)
+    applyClasses(next, getSystemTheme())
+  })
+
   React.useEffect(() => {
-    if (typeof window === 'undefined') return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => {
-      const sys = mq.matches ? 'dark' : 'light'
-      setSystemTheme(sys)
-      writeCookieSystemTheme(sys)
-      if ((theme ?? 'system') === 'system') applyClasses('system', sys)
-    }
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== storageKey('theme')) return
-      const { theme: lsTheme, updatedAt } = readStorageThemeMeta()
-      const next = coerceToValidTheme(lsTheme)
-      setThemeState(next)
-      writeCookieTheme(next, updatedAt)
-      applyClasses(next, getSystemTheme())
+    if (typeof globalThis === 'undefined') return
+    const mq = globalThis.matchMedia('(prefers-color-scheme: dark)')
+    const mediaHandler = (e: MediaQueryListEvent) => onOsThemeChange(e.matches)
+    const storageHandler = (e: StorageEvent) => onStorageChange(e)
+    const legacyMediaHandler: (this: MediaQueryList, ev: MediaQueryListEvent) => void = function (
+      this: MediaQueryList,
+      ev: MediaQueryListEvent,
+    ) {
+      onOsThemeChange(ev.matches)
     }
     try {
-      mq.addEventListener('change', handler)
-      window.addEventListener('storage', onStorage)
+      mq.addEventListener('change', mediaHandler)
+      globalThis.addEventListener('storage', storageHandler)
       return () => {
-        mq.removeEventListener('change', handler)
-        window.removeEventListener('storage', onStorage)
+        mq.removeEventListener('change', mediaHandler)
+        globalThis.removeEventListener('storage', storageHandler)
       }
     } catch {
       // Safari fallback
-      mq.addListener?.(handler)
-      window.addEventListener('storage', onStorage)
+      mq.addEventListener('change', legacyMediaHandler)
+      globalThis.addEventListener('storage', storageHandler)
       return () => {
-        mq.removeListener?.(handler)
-        window.removeEventListener('storage', onStorage)
+        mq.removeEventListener('change', legacyMediaHandler)
+        globalThis.removeEventListener('storage', storageHandler)
       }
     }
-  }, [theme])
+  }, [onOsThemeChange, onStorageChange])
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next)
@@ -305,7 +316,7 @@ export function ThemeProvider({
   // If user explicitly selected a seasonal theme, schedule a check at next midnight
   // to auto-revert to 'system' when the seasonal theme expires while the tab is open.
   React.useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof globalThis === 'undefined') return
     const currentPref = theme ?? 'system'
     const isSeasonal = SEASONAL_THEMES.some(t => t.theme === currentPref)
     if (!isSeasonal) return
@@ -316,7 +327,7 @@ export function ThemeProvider({
       return Math.max(250, next.getTime() - now.getTime())
     }
 
-    const id = window.setTimeout(() => {
+    const id = globalThis.setTimeout(() => {
       // Check if user has theme tapdance achievement before checking availability
       const hasThemeTapdance =
         typeof document !== 'undefined' && document.documentElement.hasAttribute('data-has-theme-tapdance')
@@ -337,7 +348,7 @@ export function ThemeProvider({
       }
     }, msUntilNextMidnight())
 
-    return () => window.clearTimeout(id)
+    return () => globalThis.clearTimeout(id)
   }, [theme, setTheme])
 
   const resolvedTheme: Theme | SystemTheme | undefined = React.useMemo(() => {

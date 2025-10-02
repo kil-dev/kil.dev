@@ -4,7 +4,7 @@ import { useAchievements } from '@/components/providers/achievements-provider'
 import { useKonamiAnimation } from '@/components/providers/konami-animation-provider'
 import { type AchievementId } from '@/lib/achievements'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useEffectEvent, useRef } from 'react'
 
 export function KonamiCodeListener() {
   const { has, unlock } = useAchievements()
@@ -13,66 +13,58 @@ export function KonamiCodeListener() {
   const pathname = usePathname()
   const isHomepage = pathname === '/'
 
-  useEffect(() => {
+  const konamiSequence = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ] as const
+
+  const shouldIgnoreTarget = useCallback((el: EventTarget | null): boolean => {
+    if (!el || !(el as Element).closest) return false
+    const element = el as Element
+    if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
+    return false
+  }, [])
+
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (!isHomepage) return
+    if (shouldIgnoreTarget(e.target)) return
 
-    const konamiSequence = [
-      'ArrowUp',
-      'ArrowUp',
-      'ArrowDown',
-      'ArrowDown',
-      'ArrowLeft',
-      'ArrowRight',
-      'ArrowLeft',
-      'ArrowRight',
-      'b',
-      'a',
-    ]
+    // Normalize 'b'/'B' and 'a'/'A'
+    let key = e.key
+    if (key.toLowerCase() === 'b') key = 'b'
+    else if (key.toLowerCase() === 'a') key = 'a'
 
-    function shouldIgnoreTarget(el: EventTarget | null): boolean {
-      if (!el || !(el as Element).closest) return false
-      const element = el as Element
-      if (element.closest('input, textarea, [contenteditable="true"], [role="textbox"]')) return true
-      return false
+    sequenceRef.current.push(key)
+
+    // Keep only the last N keys
+    if (sequenceRef.current.length > konamiSequence.length) {
+      sequenceRef.current = sequenceRef.current.slice(-konamiSequence.length)
     }
 
-    function onKeyDown(e: KeyboardEvent) {
-      if (shouldIgnoreTarget(e.target)) return
-
-      // Handle both 'b'/'B' and 'a'/'A' keys
-      let key = e.key
-      if (key.toLowerCase() === 'b') key = 'b'
-      else if (key.toLowerCase() === 'a') key = 'a'
-
-      sequenceRef.current.push(key)
-
-      // Keep only the last 10 keys (length of Konami sequence)
-      if (sequenceRef.current.length > konamiSequence.length) {
-        sequenceRef.current = sequenceRef.current.slice(-konamiSequence.length)
-      }
-
-      // Check if the current sequence matches the Konami code
-      if (sequenceRef.current.length === konamiSequence.length) {
-        const isMatch = sequenceRef.current.every((key, index) => key === konamiSequence[index])
-
-        if (isMatch) {
-          sequenceRef.current = []
-          const id: AchievementId = 'KONAMI_KILLER'
-
-          // Always trigger the animation
-          triggerAnimation()
-
-          // Only award the achievement on the first time
-          if (!has(id)) {
-            unlock(id)
-          }
-        }
+    // Compare
+    if (sequenceRef.current.length === konamiSequence.length) {
+      const isMatch = sequenceRef.current.every((k, index) => k === konamiSequence[index])
+      if (isMatch) {
+        sequenceRef.current = []
+        const id: AchievementId = 'KONAMI_KILLER'
+        triggerAnimation()
+        if (!has(id)) unlock(id)
       }
     }
+  })
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [has, unlock, isHomepage, triggerAnimation])
+  useEffect(() => {
+    globalThis.addEventListener('keydown', onKey)
+    return () => globalThis.removeEventListener('keydown', onKey)
+  }, [onKey])
 
   return null
 }

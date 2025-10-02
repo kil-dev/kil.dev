@@ -1,6 +1,6 @@
 import { playGameOverSound, playScoreSound } from '@/utils/arcade-utils'
 import { getGameBoxDimensions, getGridDimensions, getSafeBoundaries, type GameBoxDimensions } from '@/utils/grid'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react'
 
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
 export type Position = { x: number; y: number }
@@ -239,27 +239,27 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
   }, [isPlaying, gameOver, snake.length, getCurrentGameSpeed, moveSnake])
 
   // movement keys
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!isPlaying || isInputActive) return
-      switch (e.key) {
-        case 'ArrowUp':
-          if (direction !== 'DOWN') setDirection('UP')
-          break
-        case 'ArrowDown':
-          if (direction !== 'UP') setDirection('DOWN')
-          break
-        case 'ArrowLeft':
-          if (direction !== 'RIGHT') setDirection('LEFT')
-          break
-        case 'ArrowRight':
-          if (direction !== 'LEFT') setDirection('RIGHT')
-          break
-      }
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!isPlaying || isInputActive) return
+    switch (e.key) {
+      case 'ArrowUp':
+        if (direction !== 'DOWN') setDirection('UP')
+        break
+      case 'ArrowDown':
+        if (direction !== 'UP') setDirection('DOWN')
+        break
+      case 'ArrowLeft':
+        if (direction !== 'RIGHT') setDirection('LEFT')
+        break
+      case 'ArrowRight':
+        if (direction !== 'LEFT') setDirection('RIGHT')
+        break
     }
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [direction, isPlaying, isInputActive])
+  })
+  useEffect(() => {
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onKey])
 
   useEffect(() => {
     return () => {
