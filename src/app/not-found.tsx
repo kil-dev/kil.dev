@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   title: '404 | Page Not Found',
 }
 
+export const dynamic = 'error'
+
 export default function NotFound() {
   return <NotFoundContent />
 }
