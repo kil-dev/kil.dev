@@ -34,7 +34,7 @@ export function GameOverlay({
   useEffect(() => {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  })
+  }, [onKey])
 
   return null
 }
