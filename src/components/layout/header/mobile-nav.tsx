@@ -9,7 +9,7 @@ import { cn } from '@/utils/utils'
 import { MenuIcon, PawPrint, Trophy } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 
 export function MobileNav() {
   const pathname = usePathname()
