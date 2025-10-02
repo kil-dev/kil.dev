@@ -14,7 +14,6 @@ export default defineConfig(
       'next-env.d.ts',
       'src/utils/theme-bundle.ts',
       'src/utils/presence-bundle.ts',
-      'storybook-static',
     ],
   },
   ...compat.extends('next/core-web-vitals'),
