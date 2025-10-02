@@ -179,20 +179,25 @@ export function MobileNav() {
     }
   }, [open])
 
-  // Click outside + ESC to close
+  // Click outside + ESC to close (attach listeners once per open)
   useEffect(() => {
     if (!open) return
-    window.addEventListener('mousedown', handleDocumentMouseDown)
-    window.addEventListener('keydown', handleDocumentKeyDown)
+    window.addEventListener('mousedown', onDocumentMouseDown)
+    window.addEventListener('keydown', onDocumentKeyDown)
+    return () => {
+      window.removeEventListener('mousedown', onDocumentMouseDown)
+      window.removeEventListener('keydown', onDocumentKeyDown)
+    }
+  }, [open, onDocumentMouseDown, onDocumentKeyDown])
+
+  // Focus first item when opening via keyboard
+  useEffect(() => {
+    if (!open) return
     const id = window.setTimeout(() => {
       if (openedViaKeyboard) itemRefs.current[0]?.focus()
     }, 0)
-    return () => {
-      window.removeEventListener('mousedown', handleDocumentMouseDown)
-      window.removeEventListener('keydown', handleDocumentKeyDown)
-      window.clearTimeout(id)
-    }
-  }, [open, openedViaKeyboard, handleDocumentMouseDown, handleDocumentKeyDown])
+    return () => window.clearTimeout(id)
+  }, [open, openedViaKeyboard])
 
   // Ensure focus is never left on the overlay when closing
   useEffect(() => {
