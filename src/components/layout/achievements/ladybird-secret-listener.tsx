@@ -2,14 +2,14 @@
 
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { type AchievementId } from '@/lib/achievements'
-import { useEffect, useRef } from 'react'
+import { useEffect, useEffectEvent, useRef } from 'react'
 
 export function LadybirdSecretListener() {
   const { has, unlock } = useAchievements()
   const bufferRef = useRef('')
   const target = 'ladybird!'
 
-  useEffect(() => {
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
     function shouldIgnoreTarget(el: EventTarget | null): boolean {
       if (!el || !(el as Element).closest) return false
       const element = el as Element
