@@ -83,7 +83,7 @@ export function MobileNav() {
       }
     `
     document.head.appendChild(style)
-    window.setTimeout(() => {
+    globalThis.setTimeout(() => {
       const el = document.getElementById(styleId)
       if (el) el.remove()
     }, 3000)
@@ -105,7 +105,7 @@ export function MobileNav() {
       nextParticles.push({ id: i, tx, ty, durationMs, delayMs, sizePx, tone })
     }
     setParticles(nextParticles)
-    window.setTimeout(() => setParticles([]), 900)
+    globalThis.setTimeout(() => setParticles([]), 900)
   }, [])
 
   const triggerCloseFx = useCallback(() => {
@@ -124,7 +124,7 @@ export function MobileNav() {
       nextParticles.push({ id: i, tx, ty, durationMs, delayMs, sizePx, tone })
     }
     setParticles(nextParticles)
-    window.setTimeout(() => setParticles([]), 800)
+    globalThis.setTimeout(() => setParticles([]), 800)
   }, [])
 
   // Unified close (optionally navigate after animation)
@@ -137,7 +137,7 @@ export function MobileNav() {
       const total = CLOSE_DURATION_MS + (items.length - 1) * STAGGER_MS
       const navigateDelay =
         typeof perItemIdx === 'number' ? CLOSE_DURATION_MS + (items.length - 1 - perItemIdx) * STAGGER_MS : total
-      window.setTimeout(() => {
+      globalThis.setTimeout(() => {
         if (navigateHref) {
           startTransition(() => {
             router.push(navigateHref as Route)
@@ -167,8 +167,8 @@ export function MobileNav() {
 
   // Prevent background scroll on small screens when menu is open
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const isSm = !window.matchMedia('(min-width: 920px)').matches
+    if (typeof globalThis === 'undefined') return
+    const isSm = !globalThis.matchMedia('(min-width: 920px)').matches
     if (!isSm) return
     if (open) {
       const prev = document.documentElement.style.overflow
@@ -182,21 +182,21 @@ export function MobileNav() {
   // Click outside + ESC to close (attach listeners once per open)
   useEffect(() => {
     if (!open) return
-    window.addEventListener('mousedown', onDocumentMouseDown)
-    window.addEventListener('keydown', onDocumentKeyDown)
+    globalThis.addEventListener('mousedown', onDocumentMouseDown)
+    globalThis.addEventListener('keydown', onDocumentKeyDown)
     return () => {
-      window.removeEventListener('mousedown', onDocumentMouseDown)
-      window.removeEventListener('keydown', onDocumentKeyDown)
+      globalThis.removeEventListener('mousedown', onDocumentMouseDown)
+      globalThis.removeEventListener('keydown', onDocumentKeyDown)
     }
   }, [open, onDocumentMouseDown, onDocumentKeyDown])
 
   // Focus first item when opening via keyboard
   useEffect(() => {
     if (!open) return
-    const id = window.setTimeout(() => {
+    const id = globalThis.setTimeout(() => {
       if (openedViaKeyboard) itemRefs.current[0]?.focus()
     }, 0)
-    return () => window.clearTimeout(id)
+    return () => globalThis.clearTimeout(id)
   }, [open, openedViaKeyboard])
 
   // Ensure focus is never left on the overlay when closing
@@ -277,18 +277,18 @@ export function MobileNav() {
 
   // Anchor the ladder to the actual button center (viewport coordinates)
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof globalThis === 'undefined') return
     const update = () => {
       const rect = triggerRef.current?.getBoundingClientRect()
       if (!rect) return
       setAnchor({ x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) })
     }
     update()
-    window.addEventListener('resize', update, { passive: true })
-    window.addEventListener('scroll', update, { passive: true, capture: true })
+    globalThis.addEventListener('resize', update, { passive: true })
+    globalThis.addEventListener('scroll', update, { passive: true, capture: true })
     return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update, true)
+      globalThis.removeEventListener('resize', update)
+      globalThis.removeEventListener('scroll', update, true)
     }
   }, [])
 
@@ -315,8 +315,8 @@ export function MobileNav() {
         setLadderXOffset(prev => prev + Math.ceil(leftMargin - rect.left))
       }
     }
-    const id = window.requestAnimationFrame(adjust)
-    return () => window.cancelAnimationFrame(id)
+    const id = globalThis.requestAnimationFrame(adjust)
+    return () => globalThis.cancelAnimationFrame(id)
   }, [open])
 
   return (
@@ -427,8 +427,8 @@ export function MobileNav() {
                 onClick={() => {
                   const btnRect = triggerRef.current?.getBoundingClientRect()
                   if (btnRect) {
-                    const vw = window.innerWidth || 1
-                    const vh = window.innerHeight || 1
+                    const vw = globalThis.innerWidth || 1
+                    const vh = globalThis.innerHeight || 1
                     const originXPercent = Math.max(0, Math.min(100, ((btnRect.left + btnRect.width / 2) / vw) * 100))
                     const originYPercent = Math.max(0, Math.min(100, ((btnRect.top + btnRect.height / 2) / vh) * 100))
                     injectCircleBlurTransitionStyles(originXPercent, originYPercent)

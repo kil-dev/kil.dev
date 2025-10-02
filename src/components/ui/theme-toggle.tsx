@@ -78,7 +78,7 @@ export function ThemeToggle() {
 
   // Prevent background scrolling when menu is open (all breakpoints)
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof globalThis === 'undefined') return
     if (open) {
       const prev = document.documentElement.style.overflow
       document.documentElement.style.overflow = 'hidden'
@@ -165,8 +165,8 @@ export function ThemeToggle() {
         return
       }
 
-      const viewportWidth = window.innerWidth || 1
-      const viewportHeight = window.innerHeight || 1
+      const viewportWidth = globalThis.innerWidth || 1
+      const viewportHeight = globalThis.innerHeight || 1
       const clickX = event?.clientX ?? viewportWidth / 2
       const clickY = event?.clientY ?? viewportHeight / 2
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
@@ -229,21 +229,21 @@ export function ThemeToggle() {
   })
   useEffect(() => {
     if (!open) return
-    window.addEventListener('mousedown', onDocClick)
-    window.addEventListener('keydown', onDocKey)
+    globalThis.addEventListener('mousedown', onDocClick)
+    globalThis.addEventListener('keydown', onDocKey)
     return () => {
-      window.removeEventListener('mousedown', onDocClick)
-      window.removeEventListener('keydown', onDocKey)
+      globalThis.removeEventListener('mousedown', onDocClick)
+      globalThis.removeEventListener('keydown', onDocKey)
     }
   }, [open, onDocClick, onDocKey])
 
   // focus first option when opening
   useEffect(() => {
     if (!open) return
-    const id = window.setTimeout(() => {
+    const id = globalThis.setTimeout(() => {
       if (openedViaKeyboard) optionRefs.current[0]?.focus()
     }, 0)
-    return () => window.clearTimeout(id)
+    return () => globalThis.clearTimeout(id)
   }, [open, openedViaKeyboard])
 
   // Removed parent callbacks and md+ width reporting to avoid shifting header
@@ -254,8 +254,8 @@ export function ThemeToggle() {
       return
     }
     setTooltipHold(true)
-    const id = window.setTimeout(() => setTooltipHold(false), 150)
-    return () => window.clearTimeout(id)
+    const id = globalThis.setTimeout(() => setTooltipHold(false), 150)
+    return () => globalThis.clearTimeout(id)
   }, [open])
 
   const handleTriggerKeyDown = useCallback(
