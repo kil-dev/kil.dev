@@ -283,15 +283,14 @@ export function ThemeToggle() {
 
   const handleMenuKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const isHorizontal = typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
       const currentIndex = optionRefs.current.findIndex(el => el === document.activeElement)
-      if ((isHorizontal && e.key === 'ArrowRight') || (!isHorizontal && e.key === 'ArrowDown')) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         const nextIndex = currentIndex < 0 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
         optionRefs.current[nextIndex]?.focus()
         return
       }
-      if ((isHorizontal && e.key === 'ArrowLeft') || (!isHorizontal && e.key === 'ArrowUp')) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
         const prevIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
         optionRefs.current[prevIndex]?.focus()
