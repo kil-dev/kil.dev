@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useEffect, useEffectEvent } from 'react'
 
 type GameOverlayProps = {
   isPlaying: boolean
@@ -19,25 +19,22 @@ export function GameOverlay({
   onEsc,
   onNameInputKey,
 }: GameOverlayProps) {
-  const handleKeyPress = useCallback(
-    (e: KeyboardEvent) => {
-      if (showNameInput) return onNameInputKey(e)
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        onEsc()
-        return
-      }
-      if (e.key === ' ') {
-        if (gameOver || !isPlaying) onRestart()
-      }
-    },
-    [showNameInput, onNameInputKey, onEsc, onRestart, gameOver, isPlaying],
-  )
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (showNameInput) return onNameInputKey(e)
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      onEsc()
+      return
+    }
+    if (e.key === ' ') {
+      if (gameOver || !isPlaying) onRestart()
+    }
+  })
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [handleKeyPress])
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
 
   return null
 }
