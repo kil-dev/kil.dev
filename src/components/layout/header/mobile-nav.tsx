@@ -150,26 +150,20 @@ export function MobileNav() {
     [router, startTransition, triggerCloseFx, items.length],
   )
 
-  // Document listeners (outside click + Escape) → shared callbacks
-  const handleDocumentMouseDown = useCallback(
-    (e: MouseEvent) => {
-      const target = e.target as Node | null
-      if (containerRef.current && target && !containerRef.current.contains(target)) {
-        closeWithAnimation()
-      }
-    },
-    [closeWithAnimation],
-  )
+  // Document listeners (outside click + Escape) via Effect Events (non-reactive handlers)
+  const onDocumentMouseDown = useEffectEvent((e: MouseEvent) => {
+    const target = e.target as Node | null
+    if (containerRef.current && target && !containerRef.current.contains(target)) {
+      closeWithAnimation()
+    }
+  })
 
-  const handleDocumentKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        closeWithAnimation()
-      }
-    },
-    [closeWithAnimation],
-  )
+  const onDocumentKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      closeWithAnimation()
+    }
+  })
 
   // Prevent background scroll on small screens when menu is open
   useEffect(() => {
