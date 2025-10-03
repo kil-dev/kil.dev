@@ -190,7 +190,9 @@ async function main() {
   console.log(`Synced ${synced} images (processed only when missing) and wrote manifest to ${manifestPath}`)
 }
 
-main().catch(err => {
-  console.error(err)
-  throw err
+await main().catch(err => {
+  const msg = err instanceof Error ? err.message : String(err)
+  console.error(msg)
+  // eslint-disable-next-line unicorn/no-process-exit
+  process.exit(1)
 })
