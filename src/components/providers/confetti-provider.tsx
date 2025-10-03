@@ -1,7 +1,8 @@
 'use client'
 
 import type confettiImport from 'canvas-confetti'
-import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
+import { toast } from 'sonner'
 
 type ConfettiFn = typeof confettiImport
 
@@ -15,12 +16,29 @@ type ConfettiContextValue = {
   triggerConfettiFromCorners: () => void
   triggerConfettiFromTop: () => void
   triggerConfettiFromCenter: () => void
+  triggerConfettiCelebration: () => void
+  triggerConfettiChaos: () => void
 }
 
 const ConfettiContext = createContext<ConfettiContextValue | null>(null)
 
 export function ConfettiProvider({ children }: { children: React.ReactNode }) {
   const pendingConfettiRef = useRef<Set<string>>(new Set())
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>[]>>(new Map())
+  const rafIdsRef = useRef<Map<string, number>>(new Map())
+
+  useEffect(() => {
+    const mapAtMount = timeoutsRef.current
+    const rafMapAtMount = rafIdsRef.current
+    return () => {
+      for (const timers of mapAtMount.values()) {
+        for (const id of timers) clearTimeout(id)
+      }
+      mapAtMount.clear()
+      for (const id of rafMapAtMount.values()) cancelAnimationFrame(id)
+      rafMapAtMount.clear()
+    }
+  }, [])
 
   const triggerConfetti = useCallback(() => {
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
