@@ -39,7 +39,7 @@ async function getPetGalleryImagesFromPublic(): Promise<GalleryImage[]> {
       const ext = name.split('.').pop()?.toLowerCase()
       return Boolean(ext && allowedExtensions.has(ext))
     })
-    .sort((a, b) => a.localeCompare(b))
+    .toSorted((a, b) => a.localeCompare(b))
 
   const images: GalleryImage[] = await Promise.all(
     files.map(async fileName => {

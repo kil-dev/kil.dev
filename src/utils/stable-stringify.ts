@@ -81,7 +81,7 @@ function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()
   // Any other object (including plain objects and class instances):
   // Use own enumerable properties only, with lexicographically sorted keys
   seen.add(obj)
-  const keys = Object.keys(obj as Record<string, unknown>).sort()
+  const keys = Object.keys(obj as Record<string, unknown>).toSorted()
   const parts: string[] = []
   for (const key of keys) {
     const val = (obj as Record<string, unknown>)[key]
