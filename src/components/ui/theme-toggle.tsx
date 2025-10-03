@@ -10,17 +10,12 @@ import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
-import { Laptop, Smartphone } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
 
 function SystemIcon({ className }: { className?: string }) {
-  return (
-    <>
-      <Smartphone suppressHydrationWarning className={cn(className, 'md:hidden')} />
-      <Laptop className={cn(className, 'hidden md:inline-block')} />
-    </>
-  )
+  return <CalendarDays className={cn(className)} />
 }
 
 export function ThemeToggle() {
