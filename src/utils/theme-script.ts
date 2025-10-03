@@ -100,7 +100,7 @@ function addDisableTransitionStyle(): HTMLStyleElement | null {
 function removeElementSoon(el: HTMLElement | null): void {
   try {
     const rm = () => {
-      el?.parentNode?.removeChild(el)
+      el?.remove()
     }
     if (typeof globalThis.window.requestAnimationFrame === 'function') {
       globalThis.window.requestAnimationFrame(() => rm())
@@ -148,7 +148,7 @@ export function initTheme(config: ThemeScriptConfig): void {
 
   const cookieTheme = getCookieTheme()
   const lsTheme = getLocalStorageTheme()
-  const sysDark = !!(globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
+  const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
 
   const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
 
