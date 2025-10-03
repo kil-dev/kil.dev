@@ -180,6 +180,61 @@ export function SnakeCanvas({
     let animationId = 0
     const cornerRadius = 12
 
+    const drawCrtMask = () => {
+      const crt = latestCrtRef.current
+      if (crt.phase !== 'opening' && crt.phase !== 'closing') return
+      const { centerX, centerY, horizontalWidth, verticalHeight } = crt
+      const glowPadding = 20
+      const rectX = centerX - horizontalWidth / 2 - glowPadding
+      const rectY = centerY - verticalHeight / 2 - glowPadding
+      const rectWidth = horizontalWidth + glowPadding * 2
+      const rectHeight = verticalHeight + glowPadding * 2
+      ctx.beginPath()
+      ctx.rect(rectX, rectY, rectWidth, rectHeight)
+      ctx.clip()
+    }
+
+    const drawSnakeAndFood = (gridCellSize: number, gridOffset: number, centerGridX: number, safeXMin: number) => {
+      const currentSnake = latestSnakeRef.current
+      for (let i = 0; i < currentSnake.length; i++) {
+        const segment = currentSnake[i]
+        if (!segment) continue
+        const x = (centerGridX + segment.x - safeXMin) * gridCellSize + gridOffset
+        const y = segment.y * gridCellSize + gridOffset
+        ctx.fillStyle = i === 0 ? '#10b981' : '#34d399'
+        ctx.fillRect(x + 2, y + 2, gridCellSize - 4, gridCellSize - 4)
+      }
+      const f = latestFoodRef.current
+      const foodX = (centerGridX + f.x - safeXMin) * gridCellSize + gridOffset
+      const foodY = f.y * gridCellSize + gridOffset
+      ctx.fillStyle = latestGoldenRef.current ? '#fbbf24' : '#ef4444'
+      ctx.fillRect(foodX + 2, foodY + 2, gridCellSize - 4, gridCellSize - 4)
+    }
+
+    const drawGlowOverlay = (borderLeft: number, borderTop: number, borderWidth: number, borderHeight: number) => {
+      const crt = latestCrtRef.current
+      if (crt.phase === 'closed' && crt.glowIntensity <= 0) return
+      const gradient2 = ctx.createLinearGradient(
+        borderLeft,
+        borderTop,
+        borderLeft + borderWidth,
+        borderTop + borderHeight,
+      )
+      gradient2.addColorStop(0, 'rgba(16, 185, 129, 0.8)')
+      gradient2.addColorStop(0.5, 'rgba(34, 197, 94, 0.6)')
+      gradient2.addColorStop(1, 'rgba(16, 185, 129, 0.8)')
+      ctx.shadowColor = '#10b981'
+      ctx.shadowBlur = 20 * Math.max(crt.glowIntensity, 0.3)
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+      ctx.strokeStyle = gradient2
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.roundRect(borderLeft, borderTop, borderWidth, borderHeight, cornerRadius)
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
+
     const render = () => {
       const { borderLeft, borderTop, borderWidth, borderHeight, gridCellSize, gridOffset, centerGridX, safeXMin } =
         gameBox
@@ -188,19 +243,9 @@ export function SnakeCanvas({
 
       // CRT mask
       ctx.save()
-      const crt = latestCrtRef.current
-      if (crt.phase === 'opening' || crt.phase === 'closing') {
-        const { centerX, centerY, horizontalWidth, verticalHeight } = crt
-        const glowPadding = 20
-        const rectX = centerX - horizontalWidth / 2 - glowPadding
-        const rectY = centerY - verticalHeight / 2 - glowPadding
-        const rectWidth = horizontalWidth + glowPadding * 2
-        const rectHeight = verticalHeight + glowPadding * 2
-        ctx.beginPath()
-        ctx.rect(rectX, rectY, rectWidth, rectHeight)
-        ctx.clip()
-      }
+      drawCrtMask()
 
+      const crt = latestCrtRef.current
       ctx.globalAlpha = Math.max(crt.opacity, 0.1)
 
       // Draw static background layer
@@ -208,46 +253,10 @@ export function SnakeCanvas({
       if (off) ctx.drawImage(off, 0, 0)
 
       // Dynamic: snake and food
-      if (showSnake) {
-        const currentSnake = latestSnakeRef.current
-        for (let i = 0; i < currentSnake.length; i++) {
-          const segment = currentSnake[i]
-          if (!segment) continue
-          const x = (centerGridX + segment.x - safeXMin) * gridCellSize + gridOffset
-          const y = segment.y * gridCellSize + gridOffset
-          ctx.fillStyle = i === 0 ? '#10b981' : '#34d399'
-          ctx.fillRect(x + 2, y + 2, gridCellSize - 4, gridCellSize - 4)
-        }
-
-        const f = latestFoodRef.current
-        const foodX = (centerGridX + f.x - safeXMin) * gridCellSize + gridOffset
-        const foodY = f.y * gridCellSize + gridOffset
-        ctx.fillStyle = latestGoldenRef.current ? '#fbbf24' : '#ef4444'
-        ctx.fillRect(foodX + 2, foodY + 2, gridCellSize - 4, gridCellSize - 4)
-      }
+      if (showSnake) drawSnakeAndFood(gridCellSize, gridOffset, centerGridX, safeXMin)
 
       // Dynamic CRT glow overlay
-      if (crt.phase !== 'closed' || crt.glowIntensity > 0) {
-        const gradient2 = ctx.createLinearGradient(
-          borderLeft,
-          borderTop,
-          borderLeft + borderWidth,
-          borderTop + borderHeight,
-        )
-        gradient2.addColorStop(0, 'rgba(16, 185, 129, 0.8)')
-        gradient2.addColorStop(0.5, 'rgba(34, 197, 94, 0.6)')
-        gradient2.addColorStop(1, 'rgba(16, 185, 129, 0.8)')
-        ctx.shadowColor = '#10b981'
-        ctx.shadowBlur = 20 * Math.max(crt.glowIntensity, 0.3)
-        ctx.shadowOffsetX = 0
-        ctx.shadowOffsetY = 0
-        ctx.strokeStyle = gradient2
-        ctx.lineWidth = 3
-        ctx.beginPath()
-        ctx.roundRect(borderLeft, borderTop, borderWidth, borderHeight, cornerRadius)
-        ctx.stroke()
-        ctx.shadowBlur = 0
-      }
+      drawGlowOverlay(borderLeft, borderTop, borderWidth, borderHeight)
 
       // Overlays
       if (showSnake && latestGameOverRef.current && latestDrawGameOverRef.current) {

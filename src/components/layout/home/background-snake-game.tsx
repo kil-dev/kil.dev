@@ -114,6 +114,38 @@ export function BackgroundSnakeGame() {
   }, [isPlaying])
 
   // Drawing callbacks
+  const drawLeaderboardList = (
+    ctx: CanvasRenderingContext2D,
+    left: number,
+    top: number,
+    width: number,
+    lineHeight: number,
+  ) => {
+    const maxEntries = Math.min(leaderboard.length, 10)
+    for (let i = 0; i < maxEntries; i++) {
+      const entry = leaderboard[i]
+      if (!entry) continue
+      const y = top + i * lineHeight
+      if (entry.score === score) {
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'
+        ctx.fillRect(left, y - 12, width, lineHeight)
+      }
+      ctx.fillStyle = '#10b981'
+      ctx.font = '20px VT323, monospace'
+      ctx.textAlign = 'left'
+      ctx.fillText(`#${i + 1}`, left + 10, y)
+
+      ctx.fillStyle = entry.score === score ? '#ffffff' : '#10b981'
+      ctx.font = 'bold 20px VT323, monospace'
+      ctx.fillText(entry.name, left + 40, y)
+
+      ctx.fillStyle = entry.score === score ? '#ffffff' : '#10b981'
+      ctx.font = '20px VT323, monospace'
+      ctx.textAlign = 'right'
+      ctx.fillText(entry.score.toString().padStart(4, '0'), left + width - 10, y)
+    }
+  }
+
   const drawGameOverOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, dimensions: ReturnType<typeof getDimensions>) => {
       const { borderLeft, borderTop, borderWidth, borderHeight } = dimensions
@@ -143,32 +175,9 @@ export function BackgroundSnakeGame() {
 
         const startY = borderTop + 170
         const lineHeight = 20
-        const maxEntries = Math.min(leaderboard.length, 10)
-        const leaderboardWidth = 200
-        const leaderboardLeft = borderLeft + (borderWidth - leaderboardWidth) / 2
-
-        for (let i = 0; i < maxEntries; i++) {
-          const entry = leaderboard[i]
-          if (!entry) continue
-          const y = startY + i * lineHeight
-          if (entry.score === score) {
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'
-            ctx.fillRect(leaderboardLeft, y - 12, leaderboardWidth, lineHeight)
-          }
-          ctx.fillStyle = '#10b981'
-          ctx.font = '20px VT323, monospace'
-          ctx.textAlign = 'left'
-          ctx.fillText(`#${i + 1}`, leaderboardLeft + 10, y)
-
-          ctx.fillStyle = entry.score === score ? '#ffffff' : '#10b981'
-          ctx.font = 'bold 20px VT323, monospace'
-          ctx.fillText(entry.name, leaderboardLeft + 40, y)
-
-          ctx.fillStyle = entry.score === score ? '#ffffff' : '#10b981'
-          ctx.font = '20px VT323, monospace'
-          ctx.textAlign = 'right'
-          ctx.fillText(entry.score.toString().padStart(4, '0'), leaderboardLeft + leaderboardWidth - 10, y)
-        }
+        const listWidth = 200
+        const listLeft = borderLeft + (borderWidth - listWidth) / 2
+        drawLeaderboardList(ctx, listLeft, startY, listWidth, lineHeight)
       }
 
       if (showNameInput) {
