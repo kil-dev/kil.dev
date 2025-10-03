@@ -121,5 +121,3 @@ export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: 
     </AlertDialog>
   )
 }
-
-export default ReviewDialog
