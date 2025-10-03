@@ -37,4 +37,9 @@ jobs:
         id: lhci
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          SKIP_ENV_VALIDATION: "1"
+          NODE_ENV: "production"
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_PUBLIC_POSTHOG_KEY: ""
+          NEXT_PUBLIC_POSTHOG_HOST: ""
         run: bunx -y @lhci/cli@0.15.x autorun --config=.lighthouserc.json
