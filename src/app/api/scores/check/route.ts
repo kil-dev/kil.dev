@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const score = Number.parseInt(scoreParam, 10)
 
-    if (isNaN(score) || score < 0) {
+    if (Number.isNaN(score) || score < 0) {
       return NextResponse.json({ success: false, message: 'Invalid score value' }, { status: 400 })
     }
 
