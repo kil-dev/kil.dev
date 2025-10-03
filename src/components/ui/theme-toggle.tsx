@@ -283,7 +283,7 @@ export function ThemeToggle() {
 
   const handleMenuKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const currentIndex = optionRefs.current.indexOf(document.activeElement)
+      const currentIndex = optionRefs.current.indexOf(document.activeElement as HTMLButtonElement | null)
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         const nextIndex = currentIndex === -1 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)

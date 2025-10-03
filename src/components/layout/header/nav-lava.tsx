@@ -146,7 +146,7 @@ export function NavLava() {
       })
       if (focusable.length === 0) return
 
-      const currentIndex = focusable.indexOf(document.activeElement)
+      const currentIndex = focusable.indexOf(document.activeElement as HTMLAnchorElement)
       const delta = event.key === 'ArrowRight' ? 1 : -1
       const nextIndex =
         currentIndex === -1
