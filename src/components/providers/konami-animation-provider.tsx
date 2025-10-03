@@ -40,7 +40,7 @@ export function KonamiAnimationProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const triggerAnimation = () => {
-    if (typeof globalThis.window !== 'undefined' && globalThis.window.innerWidth < 840) {
+    if (globalThis.window !== undefined && globalThis.window.innerWidth < 840) {
       // Do not start the Konami animation or load the snake game on small screens
       try {
         toast.info('Viewport too small', {
