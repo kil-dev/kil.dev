@@ -162,10 +162,9 @@ export function FlippingCard({
   }, [])
 
   return (
-    <div
-      ref={containerRef}
-      role="button"
-      tabIndex={0}
+    <button
+      ref={containerRef as unknown as React.Ref<HTMLButtonElement>}
+      type="button"
       aria-pressed={flipped}
       aria-label={ariaLabel}
       data-flipped={flipped ? 'true' : 'false'}
@@ -213,6 +212,6 @@ export function FlippingCard({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }

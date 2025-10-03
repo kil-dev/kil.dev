@@ -391,9 +391,9 @@ export function ThemeToggle() {
       </Tooltip>
 
       {/* Backdrop overlay (all breakpoints) */}
-      <div
+      <button
+        type="button"
         aria-hidden={!open}
-        role="button"
         tabIndex={open ? 0 : -1}
         aria-label="Close theme menu"
         onClick={() => {

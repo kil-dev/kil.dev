@@ -168,6 +168,7 @@ export function NavLava() {
         onBlur={handleBlurContainer}
         onKeyDown={handleKeyDown}
         role="menubar"
+        tabIndex={0}
         aria-orientation="horizontal">
         {/* Sliding indicator: trail (slower, blurred) */}
         <span

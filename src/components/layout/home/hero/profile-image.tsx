@@ -13,7 +13,7 @@ import { PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE } from '@/utils/profile-image-vari
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getThemeHeadshot } from '@/utils/themes'
 import Image, { type StaticImageData } from 'next/image'
-import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 function getAnimationClass(isAnimating: boolean, hasAnimated: boolean, isReturning: boolean): string {
   if (isReturning) return 'konami-return-right'
@@ -91,32 +91,23 @@ export function ProfileImage() {
     setMounted(true)
   }, [])
 
-  const handleClick = useCallback(() => {
-    if (isGrumpy) return
-    setIsGrumpy(true)
-    captureProfileImageClicked('click', 'grumpy', useConfused)
-    if (!has('GRUMPY_GLIMPSE' as AchievementId)) {
-      unlock('GRUMPY_GLIMPSE' as AchievementId)
-    }
-  }, [isGrumpy, useConfused, has, unlock])
-
-  const handlePointerLeave = useCallback(() => {
-    setIsGrumpy(false)
-  }, [])
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return
-      event.preventDefault()
+  const handleClick = useCallback(
+    (source: 'click' | 'keyboard') => {
       if (isGrumpy) return
       setIsGrumpy(true)
-      captureProfileImageClicked('keyboard', 'grumpy', useConfused)
+      captureProfileImageClicked(source, 'grumpy', useConfused)
       if (!has('GRUMPY_GLIMPSE' as AchievementId)) {
         unlock('GRUMPY_GLIMPSE' as AchievementId)
       }
     },
     [isGrumpy, useConfused, has, unlock],
   )
+
+  const handlePointerLeave = useCallback(() => {
+    setIsGrumpy(false)
+  }, [])
+
+  // Keyboard interaction is handled via the native button click. We detect keyboard clicks via event.detail === 0.
   const variant = computeVariant(isGrumpy, isLadybird, useConfused)
   let imageSrc: StaticImageData = getThemeHeadshot('light')
   if (variant !== 'default') {
@@ -148,14 +139,12 @@ export function ProfileImage() {
   }, [])
 
   return (
-    <div
+    <button
+      type="button"
       className={`group relative order-1 mx-auto w-full max-w-md lg:order-2 lg:mx-0 select-none ${getAnimationClass(isAnimating, hasAnimated, isReturning)}`}
-      role="button"
-      tabIndex={0}
       aria-pressed={isGrumpy}
       aria-label="Toggle grumpy profile image"
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
+      onClick={e => handleClick((e as unknown as React.MouseEvent).detail === 0 ? 'keyboard' : 'click')}
       onPointerLeave={handlePointerLeave}
       onMouseLeave={handlePointerLeave}
       onBlur={handlePointerLeave}>
@@ -201,9 +190,8 @@ export function ProfileImage() {
           fill
           sizes="(min-width: 1024px) 500px, 100vw"
           aria-hidden
-          role="presentation"
         />
       </div>
-    </div>
+    </button>
   )
 }
