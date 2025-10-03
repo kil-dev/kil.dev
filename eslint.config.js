@@ -25,7 +25,7 @@ export default defineConfig(
       ...tseslint.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
-      eslintPluginUnicorn.configs.recommended,
+      eslintPluginUnicorn.configs.unopinionated,
     ],
     rules: {
       '@typescript-eslint/array-type': 'off',
@@ -40,9 +40,8 @@ export default defineConfig(
         'error',
         { checksVoidReturn: { attributes: false } },
       ],
-      'unicorn/prevent-abbreviations': 'off',
       'unicorn/numeric-separators-style': 'off',
-      'unicorn/no-nested-ternary': 'off', // TODO: I want to use these but Prettier is shit
+      'unicorn/no-nested-ternary': 'off', // TODO: I want to use this but Prettier is shit
     },
   },
   {
