@@ -22,16 +22,16 @@ type ConfettiContextValue = {
 
 const ConfettiContext = createContext<ConfettiContextValue | null>(null)
 
+// Safely execute a promise without awaiting it, and swallow rejections
+function fireAndForget(promise: Promise<unknown> | null | undefined): void {
+  if (!promise) return
+  promise.catch(() => undefined)
+}
+
 export function ConfettiProvider({ children }: { children: React.ReactNode }) {
   const pendingConfettiRef = useRef<Set<string>>(new Set())
   const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>[]>>(new Map())
   const rafIdsRef = useRef<Map<string, number>>(new Map())
-
-  // Safely execute a promise without awaiting it, and swallow rejections
-  function fireAndForget(promise: Promise<unknown> | null | undefined): void {
-    if (!promise) return
-    promise.catch(() => undefined)
-  }
 
   useEffect(() => {
     const mapAtMount = timeoutsRef.current
