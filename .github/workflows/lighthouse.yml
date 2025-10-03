@@ -1,0 +1,98 @@
+name: CI - Lighthouse
+
+on:
+  pull_request:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run Lighthouse CI
+        id: lhci
+        continue-on-error: true
+        run: |
+          set +e
+          bunx -y @lhci/cli@0.14.x autorun --config=.lighthouserc.json
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Generate Lighthouse summary
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+          const path = '.lighthouseci'
+          const manifestPath = `${path}/manifest.json`
+          let runs = []
+          if (fs.existsSync(manifestPath)) {
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+            runs = manifest.filter(r => r.isRepresentativeRun).map(r => ({ url: r.url, jsonPath: r.jsonPath }))
+          }
+          const toInt = s => typeof s === 'number' ? Math.round(s * 100) : '-'
+          const val = a => a && (a.displayValue || (typeof a.numericValue === 'number' ? a.numericValue.toFixed(0) : '-')) || '-'
+          const rows = []
+          for (const run of runs) {
+            try {
+              const lhr = JSON.parse(fs.readFileSync(run.jsonPath, 'utf8'))
+              const c = lhr.categories
+              const a = lhr.audits
+              rows.push({
+                url: lhr.requestedUrl || run.url || '-',
+                perf: toInt(c.performance && c.performance.score),
+                acc: toInt(c.accessibility && c.accessibility.score),
+                bp: toInt(c['best-practices'] && c['best-practices'].score),
+                seo: toInt(c.seo && c.seo.score),
+                lcp: val(a['largest-contentful-paint']),
+                cls: val(a['cumulative-layout-shift']),
+                tbt: val(a['total-blocking-time']),
+                tti: val(a['interactive'])
+              })
+            } catch {}
+          }
+          let md = '# Lighthouse CI\n\n'
+          if (rows.length) {
+            md += '| URL | Perf | Acc | Best | SEO | LCP | CLS | TBT | TTI |\n'
+            md += '|---|---:|---:|---:|---:|---:|---:|---:|---:|\n'
+            for (const r of rows) {
+              md += `| ${r.url} | ${r.perf} | ${r.acc} | ${r.bp} | ${r.seo} | ${r.lcp} | ${r.cls} | ${r.tbt} | ${r.tti} |\n`
+            }
+            const avg = key => {
+              const nums = rows.map(r => Number(r[key])).filter(n => Number.isFinite(n))
+              return nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length) : '-'
+            }
+            md += `\n**Averages:** Perf ${avg('perf')} • Acc ${avg('acc')} • Best ${avg('bp')} • SEO ${avg('seo')}\n`
+          } else {
+            md += 'No Lighthouse results found.'
+          }
+          fs.writeFileSync('lhci-summary.md', md)
+          NODE
+
+      - name: Upload Lighthouse artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci
+
+      - name: Post sticky PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: lighthouse-ci
+          path: lhci-summary.md
+
+      - name: Fail if Lighthouse step failed
+        if: steps.lhci.outputs.exit_code != '0'
+        run: exit 1
