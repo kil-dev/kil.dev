@@ -61,13 +61,26 @@ export function BackgroundSnakeGame() {
         dir: Direction,
         gameState: { snake: Position[]; food: Position; isGoldenApple: boolean; score: number; direction: Direction },
       ) => {
-        void recordMove(dir, gameState)
+        // Avoid 'void' operator per SonarQube: explicitly handle the promise
+        ;(async () => {
+          try {
+            await recordMove(dir, gameState)
+          } catch {
+            // Non-blocking telemetry; ignore errors
+          }
+        })()
       },
       onFoodEaten: (position: Position, isGolden: boolean, newScore: number) => {
-        void recordFoodEaten(position, isGolden, newScore)
+        ;(async () => {
+          try {
+            await recordFoodEaten(position, isGolden, newScore)
+          } catch {
+            // Non-blocking telemetry; ignore errors
+          }
+        })()
       },
       onGameOver: (finalScore: number) => {
-        void (async () => {
+        ;(async () => {
           if (hasEndedRef.current) return
           hasEndedRef.current = true
           const result = await endGame(finalScore)
