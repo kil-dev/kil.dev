@@ -90,59 +90,61 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   }
 }
 
+function parseNumericScore(raw: string | number): number | null {
+  const value = typeof raw === 'number' ? raw : Number(raw)
+  if (Number.isNaN(value)) return null
+  return value
+}
+
+async function getLowestScoreThreshold(): Promise<number | null> {
+  const scores = await redis.zrange(LEADERBOARD_KEY, 0, 0, { withScores: true, rev: false })
+  if (scores.length < 2) return null
+  const rawLowestScore = scores[1] as string | number
+  const lowestScore = parseNumericScore(rawLowestScore)
+  if (lowestScore === null) return null
+  return lowestScore + 1
+}
+
+async function getNthHighestScoreThreshold(n: number): Promise<number | null> {
+  const index = Math.max(0, n - 1)
+  const scores = await redis.zrange(LEADERBOARD_KEY, index, index, { withScores: true, rev: true })
+  if (scores.length < 2) return null
+  const rawScore = scores[1] as string | number
+  const parsed = parseNumericScore(rawScore)
+  if (parsed === null) return null
+  return parsed + 1
+}
+
+function deriveThresholdFromMemory(): number {
+  const size = memoryLeaderboard.length
+  if (size === 0) return SCORE_QUALIFICATION_THRESHOLD
+  if (size < MAX_LEADERBOARD_SIZE) {
+    const lowest = memoryLeaderboard.at(-1)
+    if (!lowest) return SCORE_QUALIFICATION_THRESHOLD
+    return Math.max(lowest.score + 1, SCORE_QUALIFICATION_THRESHOLD)
+  }
+  const tenth = memoryLeaderboard[Math.min(memoryLeaderboard.length - 1, MAX_LEADERBOARD_SIZE - 1)]
+  if (!tenth) return SCORE_QUALIFICATION_THRESHOLD
+  return Math.max(tenth.score + 1, SCORE_QUALIFICATION_THRESHOLD)
+}
+
 async function getQualificationThreshold(): Promise<number> {
   try {
-    // Get the current leaderboard size
     const leaderboardSize = await redis.zcard(LEADERBOARD_KEY)
+    if (leaderboardSize === 0) return SCORE_QUALIFICATION_THRESHOLD
 
-    if (leaderboardSize === 0) {
-      return SCORE_QUALIFICATION_THRESHOLD // Default threshold if leaderboard is empty
-    }
-
-    // If we have fewer than 10 entries, use the lowest score + 1 as threshold
     if (leaderboardSize < MAX_LEADERBOARD_SIZE) {
-      const scores = await redis.zrange(LEADERBOARD_KEY, 0, 0, { withScores: true, rev: false })
-      if (scores.length >= 2) {
-        const rawLowestScore = scores[1]
-        const lowestScore = Number(rawLowestScore)
-        if (Number.isNaN(lowestScore)) return SCORE_QUALIFICATION_THRESHOLD
-        const threshold = lowestScore + 1 // Must beat the lowest score, not just tie it
-        // Ensure threshold is never 0 or negative
-        return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
-      }
-    }
-
-    // If we have 10 or more entries, get the 10th highest score + 1
-    const scores = await redis.zrange(LEADERBOARD_KEY, MAX_LEADERBOARD_SIZE - 1, MAX_LEADERBOARD_SIZE - 1, {
-      withScores: true,
-      rev: true,
-    })
-
-    if (scores.length < 2) {
+      const threshold = await getLowestScoreThreshold()
+      if (threshold !== null) return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
       return SCORE_QUALIFICATION_THRESHOLD
     }
 
-    const rawScore = scores[1]
-    const tenthHighestScore = Number(rawScore)
-    if (Number.isNaN(tenthHighestScore)) return SCORE_QUALIFICATION_THRESHOLD
-    const threshold = tenthHighestScore + 1 // Must beat the 10th highest score, not just tie it
-    // Ensure threshold is never 0 or negative
-    return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
+    const threshold = await getNthHighestScoreThreshold(MAX_LEADERBOARD_SIZE)
+    if (threshold !== null) return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
+    return SCORE_QUALIFICATION_THRESHOLD
   } catch {
-    // Fallback: derive threshold from in-memory leaderboard when available
-    if (env.NODE_ENV !== 'production') {
-      const size = memoryLeaderboard.length
-      if (size === 0) return SCORE_QUALIFICATION_THRESHOLD
-      if (size < MAX_LEADERBOARD_SIZE) {
-        const lowest = memoryLeaderboard.at(-1)
-        if (lowest) return Math.max(lowest.score + 1, SCORE_QUALIFICATION_THRESHOLD)
-        return SCORE_QUALIFICATION_THRESHOLD
-      }
-      const tenth = memoryLeaderboard[Math.min(memoryLeaderboard.length - 1, MAX_LEADERBOARD_SIZE - 1)]
-      if (tenth) return Math.max(tenth.score + 1, SCORE_QUALIFICATION_THRESHOLD)
-      return SCORE_QUALIFICATION_THRESHOLD
-    }
-    return SCORE_QUALIFICATION_THRESHOLD // Fallback to default
+    if (env.NODE_ENV !== 'production') return deriveThresholdFromMemory()
+    return SCORE_QUALIFICATION_THRESHOLD
   }
 }
 
