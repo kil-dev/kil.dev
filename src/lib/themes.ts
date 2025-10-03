@@ -55,4 +55,3 @@ export const themes = [
 export type ThemeEntry = (typeof themes)[number]
 export type ThemeName = ThemeEntry['name']
 export type Theme = ThemeName | 'system'
-export const KNOWN_THEMES = themes.map(t => t.name) as readonly ThemeName[]
