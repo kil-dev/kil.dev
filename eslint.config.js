@@ -1,5 +1,6 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
@@ -24,6 +25,7 @@ export default defineConfig(
       ...tseslint.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
+      eslintPluginUnicorn.configs.recommended,
     ],
     rules: {
       '@typescript-eslint/array-type': 'off',
@@ -38,6 +40,9 @@ export default defineConfig(
         'error',
         { checksVoidReturn: { attributes: false } },
       ],
+      'unicorn/prevent-abbreviations': 'off',
+      'unicorn/numeric-separators-style': 'off',
+      'unicorn/no-nested-ternary': 'off', // TODO: I want to use these but Prettier is shit
     },
   },
   {
