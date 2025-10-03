@@ -1,13 +1,13 @@
 import { LIGHT_GRID } from '@/lib/light-grid'
 
-export type GridDimensions = {
+type GridDimensions = {
   gridWidth: number
   gridHeight: number
   gridCellSize: number
   gridOffset: number
 }
 
-export type SafeBoundaries = {
+type SafeBoundaries = {
   safeYMin: number
   safeYMax: number
   safeXMin: number
@@ -49,7 +49,7 @@ export function getGridDimensions(windowWidth: number, windowHeight: number): Gr
   }
 }
 
-export function getHeaderHeight(windowWidth: number, windowHeight: number): number {
+function getHeaderHeight(windowWidth: number, windowHeight: number): number {
   const { gridCellSize } = getGridDimensions(windowWidth, windowHeight)
   return Math.floor(80 / gridCellSize) * gridCellSize + 20
 }

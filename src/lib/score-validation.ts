@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const scoreSubmissionSchema = z
+const scoreSubmissionSchema = z
   .object({
     name: z
       .string()

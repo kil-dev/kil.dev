@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Parse YYYY, YYYY-MM, or YYYY-MM-DD strings as a local date to avoid timezone shifts
-export function parseLocalDateYmd(value: string | undefined): Date | null {
+function parseLocalDateYmd(value: string | undefined): Date | null {
   if (!value) return null
   const match = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(value)
   if (!match) {

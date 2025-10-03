@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
-export type KonamiAnimationContextType = {
+type KonamiAnimationContextType = {
   isAnimating: boolean
   hasAnimated: boolean
   showSnake: boolean

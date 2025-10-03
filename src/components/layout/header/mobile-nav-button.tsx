@@ -9,7 +9,7 @@ import { cn } from '@/utils/utils'
 
 type Position = { x: number; y: number }
 
-export interface MobileNavButtonProps {
+interface MobileNavButtonProps {
   href: Route
   label: string
   Icon: IconComponent

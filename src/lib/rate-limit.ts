@@ -2,7 +2,7 @@ import { env } from '@/env'
 import { redis } from '@/lib/redis'
 import { Ratelimit } from '@upstash/ratelimit'
 
-export interface RateLimiterOptions {
+interface RateLimiterOptions {
   maxRequests: number
   windowMs: number
   maxStoreSize: number
@@ -62,7 +62,7 @@ function createInMemoryLimiter(maxRequests: number, windowMs: number, maxStoreSi
   return { check }
 }
 
-export function createRateLimiter(options?: Partial<RateLimiterOptions>) {
+function createRateLimiter(options?: Partial<RateLimiterOptions>) {
   const maxRequests = options?.maxRequests ?? 5
   const windowMs = options?.windowMs ?? 60_000
   const maxStoreSize = options?.maxStoreSize ?? 1000

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import stableStringify, { compareKeys } from './stable-stringify'
+import { compareKeys, stableStringify } from './stable-stringify'
 
 describe('compareKeys', () => {
   it('orders case-insensitively using localeCompare', () => {

@@ -1,6 +1,6 @@
 // Arcade-style utility functions
 
-export function generateArcadeSound(frequency: number, duration = 100) {
+function generateArcadeSound(frequency: number, duration = 100) {
   // Simple beep sound generation for arcade feel
   if (globalThis.window === undefined) return
 
@@ -68,31 +68,4 @@ export function playGameOverSound() {
   // Descending tone for game over
   generateArcadeSound(300, 500)
   setTimeout(() => generateArcadeSound(200, 500), 100)
-}
-
-export function playSubmitSound() {
-  // Ascending tone for successful submission
-  generateArcadeSound(500, 100)
-  setTimeout(() => generateArcadeSound(700, 100), 50)
-  setTimeout(() => generateArcadeSound(900, 150), 100)
-}
-
-export function formatScore(score: number): string {
-  return score.toString().padStart(4, '0')
-}
-
-export function formatTime(timestamp: number): string {
-  const date = new Date(timestamp)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-export function getRankDisplay(rank: number): string {
-  if (rank === 1) return '🥇'
-  if (rank === 2) return '🥈'
-  if (rank === 3) return '🥉'
-  return `#${rank}`
 }

@@ -106,5 +106,3 @@ function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()
 export function stableStringify(value: unknown): string {
   return serialize(value)
 }
-
-export default stableStringify

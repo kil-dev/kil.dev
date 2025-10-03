@@ -12,9 +12,9 @@ import {
 import { buttonVariants } from '@/components/ui/button'
 import type { ReviewConfig, StarValue } from '@/types/review'
 import { cn } from '@/utils/utils'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 
-export type ReviewDialogProps = {
+type ReviewDialogProps = {
   open: boolean
   rating: StarValue
   onSelect: (next: StarValue) => void
@@ -23,7 +23,9 @@ export type ReviewDialogProps = {
   snark?: string
 }
 
-function Star({ value, active, onSelect }: { value: StarValue; active: boolean; onSelect: (v: StarValue) => void }) {
+type StarProps = { value: StarValue; active: boolean; onSelect: (v: StarValue) => void }
+
+const Star = React.forwardRef<HTMLButtonElement, StarProps>(function Star({ value, active, onSelect }, ref) {
   const handleClick = useCallback(() => onSelect(value), [onSelect, value])
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -36,6 +38,7 @@ function Star({ value, active, onSelect }: { value: StarValue; active: boolean; 
   )
   return (
     <button
+      ref={ref}
       type="button"
       aria-label={`Rate ${value} ${value === 1 ? 'star' : 'stars'}`}
       onClick={handleClick}
@@ -48,7 +51,7 @@ function Star({ value, active, onSelect }: { value: StarValue; active: boolean; 
       {active ? '★' : '☆'}
     </button>
   )
-}
+})
 
 export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: ReviewDialogProps) {
   const starsRef = useRef<Array<HTMLButtonElement | null>>([])
@@ -74,10 +77,6 @@ export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: 
     [onSelect, rating],
   )
 
-  useEffect(() => {
-    if (!open) return
-  }, [open])
-
   const canSubmit = rating === 5
 
   return (
@@ -100,8 +99,9 @@ export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: 
                 value={v as StarValue}
                 active={rating >= v}
                 onSelect={onSelect}
-                // @ts-expect-error Assigning ref to array index
-                ref={(el: HTMLButtonElement | null) => (starsRef.current[i] = el)}
+                ref={el => {
+                  starsRef.current[i] = el
+                }}
               />
             ))}
           </div>
@@ -117,5 +117,3 @@ export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: 
     </AlertDialog>
   )
 }
-
-export default ReviewDialog

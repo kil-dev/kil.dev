@@ -145,8 +145,6 @@ export function GalleryClient({ images }: GalleryClientProps) {
   )
 }
 
-export { type GalleryClientProps }
-
 export function ClientMounted({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   const [isClient, setIsClient] = useState(false)
   useEffect(() => {

@@ -4,10 +4,8 @@ import * as React from 'react'
 
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -38,10 +36,8 @@ BottomDrawerContent.displayName = 'BottomDrawerContent'
 
 export {
   BottomDrawer,
-  DrawerClose as BottomDrawerClose,
   BottomDrawerContent,
   DrawerDescription as BottomDrawerDescription,
-  DrawerFooter as BottomDrawerFooter,
   DrawerHeader as BottomDrawerHeader,
   DrawerTitle as BottomDrawerTitle,
   DrawerTrigger as BottomDrawerTrigger,

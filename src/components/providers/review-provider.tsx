@@ -1,6 +1,6 @@
 'use client'
 
-import ReviewDialog from '@/components/layout/review/review-dialog'
+import { ReviewDialog } from '@/components/layout/review/review-dialog'
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { REVIEW_CONFIG } from '@/lib/review'
 import { incrementReminderCount, markSubmitted, markTriggered, readReviewState, shouldShowGate } from '@/utils/review'
@@ -74,5 +74,3 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
     </>
   )
 }
-
-export default ReviewProvider

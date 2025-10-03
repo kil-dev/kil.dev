@@ -30,7 +30,7 @@ function computeSignatureHex(secret: string, payloadString: string): string {
 const NONCE_KEY_PREFIX = 'game:nonce:'
 const NONCE_TTL_SECONDS = 60 * 5 // 5 minutes
 
-export async function reserveNonceOnce(nonce: string): Promise<boolean> {
+async function reserveNonceOnce(nonce: string): Promise<boolean> {
   if (!nonce) return false
   const key = `${NONCE_KEY_PREFIX}${nonce}`
   try {
@@ -100,7 +100,7 @@ function getSessionKey(sessionId: string): string {
   return `${SESSION_KEY_PREFIX}${sessionId}`
 }
 
-export async function createSession(session: GameSession): Promise<void> {
+async function createSession(session: GameSession): Promise<void> {
   const key = getSessionKey(session.id)
   try {
     await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
@@ -113,7 +113,7 @@ export async function createSession(session: GameSession): Promise<void> {
   }
 }
 
-export async function getSession(sessionId: string): Promise<GameSession | undefined> {
+async function getSession(sessionId: string): Promise<GameSession | undefined> {
   const key = getSessionKey(sessionId)
   let raw: GameSession | null = null
   try {
@@ -133,7 +133,7 @@ export async function getSession(sessionId: string): Promise<GameSession | undef
   return raw
 }
 
-export async function updateSession(session: GameSession): Promise<void> {
+async function updateSession(session: GameSession): Promise<void> {
   const key = getSessionKey(session.id)
   try {
     await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
@@ -142,18 +142,6 @@ export async function updateSession(session: GameSession): Promise<void> {
     if (IS_DEV) setMemorySession(session)
     else throw new Error('Failed to update session')
   }
-}
-
-export async function deleteSession(sessionId: string): Promise<void> {
-  const key = getSessionKey(sessionId)
-  try {
-    await withRetry(() => redis.del(key))
-  } catch {
-    if (IS_DEV) memorySessions.delete(sessionId)
-    else throw new Error('Failed to delete session')
-  }
-  // Ensure memory copy is cleared as well
-  memorySessions.delete(sessionId)
 }
 
 export async function createGameSession(): Promise<{ sessionId: string; secret: string; seed: number }> {
@@ -239,32 +227,6 @@ export async function endGameSession(
   await updateSession(session)
 
   return { success: true, validatedScore: finalScore }
-}
-
-export async function validateScoreSubmission(
-  sessionId: string,
-  secret: string,
-  submittedScore: number,
-): Promise<{ success: boolean; validatedScore?: number; message?: string }> {
-  const session = await getSession(sessionId)
-
-  if (!session) {
-    return { success: false, message: 'Invalid game session' }
-  }
-
-  if (session.secret !== secret) {
-    return { success: false, message: 'Invalid session secret' }
-  }
-
-  if (session.isActive) {
-    return { success: false, message: 'Game session is still active' }
-  }
-
-  if (session.validatedScore !== submittedScore) {
-    return { success: false, message: 'Submitted score does not match validated score' }
-  }
-
-  return { success: true, validatedScore: submittedScore }
 }
 
 export async function validateScoreSubmissionBySession(

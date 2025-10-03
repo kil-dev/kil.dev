@@ -107,6 +107,32 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "bun knip",
+      "type": "shell",
+      "command": "bun",
+      "args": [
+        "run",
+        "knip"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "bun knip:deps",
+      "type": "shell",
+      "command": "bun",
+      "args": [
+        "run",
+        "knip:deps"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }

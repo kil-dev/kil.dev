@@ -24,7 +24,7 @@ function hasThemeTapdanceAchievement(): boolean {
   }
 }
 
-export type SeasonalThemeConfig = {
+type SeasonalThemeConfig = {
   theme: ThemeName
   start: MonthDay // inclusive
   end: MonthDay // exclusive
@@ -87,11 +87,6 @@ export function getAvailableThemes(date: Date = new Date(), overrideDateRestrict
   const active = getActiveSeasonalThemes(date)
   const seasonalNames = active.map(a => a.theme)
   return ['system', ...BASE_CSS_THEMES, ...seasonalNames]
-}
-
-export function getCssThemesForNow(date: Date = new Date()): ThemeName[] {
-  const active = getActiveSeasonalThemes(date)
-  return [...BASE_CSS_THEMES, ...active.map(a => a.theme)]
 }
 
 export function getDefaultThemeForNow(date: Date = new Date()): Theme {
