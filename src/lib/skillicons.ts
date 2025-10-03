@@ -19,5 +19,4 @@ export const SKILLS = {
 } as const satisfies Record<string, SkillInfo>
 
 export type SkillName = keyof typeof SKILLS
-type SkillIconKey = (typeof SKILLS)[SkillName]['icon']
 export type SkillEntry = { name: SkillName } & SkillInfo

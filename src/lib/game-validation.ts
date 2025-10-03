@@ -144,18 +144,6 @@ async function updateSession(session: GameSession): Promise<void> {
   }
 }
 
-async function deleteSession(sessionId: string): Promise<void> {
-  const key = getSessionKey(sessionId)
-  try {
-    await withRetry(() => redis.del(key))
-  } catch {
-    if (IS_DEV) memorySessions.delete(sessionId)
-    else throw new Error('Failed to delete session')
-  }
-  // Ensure memory copy is cleared as well
-  memorySessions.delete(sessionId)
-}
-
 export async function createGameSession(): Promise<{ sessionId: string; secret: string; seed: number }> {
   const sessionId = randomBytes(16).toString('hex')
   const secret = randomBytes(32).toString('hex')
@@ -239,32 +227,6 @@ export async function endGameSession(
   await updateSession(session)
 
   return { success: true, validatedScore: finalScore }
-}
-
-async function validateScoreSubmission(
-  sessionId: string,
-  secret: string,
-  submittedScore: number,
-): Promise<{ success: boolean; validatedScore?: number; message?: string }> {
-  const session = await getSession(sessionId)
-
-  if (!session) {
-    return { success: false, message: 'Invalid game session' }
-  }
-
-  if (session.secret !== secret) {
-    return { success: false, message: 'Invalid session secret' }
-  }
-
-  if (session.isActive) {
-    return { success: false, message: 'Game session is still active' }
-  }
-
-  if (session.validatedScore !== submittedScore) {
-    return { success: false, message: 'Submitted score does not match validated score' }
-  }
-
-  return { success: true, validatedScore: submittedScore }
 }
 
 export async function validateScoreSubmissionBySession(

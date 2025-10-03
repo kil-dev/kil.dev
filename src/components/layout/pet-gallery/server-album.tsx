@@ -43,5 +43,3 @@ export function ServerAlbum({ images, limit = 48 }: ServerAlbumProps) {
     </div>
   )
 }
-
-

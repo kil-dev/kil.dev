@@ -69,30 +69,3 @@ export function playGameOverSound() {
   generateArcadeSound(300, 500)
   setTimeout(() => generateArcadeSound(200, 500), 100)
 }
-
-function playSubmitSound() {
-  // Ascending tone for successful submission
-  generateArcadeSound(500, 100)
-  setTimeout(() => generateArcadeSound(700, 100), 50)
-  setTimeout(() => generateArcadeSound(900, 150), 100)
-}
-
-function formatScore(score: number): string {
-  return score.toString().padStart(4, '0')
-}
-
-function formatTime(timestamp: number): string {
-  const date = new Date(timestamp)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-function getRankDisplay(rank: number): string {
-  if (rank === 1) return '🥇'
-  if (rank === 2) return '🥈'
-  if (rank === 3) return '🥉'
-  return `#${rank}`
-}

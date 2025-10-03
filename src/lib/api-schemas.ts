@@ -7,19 +7,6 @@ const LeaderboardEntrySchema = z.object({
   timestamp: z.number(),
   id: z.string(),
 })
-const ScoreQualificationResponseSchema = z.object({
-  success: z.boolean(),
-  qualifies: z.boolean(),
-  currentThreshold: z.number().optional(),
-  message: z.string().optional(),
-})
-
-const ScoreSubmissionResponseSchema = z.object({
-  success: z.boolean(),
-  position: z.number().optional(),
-  leaderboard: z.array(LeaderboardEntrySchema).optional(),
-  message: z.string().optional(),
-})
 
 // Additional schemas used in use-leaderboard.ts
 export const CheckScoreResponseSchema = z.object({
@@ -36,21 +23,6 @@ export const SubmitScoreResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   leaderboard: z.array(LeaderboardEntrySchema).optional(),
-})
-
-// Game session lifecycle schemas
-const GameStartResponseSchema = z.object({
-  success: z.boolean(),
-  sessionId: z.string().optional(),
-  secret: z.string().optional(),
-  seed: z.number().optional(),
-  message: z.string().optional(),
-})
-
-const GameEndResponseSchema = z.object({
-  success: z.boolean(),
-  validatedScore: z.number().optional(),
-  message: z.string().optional(),
 })
 
 // Game end request schema

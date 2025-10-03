@@ -11,7 +11,6 @@ import {
 } from '@/utils/achievements'
 import { resetReviewState } from '@/utils/review'
 import { getThemeBaseColor } from '@/utils/themes'
-import { cn } from '@/utils/utils'
 import Cookies from 'js-cookie'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Toaster, toast } from 'sonner'
@@ -309,13 +308,4 @@ export function useAchievements() {
   const ctx = useContext(AchievementsContext)
   if (!ctx) throw new Error('useAchievements must be used within AchievementsProvider')
   return ctx
-}
-
-function AchievementsDebugPanel({ className }: { className?: string }) {
-  const { unlocked } = useAchievements()
-  return (
-    <div className={cn('hidden', className)} aria-hidden>
-      {JSON.stringify(unlocked)}
-    </div>
-  )
 }
