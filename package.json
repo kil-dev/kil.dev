@@ -24,7 +24,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "knip": "knip",
-    "knip:strict": "knip --strict",
     "knip:deps": "knip --dependencies"
   },
   "dependencies": {

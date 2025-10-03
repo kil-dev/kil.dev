@@ -122,12 +122,12 @@
       "problemMatcher": []
     },
     {
-      "label": "bun knip:strict",
+      "label": "bun knip:deps",
       "type": "shell",
       "command": "bun",
       "args": [
         "run",
-        "knip:strict"
+        "knip:deps"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
