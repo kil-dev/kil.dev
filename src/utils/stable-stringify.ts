@@ -1,95 +1,77 @@
-// Deterministic JSON serialization: recursively sort object keys
-// - Objects: keys sorted lexicographically
-// - Arrays: preserve order
-// - Primitives: JSON.stringify default behavior
+// Deterministic JSON serialization with stable ordering
+// - Objects: keys sorted via localeCompare
+// - Arrays: preserve order (unsupported values coerced to null)
+// - Map/Set: entries serialized and locale-sorted for stability
+// - Dates/RegExp: string representations
 
-function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()): string {
-  // Primitives
+function sortStringsLocaleAware(values: string[]): string[] {
+  return values.sort((a, b) => a.localeCompare(b))
+}
+
+function serializePrimitive(value: unknown): string {
   if (value === null) return 'null'
+  const type = typeof value
+  if (type === 'string' || type === 'boolean') return JSON.stringify(value)
+  if (type === 'number') return JSON.stringify(Number.isFinite(value as number) ? value : null)
+  if (type === 'bigint') return JSON.stringify((value as bigint).toString())
+  if (type === 'undefined' || type === 'function' || type === 'symbol') return 'null'
+  return ''
+}
 
-  const valueType = typeof value
+function serializeArray(arr: unknown[], seen: WeakSet<object>): string {
+  seen.add(arr)
+  const items = arr.map(item => {
+    if (typeof item === 'undefined' || typeof item === 'function' || typeof item === 'symbol') return 'null'
+    return serialize(item as unknown, seen)
+  })
+  return `[${items.join(',')}]`
+}
 
-  if (valueType === 'string' || valueType === 'boolean') {
-    return JSON.stringify(value)
+function serializeMap(map: Map<unknown, unknown>, seen: WeakSet<object>): string {
+  seen.add(map)
+  const pairStrings: string[] = []
+  for (const [k, v] of map.entries()) {
+    const keyJson = serialize(k, seen)
+    const valueJson = serialize(v, seen)
+    pairStrings.push(`[${keyJson},${valueJson}]`)
   }
+  sortStringsLocaleAware(pairStrings)
+  return `[${pairStrings.join(',')}]`
+}
 
-  if (valueType === 'number') {
-    return JSON.stringify(Number.isFinite(value as number) ? (value as number) : null)
-  }
+function serializeSet(set: Set<unknown>, seen: WeakSet<object>): string {
+  seen.add(set)
+  const items = Array.from(set.values()).map(v => serialize(v, seen))
+  sortStringsLocaleAware(items)
+  return `[${items.join(',')}]`
+}
 
-  if (valueType === 'bigint') {
-    // JSON.stringify throws on BigInt; convert to string representation
-    return JSON.stringify((value as bigint).toString())
-  }
-
-  if (valueType === 'undefined' || valueType === 'function' || valueType === 'symbol') {
-    // Top-level unsupported primitives -> null to remain JSON-safe
-    return 'null'
-  }
-
-  // Objects
-  // value is not null and typeof === 'object' at this point
-  const obj = value as object
-
-  if (seen.has(obj)) {
-    throw new TypeError('Converting circular structure to JSON')
-  }
-
-  // Dates -> ISO string
-  if (obj instanceof Date) {
-    return JSON.stringify(obj.toJSON())
-  }
-
-  // RegExp -> string representation
-  if (obj instanceof RegExp) {
-    return JSON.stringify(obj.toString())
-  }
-
-  // Map -> array of [keyJson,valueJson] pairs sorted for stability
-  if (obj instanceof Map) {
-    seen.add(obj)
-    const pairStrings: string[] = []
-    for (const [k, v] of obj.entries()) {
-      const keyJson = serialize(k, seen)
-      const valueJson = serialize(v, seen)
-      pairStrings.push(`[${keyJson},${valueJson}]`)
-    }
-    pairStrings.sort()
-    return `[${pairStrings.join(',')}]`
-  }
-
-  // Set -> sorted array of serialized entries for stability
-  if (obj instanceof Set) {
-    seen.add(obj)
-    const items = Array.from(obj.values()).map(v => serialize(v, seen))
-    items.sort()
-    return `[${items.join(',')}]`
-  }
-
-  // Array -> preserve order, convert undefined/function/symbol to null
-  if (Array.isArray(obj)) {
-    seen.add(obj)
-    const items = obj.map(item => {
-      if (typeof item === 'undefined' || typeof item === 'function' || typeof item === 'symbol') {
-        return 'null'
-      }
-      return serialize(item, seen)
-    })
-    return `[${items.join(',')}]`
-  }
-
-  // Any other object (including plain objects and class instances):
-  // Use own enumerable properties only, with lexicographically sorted keys
+function serializePlainObject(obj: Record<string, unknown>, seen: WeakSet<object>): string {
   seen.add(obj)
-  const keys = Object.keys(obj as Record<string, unknown>).sort()
+  const keys = sortStringsLocaleAware(Object.keys(obj))
   const parts: string[] = []
   for (const key of keys) {
-    const val = (obj as Record<string, unknown>)[key]
-    // Omit undefined/function/symbol to match JSON.stringify behavior on objects
+    const val = obj[key]
     if (typeof val === 'undefined' || typeof val === 'function' || typeof val === 'symbol') continue
     parts.push(`${JSON.stringify(key)}:${serialize(val, seen)}`)
   }
   return `{${parts.join(',')}}`
+}
+
+function serializeNonPrimitive(obj: object, seen: WeakSet<object>): string {
+  if (seen.has(obj)) throw new TypeError('Converting circular structure to JSON')
+  if (obj instanceof Date) return JSON.stringify(obj.toJSON())
+  if (obj instanceof RegExp) return JSON.stringify(obj.toString())
+  if (obj instanceof Map) return serializeMap(obj, seen)
+  if (obj instanceof Set) return serializeSet(obj, seen)
+  if (Array.isArray(obj)) return serializeArray(obj as unknown[], seen)
+  return serializePlainObject(obj as Record<string, unknown>, seen)
+}
+
+function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()): string {
+  const primitive = serializePrimitive(value)
+  if (primitive !== '') return primitive
+  return serializeNonPrimitive(value as object, seen)
 }
 
 export function stableStringify(value: unknown): string {
