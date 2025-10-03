@@ -143,11 +143,33 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     lastFoodEatenRef.current = null
   }, [generateFood, windowSize, onGameStart])
 
+  function getNextHeadPosition(currentDirection: Direction, currentHead: Position): Position {
+    switch (currentDirection) {
+      case 'UP':
+        return { x: currentHead.x, y: currentHead.y - 1 }
+      case 'DOWN':
+        return { x: currentHead.x, y: currentHead.y + 1 }
+      case 'LEFT':
+        return { x: currentHead.x - 1, y: currentHead.y }
+      case 'RIGHT':
+        return { x: currentHead.x + 1, y: currentHead.y }
+    }
+  }
+
+  function isOutOfBounds(
+    pos: Position,
+    bounds: { safeYMin: number; safeYMax: number; safeXMin: number; safeXMax: number },
+  ): boolean {
+    return pos.x < bounds.safeXMin || pos.x > bounds.safeXMax || pos.y < bounds.safeYMin || pos.y > bounds.safeYMax
+  }
+
+  function isSelfCollision(pos: Position, snakePositions: Position[]): boolean {
+    return snakePositions.some(segment => segment.x === pos.x && segment.y === pos.y)
+  }
+
   const moveSnake = useCallback(() => {
     setSnake(prevSnake => {
       if (!prevSnake[0]) return prevSnake
-
-      const head: Position = { x: prevSnake[0].x, y: prevSnake[0].y }
 
       const handleGameOver = (prev: Position[]): Position[] => {
         setGameOver(true)
@@ -157,52 +179,31 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
         return prev
       }
 
-      switch (direction) {
-        case 'UP':
-          head.y -= 1
-          break
-        case 'DOWN':
-          head.y += 1
-          break
-        case 'LEFT':
-          head.x -= 1
-          break
-        case 'RIGHT':
-          head.x += 1
-          break
-      }
+      const currentHead: Position = { x: prevSnake[0].x, y: prevSnake[0].y }
+      const nextHead = getNextHeadPosition(direction, currentHead)
+      const bounds = getSafeBoundaries(windowSize.width, windowSize.height)
 
-      const { safeYMin, safeYMax, safeXMin, safeXMax } = getSafeBoundaries(windowSize.width, windowSize.height)
+      if (isOutOfBounds(nextHead, bounds)) return handleGameOver(prevSnake)
+      if (isSelfCollision(nextHead, prevSnake)) return handleGameOver(prevSnake)
 
-      // walls
-      if (head.x < safeXMin || head.x > safeXMax || head.y < safeYMin || head.y > safeYMax) {
-        return handleGameOver(prevSnake)
-      }
+      const newSnake = [nextHead, ...prevSnake]
 
-      // self collision
-      if (prevSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
-        return handleGameOver(prevSnake)
-      }
-
-      const newSnake = [head, ...prevSnake]
-
-      if (head.x === food.x && head.y === food.y) {
+      const isFoodCell = nextHead.x === food.x && nextHead.y === food.y
+      if (isFoodCell) {
         const currentFood = { x: food.x, y: food.y }
-        if (
+        const alreadyCounted =
           lastFoodEatenRef.current &&
           lastFoodEatenRef.current.x === currentFood.x &&
           lastFoodEatenRef.current.y === currentFood.y
-        ) {
-          return newSnake
-        }
+        if (alreadyCounted) return newSnake
 
         lastFoodEatenRef.current = currentFood
-        const points = isGoldenApple ? 50 : 10
-        const newScore = score + points
-        playScoreSound(newScore)
-        setScore(newScore)
+        const pointsToAdd = isGoldenApple ? 50 : 10
+        const updatedScore = score + pointsToAdd
+        playScoreSound(updatedScore)
+        setScore(updatedScore)
         if (onFoodEaten) {
-          Promise.resolve(onFoodEaten(currentFood, isGoldenApple, newScore)).catch(console.error)
+          Promise.resolve(onFoodEaten(currentFood, isGoldenApple, updatedScore)).catch(console.error)
         }
 
         const foodData = generateFood(newSnake)
