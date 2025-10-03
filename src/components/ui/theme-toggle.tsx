@@ -382,7 +382,7 @@ export function ThemeToggle() {
         <TooltipContent side="bottom">
           {(() => {
             if (open || tooltipHold) {
-              if (currentPreference === 'system') return 'System'
+              if (currentPreference === 'system') return 'Seasonal'
               return `${currentPreference.slice(0, 1).toUpperCase()}${currentPreference.slice(1)}`
             }
             return 'Theme Toggle'

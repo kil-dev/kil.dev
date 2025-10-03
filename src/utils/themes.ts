@@ -6,7 +6,7 @@ import { Sun } from 'lucide-react'
 import type { StaticImageData } from 'next/image'
 
 export function getThemeLabel(theme: Theme): string {
-  if (theme === 'system') return 'System'
+  if (theme === 'system') return 'Seasonal'
   const s = `${theme}`
   return s.slice(0, 1).toUpperCase() + s.slice(1)
 }
