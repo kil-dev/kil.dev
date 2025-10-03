@@ -122,7 +122,7 @@ export function useLeaderboard() {
             const next = [...prev]
             const currentChar = next[nameInputPosition]
             if (currentChar === undefined || nameInputPosition < 0 || nameInputPosition >= next.length) return prev
-            const newChar = currentChar === 'Z' ? 'A' : String.fromCharCode(currentChar.charCodeAt(0) + 1)
+            const newChar = currentChar === 'Z' ? 'A' : String.fromCodePoint((currentChar.codePointAt(0) ?? 0) + 1)
             next[nameInputPosition] = newChar
             return next
           })
@@ -133,7 +133,7 @@ export function useLeaderboard() {
             const next = [...prev]
             const currentChar = next[nameInputPosition]
             if (!currentChar) return next
-            const newChar = currentChar === 'A' ? 'Z' : String.fromCharCode(currentChar.charCodeAt(0) - 1)
+            const newChar = currentChar === 'A' ? 'Z' : String.fromCodePoint((currentChar.codePointAt(0) ?? 0) - 1)
             next[nameInputPosition] = newChar
             return next
           })

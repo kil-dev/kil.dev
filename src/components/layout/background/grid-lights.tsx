@@ -46,12 +46,12 @@ function generateHorizontalPath(width: number, height: number): Point[] {
       points.push({ x: xIndex * GRID_SIZE_PX, y: newY })
     }
     xIndex += dir
-    const prev = points[points.length - 1]!
+    const prev = points.at(-1)!
     points.push({ x: xIndex * GRID_SIZE_PX, y: prev.y })
   }
 
   // Ensure final point is exactly opposite side
-  const lastH = points[points.length - 1]!
+  const lastH = points.at(-1)!
   points[points.length - 1] = { x: endXIndex * GRID_SIZE_PX, y: lastH.y }
   return points
 }
@@ -77,12 +77,12 @@ function generateVerticalPath(width: number, height: number): Point[] {
       points.push({ x: newX, y: yIndex * GRID_SIZE_PX })
     }
     yIndex += dir
-    const prev = points[points.length - 1]!
+    const prev = points.at(-1)!
     points.push({ x: prev.x, y: yIndex * GRID_SIZE_PX })
   }
 
   // Ensure final point is exactly opposite side
-  const lastV = points[points.length - 1]!
+  const lastV = points.at(-1)!
   points[points.length - 1] = { x: lastV.x, y: endYIndex * GRID_SIZE_PX }
   return points
 }
@@ -102,8 +102,10 @@ function buildKeyframes(name: string, points: Point[]): string {
       lines.push(`${pcIn}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 1 }`)
     } else if (i === points.length - 1) {
       const pcHold = Math.max(0, Math.min(100, Math.round((i * pcPerStep - 0.5) * 1000) / 1000))
-      lines.push(`${pcHold}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 1 }`)
-      lines.push(`${pc}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 0 }`)
+      lines.push(
+        `${pcHold}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 1 }`,
+        `${pc}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 0 }`,
+      )
     } else {
       lines.push(`${pc}% { left: ${p.x + GRID_OFFSET_PX}px; top: ${p.y + GRID_OFFSET_PX}px; opacity: 1 }`)
     }

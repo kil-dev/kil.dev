@@ -24,7 +24,7 @@ function validateConfig(config: PresenceScriptConfig): void {
 
 function getCookieValue(name: string): string | null {
   try {
-    const re = new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\\]\\\\]/g, r => '\\' + r) + '=([^;]+)')
+    const re = new RegExp(String.raw`(?:^|;\s*)` + name.replaceAll(/[.*+?^${}()|[\]\\]/g, r => '\\' + r) + '=([^;]+)')
     const m = re.exec(document.cookie)
     return m ? m[1]! : null
   } catch {

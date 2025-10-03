@@ -11,13 +11,13 @@ export function parseLocalDateYmd(value: string | undefined): Date | null {
   const match = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(value)
   if (!match) {
     const d = new Date(value)
-    return isNaN(d.getTime()) ? null : d
+    return Number.isNaN(d.getTime()) ? null : d
   }
   const year = Number(match[1])
   const month = match[2] ? Math.max(0, Math.min(11, Number(match[2]) - 1)) : 0
   const day = match[3] ? Math.max(1, Math.min(31, Number(match[3]))) : 1
   const d = new Date(year, month, day)
-  return isNaN(d.getTime()) ? null : d
+  return Number.isNaN(d.getTime()) ? null : d
 }
 
 export function formatMonthYear(value: string | undefined, locale = 'en-US'): string {

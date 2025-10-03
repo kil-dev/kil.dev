@@ -38,8 +38,8 @@ export type GameBoxDimensions = {
 export function getGridDimensions(windowWidth: number, windowHeight: number): GridDimensions {
   const gridCellSize = LIGHT_GRID.GRID_SIZE_PX
   const gridOffset = LIGHT_GRID.GRID_OFFSET_PX
-  const width = windowWidth || (globalThis.window !== undefined ? globalThis.window.innerWidth : 0)
-  const height = windowHeight || (globalThis.window !== undefined ? globalThis.window.innerHeight : 0)
+  const width = windowWidth || (globalThis.window === undefined ? 0 : globalThis.window.innerWidth)
+  const height = windowHeight || (globalThis.window === undefined ? 0 : globalThis.window.innerHeight)
 
   return {
     gridWidth: Math.floor(width / gridCellSize),

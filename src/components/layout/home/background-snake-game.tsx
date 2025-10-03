@@ -312,8 +312,7 @@ export function BackgroundSnakeGame() {
 
   // Body class for grid lights
   useEffect(() => {
-    if (isPlaying) document.body.classList.add('snake-game-active')
-    else document.body.classList.remove('snake-game-active')
+    document.body.classList.toggle('snake-game-active', isPlaying)
     return () => document.body.classList.remove('snake-game-active')
   }, [isPlaying])
 

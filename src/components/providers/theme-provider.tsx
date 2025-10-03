@@ -7,6 +7,7 @@ import {
   getDefaultThemeForNow,
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
+import Cookies from 'js-cookie'
 import * as React from 'react'
 import { useEffectEvent } from 'react'
 
@@ -33,28 +34,26 @@ function storageKey(base: string): string {
   return `${KEY_PREFIX}${base}`
 }
 
-function coerceToValidTheme(value: Theme | undefined): Theme {
-  const pref = value ?? 'system'
-
+function coerceToValidTheme(value: Theme = 'system'): Theme {
   // Check if user has theme tapdance achievement before validating theme availability
   const hasThemeTapdance =
-    typeof document !== 'undefined' && document.documentElement.hasAttribute('data-has-theme-tapdance')
+    typeof document !== 'undefined' && Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
   // If user has achievement, all themes are valid except expired seasonal themes for system
   if (hasThemeTapdance) {
     // For system theme, we need to ensure no expired seasonal themes are applied
-    if (pref === 'system') return pref
+    if (value === 'system') return value
 
     // For explicit themes, all are valid when unlocked
-    return pref
+    return value
   }
 
   const allowed = getAvailableThemes()
-  if (pref !== 'system' && !allowed.includes(pref)) return 'system'
-  return pref
+  if (value !== 'system' && !allowed.includes(value)) return 'system'
+  return value
 }
 
-const VALID_THEMES: ReadonlyArray<Theme> = ['system', ...themes.map(t => t.name)]
+const VALID_THEMES: ReadonlySet<Theme> = new Set(['system', ...themes.map(t => t.name)])
 
 function readCookieTheme(): Theme | undefined {
   try {
@@ -63,7 +62,7 @@ function readCookieTheme(): Theme | undefined {
     if (match?.[1]) {
       const raw = match[1]
       const decoded = decodeURIComponent(raw)
-      return VALID_THEMES.includes(decoded as Theme) ? (decoded as Theme) : undefined
+      return VALID_THEMES.has(decoded as Theme) ? (decoded as Theme) : undefined
     }
   } catch {}
   return undefined
@@ -73,7 +72,7 @@ function readStorageTheme(): Theme | undefined {
   try {
     const v = localStorage.getItem(storageKey('theme'))
     if (!v) return undefined
-    return VALID_THEMES.includes(v as Theme) ? (v as Theme) : undefined
+    return VALID_THEMES.has(v as Theme) ? (v as Theme) : undefined
   } catch {}
   return undefined
 }
@@ -85,7 +84,7 @@ function readCookieThemeMeta(): { theme: Theme | undefined; updatedAt: number | 
     const mTheme = reTheme.exec(document.cookie)
     const mTs = reTs.exec(document.cookie)
     const themeRaw = mTheme?.[1] ? decodeURIComponent(mTheme[1]) : undefined
-    const theme: Theme | undefined = VALID_THEMES.includes(themeRaw as Theme) ? (themeRaw as Theme) : undefined
+    const theme: Theme | undefined = VALID_THEMES.has(themeRaw as Theme) ? (themeRaw as Theme) : undefined
     const updatedAt = mTs?.[1] ? Number(mTs[1]) : undefined
     return { theme, updatedAt: Number.isFinite(updatedAt) ? updatedAt : undefined }
   } catch {}
@@ -96,8 +95,7 @@ function readStorageThemeMeta(): { theme: Theme | undefined; updatedAt: number |
   try {
     const themeStr = localStorage.getItem(storageKey('theme')) ?? undefined
     const tsStr = localStorage.getItem(storageKey('theme_updatedAt')) ?? undefined
-    const theme: Theme | undefined =
-      themeStr && VALID_THEMES.includes(themeStr as Theme) ? (themeStr as Theme) : undefined
+    const theme: Theme | undefined = themeStr && VALID_THEMES.has(themeStr as Theme) ? (themeStr as Theme) : undefined
     const updatedAt = tsStr ? Number(tsStr) : undefined
     return { theme, updatedAt: Number.isFinite(updatedAt) ? updatedAt : undefined }
   } catch {}
@@ -110,8 +108,18 @@ function writeCookieTheme(value: Theme, updatedAt?: number) {
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
     const v = coerceToValidTheme(value)
     const ts = typeof updatedAt === 'number' && Number.isFinite(updatedAt) ? updatedAt : Date.now()
-    document.cookie = `${cookieKey('theme')}=${encodeURIComponent(v)}; path=/; max-age=31536000; samesite=lax${isSecure}`
-    document.cookie = `${cookieKey('themeUpdatedAt')}=${ts}; path=/; max-age=31536000; samesite=lax${isSecure}`
+    Cookies.set(cookieKey('theme'), v, {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
+    Cookies.set(cookieKey('themeUpdatedAt'), String(ts), {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
   } catch {}
 }
 
@@ -129,7 +137,12 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
-    document.cookie = `${cookieKey('systemTheme')}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax${isSecure}`
+    Cookies.set(cookieKey('systemTheme'), value, {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
   } catch {}
 }
 
@@ -197,7 +210,7 @@ export function ThemeProvider({
   // Ensure a unique namespace is used for persistence (e.g., Storybook)
   setKeyPrefix(storageNamespace)
   const [theme, setThemeState] = React.useState<Theme | undefined>(() => {
-    if (typeof document === 'undefined') return undefined
+    if (typeof document === 'undefined') return
     try {
       const root = document.documentElement
       const applied = (root.dataset.appliedTheme as Theme | undefined) ?? undefined
@@ -207,18 +220,18 @@ export function ThemeProvider({
       const ck = readCookieTheme()
       return ls ?? ck ?? undefined
     } catch {
-      return undefined
+      return
     }
   })
   const [systemTheme, setSystemTheme] = React.useState<SystemTheme | undefined>(() => {
-    if (typeof document === 'undefined') return undefined
+    if (typeof document === 'undefined') return
     try {
       const root = document.documentElement
       if (root.classList.contains('dark')) return 'dark'
       if (root.classList.contains('light')) return 'light'
       return getSystemTheme()
     } catch {
-      return undefined
+      return
     }
   })
 
@@ -330,7 +343,7 @@ export function ThemeProvider({
     const id = globalThis.setTimeout(() => {
       // Check if user has theme tapdance achievement before checking availability
       const hasThemeTapdance =
-        typeof document !== 'undefined' && document.documentElement.hasAttribute('data-has-theme-tapdance')
+        typeof document !== 'undefined' && Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
       // Skip auto-revert if user has theme tapdance achievement
       if (hasThemeTapdance) {
@@ -360,9 +373,9 @@ export function ThemeProvider({
   const value: ThemeContextValue = React.useMemo(() => {
     const computedInitial =
       initialAppliedTheme ??
-      (typeof document !== 'undefined'
-        ? ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined)
-        : undefined)
+      (typeof document === 'undefined'
+        ? undefined
+        : ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined))
     return { theme, setTheme, resolvedTheme, systemTheme, initialAppliedThemeName: computedInitial }
   }, [theme, setTheme, resolvedTheme, systemTheme, initialAppliedTheme])
 

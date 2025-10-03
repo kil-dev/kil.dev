@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs'
 import type { NextRequest } from 'next/server'
-import path from 'path'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export const runtime = 'nodejs'
 

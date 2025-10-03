@@ -35,7 +35,7 @@ export function NameInputModal({ isOpen, score, onSubmit, onClose }: NameInputMo
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
       .toUpperCase()
-      .replace(/[^A-Z]/g, '')
+      .replaceAll(/[^A-Z]/g, '')
       .slice(0, 3)
 
     setName(value)

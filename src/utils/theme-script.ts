@@ -31,9 +31,7 @@ function validateConfig(config: ThemeScriptConfig): void {
   for (const s of config.seasonal) {
     if (!s || typeof s.theme !== 'string' || !nameRe.test(s.theme)) {
       const bad =
-        s && typeof (s as { theme?: unknown }).theme !== 'undefined'
-          ? String((s as { theme?: unknown }).theme)
-          : 'undefined'
+        s && (s as { theme?: unknown }).theme !== undefined ? String((s as { theme?: unknown }).theme) : 'undefined'
       throw new Error(`Invalid seasonal theme name: ${bad}`)
     }
     const fields: Array<['start' | 'end', CompactDate]> = [
@@ -91,10 +89,8 @@ function addDisableTransitionStyle(): HTMLStyleElement | null {
   try {
     const style = document.createElement('style')
     style.id = '__disable-theme-transitions'
-    style.appendChild(
-      document.createTextNode('*,*::before,*::after{transition:none !important;animation:none !important}'),
-    )
-    document.head.appendChild(style)
+    style.append(document.createTextNode('*,*::before,*::after{transition:none !important;animation:none !important}'))
+    document.head.append(style)
     return style
   } catch {
     return null
@@ -104,7 +100,7 @@ function addDisableTransitionStyle(): HTMLStyleElement | null {
 function removeElementSoon(el: HTMLElement | null): void {
   try {
     const rm = () => {
-      el?.parentNode?.removeChild(el)
+      el?.remove()
     }
     if (typeof globalThis.window.requestAnimationFrame === 'function') {
       globalThis.window.requestAnimationFrame(() => rm())
@@ -123,7 +119,7 @@ export function initTheme(config: ThemeScriptConfig): void {
   // Check if user has theme tapdance achievement (bypasses date restrictions)
   let hasThemeTapdance = false
   if (typeof document !== 'undefined') {
-    hasThemeTapdance = document.documentElement.hasAttribute('data-has-theme-tapdance')
+    hasThemeTapdance = Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
     // Fallback: if CSS attribute not set yet, try to detect from cookie directly
     if (!hasThemeTapdance) {
@@ -152,7 +148,7 @@ export function initTheme(config: ThemeScriptConfig): void {
 
   const cookieTheme = getCookieTheme()
   const lsTheme = getLocalStorageTheme()
-  const sysDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
 
   const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
 

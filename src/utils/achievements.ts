@@ -62,9 +62,9 @@ type PresenceConfig = { cookieName?: string; key: string; attribute: string }
 export function buildPresenceScript(cfg: PresenceConfig): string {
   const finalCfg = { cookieName: ACHIEVEMENTS_COOKIE_NAME, ...cfg }
   const serializedCfg = JSON.stringify(finalCfg)
-    .replace(/</g, '\\u003c')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
+    .replaceAll('<', String.raw`\u003c`)
+    .replaceAll('\u2028', String.raw`\u2028`)
+    .replaceAll('\u2029', String.raw`\u2029`)
   const invoke = ';try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(' + serializedCfg + ')}catch(e){}'
   return PRESENCE_RUNTIME_BUNDLE + invoke
 }

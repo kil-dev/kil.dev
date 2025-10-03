@@ -1,6 +1,6 @@
 import { redis } from '@/lib/redis'
 import { stableStringify } from '@/utils/stable-stringify'
-import { createHash, randomBytes } from 'crypto'
+import { createHash, randomBytes } from 'node:crypto'
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
 
