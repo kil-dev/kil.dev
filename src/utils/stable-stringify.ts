@@ -30,43 +30,59 @@ function serializeDateOrRegExp(obj: object): string | null {
 
 function serializeMap(obj: Map<unknown, unknown>, seen: WeakSet<object>): string {
   seen.add(obj)
-  const pairStrings: string[] = []
-  for (const [k, v] of obj.entries()) {
-    const keyJson = serialize(k, seen)
-    const valueJson = serialize(v, seen)
-    pairStrings.push(`[${keyJson},${valueJson}]`)
+  try {
+    const pairStrings: string[] = []
+    for (const [k, v] of obj.entries()) {
+      const keyJson = serialize(k, seen)
+      const valueJson = serialize(v, seen)
+      pairStrings.push(`[${keyJson},${valueJson}]`)
+    }
+    const sortedPairs = pairStrings.toSorted(compareStrings)
+    return `[${sortedPairs.join(',')}]`
+  } finally {
+    seen.delete(obj)
   }
-  const sortedPairs = pairStrings.toSorted(compareStrings)
-  return `[${sortedPairs.join(',')}]`
 }
 
 function serializeSet(obj: Set<unknown>, seen: WeakSet<object>): string {
   seen.add(obj)
-  const items = Array.from(obj.values()).map(v => serialize(v, seen))
-  const sortedItems = items.toSorted(compareStrings)
-  return `[${sortedItems.join(',')}]`
+  try {
+    const items = Array.from(obj.values()).map(v => serialize(v, seen))
+    const sortedItems = items.toSorted(compareStrings)
+    return `[${sortedItems.join(',')}]`
+  } finally {
+    seen.delete(obj)
+  }
 }
 
 function serializeArray(arr: unknown[], seen: WeakSet<object>): string {
   seen.add(arr as object)
-  const items = arr.map(item => {
-    if (item === undefined || typeof item === 'function' || typeof item === 'symbol') return 'null'
-    return serialize(item, seen)
-  })
-  return `[${items.join(',')}]`
+  try {
+    const items = arr.map(item => {
+      if (item === undefined || typeof item === 'function' || typeof item === 'symbol') return 'null'
+      return serialize(item, seen)
+    })
+    return `[${items.join(',')}]`
+  } finally {
+    seen.delete(arr as object)
+  }
 }
 
 function serializeObject(obj: Record<string, unknown>, seen: WeakSet<object>): string {
   seen.add(obj)
-  const keys = Object.keys(obj).toSorted(compareKeys)
-  const parts: string[] = []
-  for (const key of keys) {
-    const val = obj[key]
-    // Omit undefined/function/symbol to match JSON.stringify behavior on objects
-    if (val === undefined || typeof val === 'function' || typeof val === 'symbol') continue
-    parts.push(`${JSON.stringify(key)}:${serialize(val, seen)}`)
+  try {
+    const keys = Object.keys(obj).toSorted(compareKeys)
+    const parts: string[] = []
+    for (const key of keys) {
+      const val = obj[key]
+      // Omit undefined/function/symbol to match JSON.stringify behavior on objects
+      if (val === undefined || typeof val === 'function' || typeof val === 'symbol') continue
+      parts.push(`${JSON.stringify(key)}:${serialize(val, seen)}`)
+    }
+    return `{${parts.join(',')}}`
+  } finally {
+    seen.delete(obj)
   }
-  return `{${parts.join(',')}}`
 }
 
 function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()): string {
