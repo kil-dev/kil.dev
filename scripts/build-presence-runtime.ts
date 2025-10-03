@@ -40,7 +40,7 @@ async function main() {
   console.log(`Wrote presence bundle to ${outFile} (${js.length} bytes)`)
 }
 
-main().catch((err: unknown) => {
+await main().catch((err: unknown) => {
   const msg = err instanceof Error ? err.message : String(err)
   console.error(msg)
   process.exit(1)
