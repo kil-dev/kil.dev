@@ -10,7 +10,7 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
   const { unlocked, unlock } = useAchievements()
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState<0 | 1 | 2 | 3 | 4 | 5>(0)
-  const [snark, setSnark] = useState<string | undefined>(undefined)
+  const [snark, setSnark] = useState<string | undefined>()
   const reminderShownRef = useRef(false)
 
   useEffect(() => {

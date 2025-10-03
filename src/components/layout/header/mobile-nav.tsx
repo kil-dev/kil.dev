@@ -82,7 +82,7 @@ export function MobileNav() {
         }
       }
     `
-    document.head.appendChild(style)
+    document.head.append(style)
     globalThis.setTimeout(() => {
       const el = document.getElementById(styleId)
       if (el) el.remove()
@@ -224,10 +224,10 @@ export function MobileNav() {
 
   const handleMenuKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLUListElement>) => {
-      const currentIndex = itemRefs.current.findIndex(el => el === document.activeElement)
+      const currentIndex = itemRefs.current.indexOf(document.activeElement)
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
-        const next = currentIndex < 0 ? 0 : Math.min(items.length - 1, currentIndex + 1)
+        const next = currentIndex === -1 ? 0 : Math.min(items.length - 1, currentIndex + 1)
         itemRefs.current[next]?.focus()
         return
       }

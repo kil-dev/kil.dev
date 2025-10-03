@@ -44,7 +44,7 @@ export function generateArcadeSound(frequency: number, duration = 100) {
     } catch {}
   }
 
-  oscillator.onended = cleanup
+  oscillator.addEventListener('ended', cleanup)
 
   oscillator.start(audioContext.currentTime)
   oscillator.stop(audioContext.currentTime + duration / 1000)

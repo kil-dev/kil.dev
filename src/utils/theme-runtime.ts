@@ -8,7 +8,7 @@ function hasThemeTapdanceAchievement(): boolean {
   if (typeof document !== 'undefined') {
     // Check for SSR-hydrated CSS data attribute
     const root = document.documentElement
-    if (root.hasAttribute('data-has-theme-tapdance')) {
+    if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) {
       return true
     }
   }

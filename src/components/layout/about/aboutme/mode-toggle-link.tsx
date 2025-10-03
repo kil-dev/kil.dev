@@ -66,7 +66,7 @@ export function ModeToggleLink() {
       }
     `
     style.textContent = css
-    document.head.appendChild(style)
+    document.head.append(style)
     setTimeout(() => {
       const styleEl = document.getElementById(styleId)
       if (styleEl) styleEl.remove()

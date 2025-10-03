@@ -38,8 +38,8 @@ export function NavLava() {
     if (typeof document === 'undefined') return { hasAchievements: false, hasPetGallery: false }
     const root = document.documentElement
     return {
-      hasAchievements: root.getAttribute('data-has-achievements') === 'true',
-      hasPetGallery: root.getAttribute('data-has-pet-gallery') === 'true',
+      hasAchievements: root.dataset.hasAchievements === 'true',
+      hasPetGallery: root.dataset.hasPetGallery === 'true',
     }
   })
 
@@ -88,14 +88,14 @@ export function NavLava() {
     if (activeIndex >= 0) {
       if (!activeItems[activeIndex]) return
       const key = activeItems[activeIndex].href
-      if (!didInitRef.current) {
+      if (didInitRef.current) {
+        moveIndicatorTo(key, true)
+      } else {
         moveIndicatorTo(key, false)
         requestAnimationFrame(() => {
           didInitRef.current = true
           setIndicator(prev => ({ ...prev, animate: true }))
         })
-      } else {
-        moveIndicatorTo(key, true)
       }
       return
     }
@@ -146,7 +146,7 @@ export function NavLava() {
       })
       if (focusable.length === 0) return
 
-      const currentIndex = focusable.findIndex(el => el === document.activeElement)
+      const currentIndex = focusable.indexOf(document.activeElement)
       const delta = event.key === 'ArrowRight' ? 1 : -1
       const nextIndex =
         currentIndex === -1

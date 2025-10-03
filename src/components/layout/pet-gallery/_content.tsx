@@ -1,9 +1,9 @@
 import { ClientMounted, GalleryClient } from '@/components/layout/pet-gallery/gallery-client'
 import { ServerAlbum } from '@/components/layout/pet-gallery/server-album'
 import { SectionLabel } from '@/components/ui/section-label'
-import { promises as fs } from 'fs'
 import sizeOf from 'image-size'
-import path from 'path'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export type GalleryImage = {
   fileName: string
@@ -45,8 +45,8 @@ async function getPetGalleryImagesFromPublic(): Promise<GalleryImage[]> {
     files.map(async fileName => {
       const alt = fileName
         .replace(/\.[^.]+$/, '')
-        .replace(/[-_]+/g, ' ')
-        .replace(/\s+/g, ' ')
+        .replaceAll(/[-_]+/g, ' ')
+        .replaceAll(/\s+/g, ' ')
         .trim()
       const url = `/pet-gallery/${encodeURIComponent(fileName)}`
       const filePath = path.join(directoryPath, fileName)

@@ -75,15 +75,11 @@ export function ProfileImage() {
   }, [isLadybird])
 
   useEffect(() => {
-    if (isLadybird) {
-      if (!has('LADYBIRD_LANDING' as AchievementId)) {
-        unlock('LADYBIRD_LANDING' as AchievementId)
-      }
+    if (isLadybird && !has('LADYBIRD_LANDING' as AchievementId)) {
+      unlock('LADYBIRD_LANDING' as AchievementId)
     }
-    if (useConfused) {
-      if (!has('CONFUSED_CLICK' as AchievementId)) {
-        unlock('CONFUSED_CLICK' as AchievementId)
-      }
+    if (useConfused && !has('CONFUSED_CLICK' as AchievementId)) {
+      unlock('CONFUSED_CLICK' as AchievementId)
     }
   }, [isLadybird, useConfused, has, unlock])
 

@@ -38,7 +38,7 @@ function coerceToValidTheme(value: Theme | undefined): Theme {
 
   // Check if user has theme tapdance achievement before validating theme availability
   const hasThemeTapdance =
-    typeof document !== 'undefined' && document.documentElement.hasAttribute('data-has-theme-tapdance')
+    typeof document !== 'undefined' && Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
   // If user has achievement, all themes are valid except expired seasonal themes for system
   if (hasThemeTapdance) {
@@ -197,7 +197,7 @@ export function ThemeProvider({
   // Ensure a unique namespace is used for persistence (e.g., Storybook)
   setKeyPrefix(storageNamespace)
   const [theme, setThemeState] = React.useState<Theme | undefined>(() => {
-    if (typeof document === 'undefined') return undefined
+    if (typeof document === 'undefined') return
     try {
       const root = document.documentElement
       const applied = (root.dataset.appliedTheme as Theme | undefined) ?? undefined
@@ -207,18 +207,18 @@ export function ThemeProvider({
       const ck = readCookieTheme()
       return ls ?? ck ?? undefined
     } catch {
-      return undefined
+      return
     }
   })
   const [systemTheme, setSystemTheme] = React.useState<SystemTheme | undefined>(() => {
-    if (typeof document === 'undefined') return undefined
+    if (typeof document === 'undefined') return
     try {
       const root = document.documentElement
       if (root.classList.contains('dark')) return 'dark'
       if (root.classList.contains('light')) return 'light'
       return getSystemTheme()
     } catch {
-      return undefined
+      return
     }
   })
 
@@ -330,7 +330,7 @@ export function ThemeProvider({
     const id = globalThis.setTimeout(() => {
       // Check if user has theme tapdance achievement before checking availability
       const hasThemeTapdance =
-        typeof document !== 'undefined' && document.documentElement.hasAttribute('data-has-theme-tapdance')
+        typeof document !== 'undefined' && Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
       // Skip auto-revert if user has theme tapdance achievement
       if (hasThemeTapdance) {
@@ -360,9 +360,9 @@ export function ThemeProvider({
   const value: ThemeContextValue = React.useMemo(() => {
     const computedInitial =
       initialAppliedTheme ??
-      (typeof document !== 'undefined'
-        ? ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined)
-        : undefined)
+      (typeof document === 'undefined'
+        ? undefined
+        : ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined))
     return { theme, setTheme, resolvedTheme, systemTheme, initialAppliedThemeName: computedInitial }
   }, [theme, setTheme, resolvedTheme, systemTheme, initialAppliedTheme])
 

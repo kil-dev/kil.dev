@@ -115,7 +115,7 @@ export function ThemeToggle() {
       }
     `
     style.textContent = css
-    document.head.appendChild(style)
+    document.head.append(style)
     setTimeout(() => {
       const styleEl = document.getElementById(styleId)
       if (styleEl) {
@@ -283,10 +283,10 @@ export function ThemeToggle() {
 
   const handleMenuKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const currentIndex = optionRefs.current.findIndex(el => el === document.activeElement)
+      const currentIndex = optionRefs.current.indexOf(document.activeElement)
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
-        const nextIndex = currentIndex < 0 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
+        const nextIndex = currentIndex === -1 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
         optionRefs.current[nextIndex]?.focus()
         return
       }

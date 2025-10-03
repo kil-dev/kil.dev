@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Score parameter is required' }, { status: 400 })
     }
 
-    const score = parseInt(scoreParam, 10)
+    const score = Number.parseInt(scoreParam, 10)
 
     if (isNaN(score) || score < 0) {
       return NextResponse.json({ success: false, message: 'Invalid score value' }, { status: 400 })

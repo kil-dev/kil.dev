@@ -171,10 +171,10 @@ export function AchievementsProvider({
     if (typeof document === 'undefined') return
     const root = document.documentElement
     if (hasRecursiveReward) {
-      root.setAttribute('data-has-achievements', 'true')
+      root.dataset.hasAchievements = 'true'
       return
     }
-    root.removeAttribute('data-has-achievements')
+    delete root.dataset.hasAchievements
   }, [hasRecursiveReward])
 
   // One-time sparkle on first reveal in this session
@@ -189,9 +189,9 @@ export function AchievementsProvider({
         const already = w.sessionStorage?.getItem('kd_achievements_nav_sparkled')
         if (!already) {
           w.sessionStorage?.setItem('kd_achievements_nav_sparkled', '1')
-          document.documentElement.setAttribute('data-achievements-just-unlocked', 'true')
+          document.documentElement.dataset.achievementsJustUnlocked = 'true'
           globalThis.window.setTimeout(() => {
-            document.documentElement.removeAttribute('data-achievements-just-unlocked')
+            delete document.documentElement.dataset.achievementsJustUnlocked
           }, 1000)
         }
       } catch {}
@@ -204,10 +204,10 @@ export function AchievementsProvider({
     if (typeof document === 'undefined') return
     const root = document.documentElement
     if (hasPetParade) {
-      root.setAttribute('data-has-pet-gallery', 'true')
+      root.dataset.hasPetGallery = 'true'
       return
     }
-    root.removeAttribute('data-has-pet-gallery')
+    delete root.dataset.hasPetGallery
   }, [hasPetParade])
 
   // Reflect presence of THEME_TAPDANCE to the DOM for CSS-gated UI (e.g., theme availability)
@@ -216,10 +216,10 @@ export function AchievementsProvider({
     if (typeof document === 'undefined') return
     const root = document.documentElement
     if (hasThemeTapdance) {
-      root.setAttribute('data-has-theme-tapdance', 'true')
+      root.dataset.hasThemeTapdance = 'true'
       return
     }
-    root.removeAttribute('data-has-theme-tapdance')
+    delete root.dataset.hasThemeTapdance
   }, [hasThemeTapdance])
 
   // One-time sparkle on first reveal in this session for pet gallery
@@ -234,9 +234,9 @@ export function AchievementsProvider({
         const already = w.sessionStorage?.getItem('kd_pet_gallery_nav_sparkled')
         if (!already) {
           w.sessionStorage?.setItem('kd_pet_gallery_nav_sparkled', '1')
-          document.documentElement.setAttribute('data-pet-gallery-just-unlocked', 'true')
+          document.documentElement.dataset.petGalleryJustUnlocked = 'true'
           globalThis.window.setTimeout(() => {
-            document.documentElement.removeAttribute('data-pet-gallery-just-unlocked')
+            delete document.documentElement.dataset.petGalleryJustUnlocked
           }, 1000)
         }
       } catch {}

@@ -25,7 +25,7 @@ const ConfettiContext = createContext<ConfettiContextValue | null>(null)
 // Safely execute a promise without awaiting it, and swallow rejections
 function fireAndForget(promise: Promise<unknown> | null | undefined): void {
   if (!promise) return
-  promise.catch(() => undefined)
+  promise.catch(() => {})
 }
 
 export function ConfettiProvider({ children }: { children: React.ReactNode }) {

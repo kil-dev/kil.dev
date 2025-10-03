@@ -26,9 +26,7 @@ export function GameOverlay({
       onEsc()
       return
     }
-    if (e.key === ' ') {
-      if (gameOver || !isPlaying) onRestart()
-    }
+    if (e.key === ' ' && (gameOver || !isPlaying)) onRestart()
   })
 
   useEffect(() => {

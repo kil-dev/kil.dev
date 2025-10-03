@@ -37,7 +37,7 @@ export function validateScoreSubmission(data: unknown) {
 export function sanitizeName(name: string): string {
   return name
     .toUpperCase()
-    .replace(/[^A-Z]/g, '')
+    .replaceAll(/[^A-Z]/g, '')
     .slice(0, 3)
     .padEnd(3, 'A') // Pad with 'A' if less than 3 characters
 }

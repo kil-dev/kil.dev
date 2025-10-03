@@ -22,7 +22,7 @@ function addScoreToMemory(entry: LeaderboardEntry): number {
     memoryLeaderboard.splice(MAX_LEADERBOARD_SIZE)
   }
   const rank = memoryLeaderboard.findIndex(e => e.id === entry.id)
-  return rank >= 0 ? rank + 1 : 0
+  return rank === -1 ? 0 : rank + 1
 }
 
 function getLeaderboardFromMemory(): LeaderboardEntry[] {
@@ -46,7 +46,7 @@ export async function addScoreToLeaderboard(entry: LeaderboardEntry): Promise<nu
 
     // Return rank (0-indexed, so add 1) or 0 if rank is null
     const rankIndex = await redis.zrevrank(LEADERBOARD_KEY, entryData)
-    return rankIndex !== null ? rankIndex + 1 : 0
+    return rankIndex === null ? 0 : rankIndex + 1
   } catch {
     // Fallback to in-memory leaderboard in non-production
     if (isDev()) {
@@ -130,7 +130,7 @@ export async function getQualificationThreshold(): Promise<number> {
       const size = memoryLeaderboard.length
       if (size === 0) return SCORE_QUALIFICATION_THRESHOLD
       if (size < MAX_LEADERBOARD_SIZE) {
-        const lowest = memoryLeaderboard[memoryLeaderboard.length - 1]
+        const lowest = memoryLeaderboard.at(-1)
         if (lowest) return Math.max(lowest.score + 1, SCORE_QUALIFICATION_THRESHOLD)
         return SCORE_QUALIFICATION_THRESHOLD
       }

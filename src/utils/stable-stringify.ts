@@ -70,7 +70,7 @@ function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()
   if (Array.isArray(obj)) {
     seen.add(obj)
     const items = obj.map(item => {
-      if (typeof item === 'undefined' || typeof item === 'function' || typeof item === 'symbol') {
+      if (item === undefined || typeof item === 'function' || typeof item === 'symbol') {
         return 'null'
       }
       return serialize(item, seen)
@@ -86,7 +86,7 @@ function serialize(value: unknown, seen: WeakSet<object> = new WeakSet<object>()
   for (const key of keys) {
     const val = (obj as Record<string, unknown>)[key]
     // Omit undefined/function/symbol to match JSON.stringify behavior on objects
-    if (typeof val === 'undefined' || typeof val === 'function' || typeof val === 'symbol') continue
+    if (val === undefined || typeof val === 'function' || typeof val === 'symbol') continue
     parts.push(`${JSON.stringify(key)}:${serialize(val, seen)}`)
   }
   return `{${parts.join(',')}}`
