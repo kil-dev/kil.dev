@@ -51,7 +51,7 @@ export function buildPerThemeVariantCss({
   return rules.join('')
 }
 
-export function buildBaseColorGateCss({
+function buildBaseColorGateCss({
   baseSelector,
   darkSelector,
   lightSelector,

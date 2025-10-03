@@ -311,7 +311,7 @@ export function useAchievements() {
   return ctx
 }
 
-export function AchievementsDebugPanel({ className }: { className?: string }) {
+function AchievementsDebugPanel({ className }: { className?: string }) {
   const { unlocked } = useAchievements()
   return (
     <div className={cn('hidden', className)} aria-hidden>

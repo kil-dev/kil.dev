@@ -75,4 +75,3 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default ReviewProvider

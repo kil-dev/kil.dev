@@ -38,10 +38,10 @@ BottomDrawerContent.displayName = 'BottomDrawerContent'
 
 export {
   BottomDrawer,
-  DrawerClose as BottomDrawerClose,
+  
   BottomDrawerContent,
   DrawerDescription as BottomDrawerDescription,
-  DrawerFooter as BottomDrawerFooter,
+  
   DrawerHeader as BottomDrawerHeader,
   DrawerTitle as BottomDrawerTitle,
   DrawerTrigger as BottomDrawerTrigger,

@@ -30,7 +30,7 @@ function computeSignatureHex(secret: string, payloadString: string): string {
 const NONCE_KEY_PREFIX = 'game:nonce:'
 const NONCE_TTL_SECONDS = 60 * 5 // 5 minutes
 
-export async function reserveNonceOnce(nonce: string): Promise<boolean> {
+async function reserveNonceOnce(nonce: string): Promise<boolean> {
   if (!nonce) return false
   const key = `${NONCE_KEY_PREFIX}${nonce}`
   try {
@@ -100,7 +100,7 @@ function getSessionKey(sessionId: string): string {
   return `${SESSION_KEY_PREFIX}${sessionId}`
 }
 
-export async function createSession(session: GameSession): Promise<void> {
+async function createSession(session: GameSession): Promise<void> {
   const key = getSessionKey(session.id)
   try {
     await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
@@ -113,7 +113,7 @@ export async function createSession(session: GameSession): Promise<void> {
   }
 }
 
-export async function getSession(sessionId: string): Promise<GameSession | undefined> {
+async function getSession(sessionId: string): Promise<GameSession | undefined> {
   const key = getSessionKey(sessionId)
   let raw: GameSession | null = null
   try {
@@ -133,7 +133,7 @@ export async function getSession(sessionId: string): Promise<GameSession | undef
   return raw
 }
 
-export async function updateSession(session: GameSession): Promise<void> {
+async function updateSession(session: GameSession): Promise<void> {
   const key = getSessionKey(session.id)
   try {
     await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
@@ -144,7 +144,7 @@ export async function updateSession(session: GameSession): Promise<void> {
   }
 }
 
-export async function deleteSession(sessionId: string): Promise<void> {
+async function deleteSession(sessionId: string): Promise<void> {
   const key = getSessionKey(sessionId)
   try {
     await withRetry(() => redis.del(key))
@@ -241,7 +241,7 @@ export async function endGameSession(
   return { success: true, validatedScore: finalScore }
 }
 
-export async function validateScoreSubmission(
+async function validateScoreSubmission(
   sessionId: string,
   secret: string,
   submittedScore: number,

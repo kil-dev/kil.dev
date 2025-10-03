@@ -5,9 +5,9 @@ import { isDev } from '@/utils/utils'
 import { redis } from './redis'
 
 // Redis key structure
-export const LEADERBOARD_KEY = 'snake:leaderboard'
-export const SCORE_QUALIFICATION_THRESHOLD = 100 // Minimum score to qualify
-export const MAX_LEADERBOARD_SIZE = 10
+const LEADERBOARD_KEY = 'snake:leaderboard'
+const SCORE_QUALIFICATION_THRESHOLD = 100 // Minimum score to qualify
+const MAX_LEADERBOARD_SIZE = 10
 
 // In-memory fallback for development/local if Redis is unavailable
 const memoryLeaderboard: LeaderboardEntry[] = []
@@ -90,7 +90,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   }
 }
 
-export async function getQualificationThreshold(): Promise<number> {
+async function getQualificationThreshold(): Promise<number> {
   try {
     // Get the current leaderboard size
     const leaderboardSize = await redis.zcard(LEADERBOARD_KEY)

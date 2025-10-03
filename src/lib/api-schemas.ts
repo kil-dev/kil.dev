@@ -1,20 +1,20 @@
 import { z } from 'zod'
 
 // Shared Zod schemas for API response validation
-export const LeaderboardEntrySchema = z.object({
+const LeaderboardEntrySchema = z.object({
   name: z.string(),
   score: z.number(),
   timestamp: z.number(),
   id: z.string(),
 })
-export const ScoreQualificationResponseSchema = z.object({
+const ScoreQualificationResponseSchema = z.object({
   success: z.boolean(),
   qualifies: z.boolean(),
   currentThreshold: z.number().optional(),
   message: z.string().optional(),
 })
 
-export const ScoreSubmissionResponseSchema = z.object({
+const ScoreSubmissionResponseSchema = z.object({
   success: z.boolean(),
   position: z.number().optional(),
   leaderboard: z.array(LeaderboardEntrySchema).optional(),
@@ -39,7 +39,7 @@ export const SubmitScoreResponseSchema = z.object({
 })
 
 // Game session lifecycle schemas
-export const GameStartResponseSchema = z.object({
+const GameStartResponseSchema = z.object({
   success: z.boolean(),
   sessionId: z.string().optional(),
   secret: z.string().optional(),
@@ -47,21 +47,21 @@ export const GameStartResponseSchema = z.object({
   message: z.string().optional(),
 })
 
-export const GameEndResponseSchema = z.object({
+const GameEndResponseSchema = z.object({
   success: z.boolean(),
   validatedScore: z.number().optional(),
   message: z.string().optional(),
 })
 
 // Game end request schema
-export const GameDirectionEnum = z.enum(['UP', 'DOWN', 'LEFT', 'RIGHT'])
+const GameDirectionEnum = z.enum(['UP', 'DOWN', 'LEFT', 'RIGHT'])
 
-export const GameEndEventSchema = z.object({
+const GameEndEventSchema = z.object({
   t: z.number(),
   k: GameDirectionEnum,
 })
 
-export const GameEndFoodSchema = z.object({
+const GameEndFoodSchema = z.object({
   t: z.number(),
   g: z.boolean(),
 })

@@ -62,7 +62,7 @@ export function readReviewState(): ReviewState {
   return { reminderCount: 0 }
 }
 
-export function writeReviewState(next: ReviewState): void {
+function writeReviewState(next: ReviewState): void {
   writeRaw(next)
 }
 

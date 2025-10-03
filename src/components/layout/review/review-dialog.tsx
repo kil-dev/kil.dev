@@ -14,7 +14,7 @@ import type { ReviewConfig, StarValue } from '@/types/review'
 import { cn } from '@/utils/utils'
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
-export type ReviewDialogProps = {
+type ReviewDialogProps = {
   open: boolean
   rating: StarValue
   onSelect: (next: StarValue) => void
@@ -50,7 +50,7 @@ function Star({ value, active, onSelect }: { value: StarValue; active: boolean; 
   )
 }
 
-export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: ReviewDialogProps) {
+function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: ReviewDialogProps) {
   const starsRef = useRef<Array<HTMLButtonElement | null>>([])
 
   const hint = useMemo(() => {

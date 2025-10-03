@@ -2,7 +2,7 @@ import { useKonamiAnimation } from '@/components/providers/konami-animation-prov
 import { type GameBoxDimensions } from '@/utils/grid'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export type CrtPhase = 'idle' | 'opening' | 'open' | 'closing' | 'closed'
+type CrtPhase = 'idle' | 'opening' | 'open' | 'closing' | 'closed'
 
 export type CrtAnimationState = {
   phase: CrtPhase
@@ -14,7 +14,7 @@ export type CrtAnimationState = {
   glowIntensity: number
 }
 
-export type UseCrtAnimationArgs = {
+type UseCrtAnimationArgs = {
   getDimensions: () => GameBoxDimensions
 }
 

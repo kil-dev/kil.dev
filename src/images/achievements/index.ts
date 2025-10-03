@@ -6,8 +6,8 @@ export { default as GrumpyGlimpseAchievement } from './grumpy-glimpse.webp'
 export { default as KonamiKillerAchievement } from './konami-killer.webp'
 export { default as LadybirdLandingAchievement } from './ladybird-landing.webp'
 export { default as PetParadeAchievement } from './pet-parade.webp'
-export { default as PlaceholderAchievement } from './placeholder.webp'
+
 export { default as ProjectsPeruserAchievement } from './projects-peruser.webp'
 export { default as RecursiveRewardAchievement } from './recursive-reward.webp'
 export { default as ThemeTapdanceAchievement } from './theme-tapdance.webp'
-export { default as UnknownAchievement } from './unknown.webp'
+

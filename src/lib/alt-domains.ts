@@ -3,9 +3,9 @@ export const PROFILE_IMAGE_ALT_DOMAINS = [
   'xn--j0c.net',
 ] as const
 
-export type ProfileImageAltDomain = (typeof PROFILE_IMAGE_ALT_DOMAINS)[number]
+type ProfileImageAltDomain = (typeof PROFILE_IMAGE_ALT_DOMAINS)[number]
 
-export function isProfileImageAltDomain(hostname: string | null | undefined): boolean {
+function isProfileImageAltDomain(hostname: string | null | undefined): boolean {
   if (!hostname) return false
   return PROFILE_IMAGE_ALT_DOMAINS.some(domain => domain.toLowerCase() === hostname.toLowerCase())
 }

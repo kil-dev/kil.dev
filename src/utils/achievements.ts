@@ -7,7 +7,7 @@ export function createEmptyUnlocked(): UnlockedMap {
   return {}
 }
 
-export function isValidAchievementId(id: string): id is AchievementId {
+function isValidAchievementId(id: string): id is AchievementId {
   return Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, id)
 }
 
