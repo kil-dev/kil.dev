@@ -141,7 +141,7 @@ export function GridLights() {
   const [disableGridLights, setDisableGridLights] = useState(false)
 
   const prefersReducedMotion = useMemo(() => {
-    if (globalThis.window?.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
+    if (globalThis.window?.matchMedia('(prefers-reduced-motion: reduce)')?.matches) return true
     return false
   }, [])
 
