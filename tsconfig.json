@@ -19,6 +19,9 @@
       "dom.iterable",
       "ES2023"
     ],
+    "types": [
+      "node"
+    ],
     "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
