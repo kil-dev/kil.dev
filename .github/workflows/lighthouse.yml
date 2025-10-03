@@ -26,27 +26,15 @@ jobs:
 
       - name: Build
         run: bun run build
-
-      - name: Run Lighthouse CI
-        id: lhci
-        continue-on-error: true
         env:
-          # Skip strict env validation during build/preview
           SKIP_ENV_VALIDATION: "1"
           NODE_ENV: "production"
           NEXT_TELEMETRY_DISABLED: "1"
-          # Leave public PostHog envs empty so analytics stay disabled in CI
           NEXT_PUBLIC_POSTHOG_KEY: ""
           NEXT_PUBLIC_POSTHOG_HOST: ""
-          # Enable LHCI GitHub App status checks (set this in repo secrets)
+
+      - name: Run Lighthouse CI
+        id: lhci
+        env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-        run: |
-          set +e
-          bunx -y @lhci/cli@0.14.x autorun --config=.lighthouserc.json
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-
-      # Rely on LHCI GitHub App status checks instead of PR comments
-
-      - name: Fail if Lighthouse step failed
-        if: steps.lhci.outputs.exit_code != '0'
-        run: exit 1
+        run: bunx -y @lhci/cli@0.15.x autorun --config=.lighthouserc.json
