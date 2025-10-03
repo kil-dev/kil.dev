@@ -25,7 +25,7 @@ export function generateArcadeSound(frequency: number, duration = 100) {
     if (cleanedUp) return
     cleanedUp = true
     try {
-      oscillator.onended = null
+      oscillator.removeEventListener('ended', cleanup)
       if (fallbackTimeoutId !== null) {
         clearTimeout(fallbackTimeoutId)
         fallbackTimeoutId = null
