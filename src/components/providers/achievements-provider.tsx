@@ -12,6 +12,7 @@ import {
 import { resetReviewState } from '@/utils/review'
 import { getThemeBaseColor } from '@/utils/themes'
 import { cn } from '@/utils/utils'
+import Cookies from 'js-cookie'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Toaster, toast } from 'sonner'
 import { useConfetti } from './confetti-provider'

@@ -7,6 +7,7 @@ import {
   getDefaultThemeForNow,
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
+import Cookies from 'js-cookie'
 import * as React from 'react'
 import { useEffectEvent } from 'react'
 
