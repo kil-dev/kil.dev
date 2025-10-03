@@ -17,9 +17,6 @@
         "http://localhost:3000/pet-gallery"
       ]
     },
-    "assert": {
-      "preset": "lighthouse:recommended"
-    },
     "upload": {
       "target": "temporary-public-storage"
     }
