@@ -48,14 +48,16 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
 
   const triggerConfetti = useCallback(() => {
     if (globalThis.window?.matchMedia('(prefers-reduced-motion: reduce)')?.matches) return
-    void getConfetti().then(confetti => {
-      void confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        zIndex: 50,
-      })
-    })
+    fireAndForget(
+      getConfetti().then(confetti =>
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          zIndex: 50,
+        }),
+      ),
+    )
   }, [])
 
   const triggerConfettiFromCorners = useCallback(() => {
@@ -88,10 +90,12 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fire from both corners with slight delay
-    void getConfetti().then(confetti => {
-      void confetti({ ...leftCorner, zIndex: 50 })
-      void confetti({ ...rightCorner, zIndex: 50 })
-    })
+    fireAndForget(
+      getConfetti().then(confetti => {
+        fireAndForget(confetti({ ...leftCorner, zIndex: 50 }))
+        fireAndForget(confetti({ ...rightCorner, zIndex: 50 }))
+      }),
+    )
 
     // Clean up the confetti pending flag after animation completes
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
@@ -104,16 +108,18 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
-    void getConfetti().then(confetti => {
-      void confetti({
-        particleCount: 150,
-        spread: 180,
-        origin: { y: 0 },
-        angle: 270,
-        startVelocity: 45,
-        zIndex: 50,
-      })
-    })
+    fireAndForget(
+      getConfetti().then(confetti =>
+        confetti({
+          particleCount: 150,
+          spread: 180,
+          origin: { y: 0 },
+          angle: 270,
+          startVelocity: 45,
+          zIndex: 50,
+        }),
+      ),
+    )
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
   }, [])
@@ -125,15 +131,17 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
-    void getConfetti().then(confetti => {
-      void confetti({
-        particleCount: 200,
-        spread: 360,
-        origin: { x: 0.5, y: 0.5 },
-        startVelocity: 30,
-        zIndex: 50,
-      })
-    })
+    fireAndForget(
+      getConfetti().then(confetti =>
+        confetti({
+          particleCount: 200,
+          spread: 360,
+          origin: { x: 0.5, y: 0.5 },
+          startVelocity: 30,
+          zIndex: 50,
+        }),
+      ),
+    )
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
   }, [])
@@ -148,43 +156,47 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     toast("You must love confetti! Here's some more", { duration: 5000, closeButton: false })
 
     // Fire an initial top burst
-    void getConfetti().then(confetti => {
-      void confetti({
-        particleCount: 150,
-        spread: 180,
-        origin: { y: 0 },
-        angle: 270,
-        startVelocity: 45,
-        zIndex: 50,
-      })
+    fireAndForget(
+      getConfetti().then(confetti => {
+        fireAndForget(
+          confetti({
+            particleCount: 150,
+            spread: 180,
+            origin: { y: 0 },
+            angle: 270,
+            startVelocity: 45,
+            zIndex: 50,
+          }),
+        )
 
-      // Then run a short fireworks loop from both sides using requestAnimationFrame
-      const duration = 2000
-      const end = Date.now() + duration
+        // Then run a short fireworks loop from both sides using requestAnimationFrame
+        const duration = 2000
+        const end = Date.now() + duration
 
-      const frame = () => {
-        // Fire a few particles from the left and right sides each frame
-        void confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, zIndex: 50 })
-        void confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, zIndex: 50 })
+        const frame = () => {
+          // Fire a few particles from the left and right sides each frame
+          fireAndForget(confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, zIndex: 50 }))
+          fireAndForget(confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, zIndex: 50 }))
 
-        if (Date.now() < end) {
-          const rafId = requestAnimationFrame(frame)
-          rafIdsRef.current.set(confettiId, rafId)
-          return
+          if (Date.now() < end) {
+            const rafId = requestAnimationFrame(frame)
+            rafIdsRef.current.set(confettiId, rafId)
+            return
+          }
+
+          // Cleanup after celebration ends
+          pendingConfettiRef.current.delete(confettiId)
+          const rafToCancel = rafIdsRef.current.get(confettiId)
+          if (rafToCancel) {
+            cancelAnimationFrame(rafToCancel)
+            rafIdsRef.current.delete(confettiId)
+          }
         }
 
-        // Cleanup after celebration ends
-        pendingConfettiRef.current.delete(confettiId)
-        const rafToCancel = rafIdsRef.current.get(confettiId)
-        if (rafToCancel) {
-          cancelAnimationFrame(rafToCancel)
-          rafIdsRef.current.delete(confettiId)
-        }
-      }
-
-      const startRaf = requestAnimationFrame(frame)
-      rafIdsRef.current.set(confettiId, startRaf)
-    })
+        const startRaf = requestAnimationFrame(frame)
+        rafIdsRef.current.set(confettiId, startRaf)
+      }),
+    )
   }, [])
 
   const triggerConfettiChaos = useCallback(() => {
@@ -217,106 +229,132 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     )
     timeoutsRef.current.set(confettiId, existing)
 
-    void getConfetti().then(confetti => {
-      let overdrive = false
+    fireAndForget(
+      getConfetti().then(confetti => {
+        let overdrive = false
 
-      const frame = () => {
-        // Randomized fireworks-like continuous cannons
-        void confetti({ particleCount: 5, angle: 60, spread: 70, origin: { x: 0 }, zIndex: 50 })
-        void confetti({ particleCount: 5, angle: 120, spread: 70, origin: { x: 1 }, zIndex: 50 })
-        void confetti({
-          particleCount: 2,
-          spread: 360,
-          origin: { x: Math.random(), y: Math.random() * 0.3 },
-          zIndex: 50,
-        })
-        // Top and bottom cannons
-        void confetti({
-          particleCount: 5,
-          angle: 270,
-          spread: 80,
-          origin: { x: Math.random(), y: 0 },
-          startVelocity: 45,
-          zIndex: 50,
-        })
-        void confetti({
-          particleCount: 5,
-          angle: 90,
-          spread: 80,
-          origin: { x: Math.random(), y: 1 },
-          startVelocity: 55,
-          zIndex: 50,
-        })
-
-        if (overdrive) {
-          // Heavier side cannons
-          void confetti({ particleCount: 10, angle: 60, spread: 90, origin: { x: 0 }, startVelocity: 60, zIndex: 50 })
-          void confetti({ particleCount: 10, angle: 120, spread: 90, origin: { x: 1 }, startVelocity: 60, zIndex: 50 })
-
-          // Corner cannons (top and bottom)
-          void confetti({
-            particleCount: 6,
-            angle: 315,
-            spread: 70,
-            origin: { x: 0, y: 0 },
-            startVelocity: 55,
-            zIndex: 50,
-          })
-          void confetti({
-            particleCount: 6,
-            angle: 225,
-            spread: 70,
-            origin: { x: 1, y: 0 },
-            startVelocity: 55,
-            zIndex: 50,
-          })
-          void confetti({
-            particleCount: 6,
-            angle: 45,
-            spread: 70,
-            origin: { x: 0, y: 1 },
-            startVelocity: 55,
-            zIndex: 50,
-          })
-          void confetti({
-            particleCount: 6,
-            angle: 135,
-            spread: 70,
-            origin: { x: 1, y: 1 },
-            startVelocity: 55,
-            zIndex: 50,
-          })
-
-          // Massive random explosions across the viewport
-          for (let i = 0; i < 3; i++) {
-            void confetti({
-              particleCount: 20,
+        const frame = () => {
+          // Randomized fireworks-like continuous cannons
+          fireAndForget(confetti({ particleCount: 5, angle: 60, spread: 70, origin: { x: 0 }, zIndex: 50 }))
+          fireAndForget(confetti({ particleCount: 5, angle: 120, spread: 70, origin: { x: 1 }, zIndex: 50 }))
+          fireAndForget(
+            confetti({
+              particleCount: 2,
               spread: 360,
-              origin: { x: Math.random(), y: Math.random() },
-              startVelocity: 65,
+              origin: { x: Math.random(), y: Math.random() * 0.3 },
               zIndex: 50,
-            })
+            }),
+          )
+          // Top and bottom cannons
+          fireAndForget(
+            confetti({
+              particleCount: 5,
+              angle: 270,
+              spread: 80,
+              origin: { x: Math.random(), y: 0 },
+              startVelocity: 45,
+              zIndex: 50,
+            }),
+          )
+          fireAndForget(
+            confetti({
+              particleCount: 5,
+              angle: 90,
+              spread: 80,
+              origin: { x: Math.random(), y: 1 },
+              startVelocity: 55,
+              zIndex: 50,
+            }),
+          )
+
+          if (overdrive) {
+            // Heavier side cannons
+            fireAndForget(
+              confetti({ particleCount: 10, angle: 60, spread: 90, origin: { x: 0 }, startVelocity: 60, zIndex: 50 }),
+            )
+            fireAndForget(
+              confetti({ particleCount: 10, angle: 120, spread: 90, origin: { x: 1 }, startVelocity: 60, zIndex: 50 }),
+            )
+
+            // Corner cannons (top and bottom)
+            fireAndForget(
+              confetti({
+                particleCount: 6,
+                angle: 315,
+                spread: 70,
+                origin: { x: 0, y: 0 },
+                startVelocity: 55,
+                zIndex: 50,
+              }),
+            )
+            fireAndForget(
+              confetti({
+                particleCount: 6,
+                angle: 225,
+                spread: 70,
+                origin: { x: 1, y: 0 },
+                startVelocity: 55,
+                zIndex: 50,
+              }),
+            )
+            fireAndForget(
+              confetti({
+                particleCount: 6,
+                angle: 45,
+                spread: 70,
+                origin: { x: 0, y: 1 },
+                startVelocity: 55,
+                zIndex: 50,
+              }),
+            )
+            fireAndForget(
+              confetti({
+                particleCount: 6,
+                angle: 135,
+                spread: 70,
+                origin: { x: 1, y: 1 },
+                startVelocity: 55,
+                zIndex: 50,
+              }),
+            )
+
+            // Massive random explosions across the viewport
+            for (let i = 0; i < 3; i++) {
+              fireAndForget(
+                confetti({
+                  particleCount: 20,
+                  spread: 360,
+                  origin: { x: Math.random(), y: Math.random() },
+                  startVelocity: 65,
+                  zIndex: 50,
+                }),
+              )
+            }
           }
+
+          const rafId = requestAnimationFrame(frame)
+          rafIdsRef.current.set(confettiId, rafId)
         }
 
-        const rafId = requestAnimationFrame(frame)
-        rafIdsRef.current.set(confettiId, rafId)
-      }
+        const startRaf = requestAnimationFrame(frame)
+        rafIdsRef.current.set(confettiId, startRaf)
 
-      const startRaf = requestAnimationFrame(frame)
-      rafIdsRef.current.set(confettiId, startRaf)
-
-      // Escalate after 30s to overdrive mode (sync with the third toast)
-      const timers = timeoutsRef.current.get(confettiId) ?? []
-      const escalateId = setTimeout(() => {
-        overdrive = true
-        // Initial overdrive blast
-        void confetti({ particleCount: 300, spread: 360, origin: { x: 0.5, y: 0.2 }, startVelocity: 70, zIndex: 50 })
-        void confetti({ particleCount: 300, spread: 360, origin: { x: 0.5, y: 0.8 }, startVelocity: 70, zIndex: 50 })
-      }, 30000)
-      timers.push(escalateId)
-      timeoutsRef.current.set(confettiId, timers)
-    })
+        // Escalate after 30s to overdrive mode (sync with the third toast)
+        const timers = timeoutsRef.current.get(confettiId) ?? []
+        const escalateId = setTimeout(() => {
+          overdrive = true
+          // Initial overdrive blast
+          fireAndForget(
+            confetti({ particleCount: 300, spread: 360, origin: { x: 0.5, y: 0.2 }, startVelocity: 70, zIndex: 50 }),
+          )
+          fireAndForget(
+            confetti({ particleCount: 300, spread: 360, origin: { x: 0.5, y: 0.8 }, startVelocity: 70, zIndex: 50 }),
+          )
+        }, 30000)
+        timers.push(escalateId)
+        timeoutsRef.current.set(confettiId, timers)
+      }),
+    )
   }, [])
 
   const value = useMemo<ConfettiContextValue>(
