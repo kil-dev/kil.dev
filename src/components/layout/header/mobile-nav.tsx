@@ -224,7 +224,8 @@ export function MobileNav() {
 
   const handleMenuKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLUListElement>) => {
-      const currentIndex = itemRefs.current.indexOf(document.activeElement as HTMLAnchorElement | null)
+      const activeEl = document.activeElement
+      const currentIndex = activeEl instanceof HTMLAnchorElement ? itemRefs.current.indexOf(activeEl) : -1
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         const next = currentIndex === -1 ? 0 : Math.min(items.length - 1, currentIndex + 1)
