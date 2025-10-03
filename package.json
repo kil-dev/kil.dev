@@ -8,6 +8,7 @@
     "build:runtimes": "bun scripts/build-runtimes.ts",
     "prebuild": "bun run build:runtimes && bun run sync:pet-gallery",
     "predev": "bun run build:runtimes",
+    "prepreview": "bun run prebuild",
     "check": "eslint . && tsc --noEmit",
     "check:all": "bun run typecheck && bun run format:check && bun run lint",
     "fix:all": "bun run format:write && bun run lint:fix",

@@ -1,0 +1,44 @@
+name: CI - Vitest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run Vitest (with JUnit + GA reporters)
+        id: vitest
+        continue-on-error: true
+        run: |
+          set +e
+          mkdir -p reports
+          bun run test -- --reporter=github-actions --reporter=junit --outputFile=./reports/junit.xml
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Publish Vitest results as sticky PR comment
+        if: github.event_name == 'pull_request'
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: reports/junit.xml
+
+      - name: Fail if tests failed
+        if: steps.vitest.outputs.exit_code != '0'
+        run: exit 1

@@ -1,0 +1,24 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 1,
+      "startServerCommand": "bun run start",
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 180000,
+      "settings": {
+        "preset": "desktop"
+      },
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/about",
+        "http://localhost:3000/projects",
+        "http://localhost:3000/experience",
+        "http://localhost:3000/achievements",
+        "http://localhost:3000/pet-gallery"
+      ]
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
