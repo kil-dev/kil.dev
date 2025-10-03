@@ -34,9 +34,7 @@ function storageKey(base: string): string {
   return `${KEY_PREFIX}${base}`
 }
 
-function coerceToValidTheme(value: Theme | undefined): Theme {
-  const pref = value ?? 'system'
-
+function coerceToValidTheme(value: Theme = 'system'): Theme {
   // Check if user has theme tapdance achievement before validating theme availability
   const hasThemeTapdance =
     typeof document !== 'undefined' && Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
@@ -44,18 +42,18 @@ function coerceToValidTheme(value: Theme | undefined): Theme {
   // If user has achievement, all themes are valid except expired seasonal themes for system
   if (hasThemeTapdance) {
     // For system theme, we need to ensure no expired seasonal themes are applied
-    if (pref === 'system') return pref
+    if (value === 'system') return value
 
     // For explicit themes, all are valid when unlocked
-    return pref
+    return value
   }
 
   const allowed = getAvailableThemes()
-  if (pref !== 'system' && !allowed.includes(pref)) return 'system'
-  return pref
+  if (value !== 'system' && !allowed.includes(value)) return 'system'
+  return value
 }
 
-const VALID_THEMES: ReadonlyArray<Theme> = ['system', ...themes.map(t => t.name)]
+const VALID_THEMES: ReadonlySet<Theme> = new Set(['system', ...themes.map(t => t.name)])
 
 function readCookieTheme(): Theme | undefined {
   try {
