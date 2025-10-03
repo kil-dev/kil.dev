@@ -2,16 +2,16 @@
 import { isDev } from '@/utils/utils'
 import { build } from 'esbuild'
 import { writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = path.dirname(__filename)
 
 async function main() {
-  const projectRoot = resolve(__dirname, '..')
-  const entry = resolve(projectRoot, 'src/utils/theme-script.ts')
-  const outFile = resolve(projectRoot, 'src/utils/theme-bundle.ts')
+  const projectRoot = path.resolve(__dirname, '..')
+  const entry = path.resolve(projectRoot, 'src/utils/theme-script.ts')
+  const outFile = path.resolve(projectRoot, 'src/utils/theme-bundle.ts')
   const sourcemap = isDev() ? 'inline' : false
 
   const result = await build({
