@@ -2,7 +2,9 @@
   "ci": {
     "collect": {
       "numberOfRuns": 1,
-      "startServerCommand": "bun run preview",
+      "startServerCommand": "bun run start",
+      "startServerReadyPattern": "started server on",
+      "startServerReadyTimeout": 180000,
       "url": [
         "http://localhost:3000/",
         "http://localhost:3000/about",
