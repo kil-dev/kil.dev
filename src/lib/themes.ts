@@ -27,7 +27,7 @@ export const themes = [
   {
     name: 'matrix',
     icon: Terminal,
-    headshotImage: Headshots.Headshot,
+    headshotImage: Headshots.Matrix,
     baseColor: 'dark',
     darkModeNote: '',
     disableGridLights: true,
