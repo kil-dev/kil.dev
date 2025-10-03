@@ -51,84 +51,64 @@ export function ScoreSubmission({ score, onComplete }: ScoreSubmissionProps) {
   }, [])
 
   const handleNameSubmit = async (name: string) => {
-    try {
-      const response = await fetch('/api/scores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, score }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const rawData = (await response.json()) as unknown
-      const data = ScoreSubmissionResponseSchema.parse(rawData)
-
-      if (data.success) {
-        // Score submitted successfully
-        toast.success('Score submitted successfully!', {
-          description: data.position
-            ? `You're ranked #${data.position} on the leaderboard!`
-            : 'Your score has been recorded.',
-        })
-
-        // Close name input after showing success
-        setShowNameInput(false)
-
-        // Wait a moment then complete
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-          timeoutRef.current = null
-        }
-        timeoutRef.current = globalThis.window.setTimeout(() => {
-          onComplete()
-          timeoutRef.current = null
-        }, 2000)
-      } else {
-        // API returned success: false
-        const errorMessage = data.message ?? 'Failed to submit score. Please try again.'
-        toast.error('Score submission failed', {
-          description: errorMessage,
-        })
-
-        // Close modal and complete after showing error
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-          timeoutRef.current = null
-        }
-        setShowNameInput(false)
-        onComplete()
-      }
-    } catch (error) {
-      console.error('Error submitting score:', error)
-
-      let errorMessage = 'Failed to submit score. Please try again.'
-
-      if (error instanceof z.ZodError) {
-        errorMessage = 'Invalid response from server. Please try again.'
-        console.error('Zod validation error:', error.issues)
-      } else if (error instanceof Error) {
-        if (error.message.includes('HTTP error')) {
-          errorMessage = 'Server error. Please try again later.'
-        } else if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'Network error. Please check your connection.'
-        }
-      }
-
-      toast.error('Score submission failed', {
-        description: errorMessage,
-      })
-
-      // Close modal and complete after showing error
+    const finalize = (delayMs = 0) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
       }
+      if (delayMs > 0) {
+        timeoutRef.current = globalThis.window.setTimeout(() => {
+          onComplete()
+          timeoutRef.current = null
+        }, delayMs)
+      } else {
+        onComplete()
+      }
+    }
+
+    try {
+      const response = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, score }),
+      })
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+      const rawData = (await response.json()) as unknown
+      const data = ScoreSubmissionResponseSchema.parse(rawData)
+
+      if (!data.success) {
+        const errorMessage = data.message ?? 'Failed to submit score. Please try again.'
+        toast.error('Score submission failed', { description: errorMessage })
+        setShowNameInput(false)
+        finalize()
+        return
+      }
+
+      toast.success('Score submitted successfully!', {
+        description: data.position
+          ? `You're ranked #${data.position} on the leaderboard!`
+          : 'Your score has been recorded.',
+      })
       setShowNameInput(false)
-      onComplete()
+      finalize(2000)
+    } catch (error) {
+      console.error('Error submitting score:', error)
+
+      let errorMessage = 'Failed to submit score. Please try again.'
+      if (error instanceof z.ZodError) {
+        errorMessage = 'Invalid response from server. Please try again.'
+        console.error('Zod validation error:', error.issues)
+      } else if (error instanceof Error) {
+        if (error.message.includes('HTTP error')) errorMessage = 'Server error. Please try again later.'
+        else if (error.message.includes('Failed to fetch'))
+          errorMessage = 'Network error. Please check your connection.'
+      }
+
+      toast.error('Score submission failed', { description: errorMessage })
+      setShowNameInput(false)
+      finalize()
     }
   }
 
