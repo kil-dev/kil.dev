@@ -111,8 +111,18 @@ function writeCookieTheme(value: Theme, updatedAt?: number) {
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
     const v = coerceToValidTheme(value)
     const ts = typeof updatedAt === 'number' && Number.isFinite(updatedAt) ? updatedAt : Date.now()
-    document.cookie = `${cookieKey('theme')}=${encodeURIComponent(v)}; path=/; max-age=31536000; samesite=lax${isSecure}`
-    document.cookie = `${cookieKey('themeUpdatedAt')}=${ts}; path=/; max-age=31536000; samesite=lax${isSecure}`
+    Cookies.set(cookieKey('theme'), v, {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
+    Cookies.set(cookieKey('themeUpdatedAt'), String(ts), {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
   } catch {}
 }
 
@@ -130,7 +140,12 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
-    document.cookie = `${cookieKey('systemTheme')}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax${isSecure}`
+    Cookies.set(cookieKey('systemTheme'), value, {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
   } catch {}
 }
 

@@ -91,8 +91,12 @@ export function AchievementsProvider({
     try {
       // Mirror to cookie for SSR hydration consistency
       const value = serializeUnlockedCookie(unlocked)
-      const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()
-      document.cookie = `${ACHIEVEMENTS_COOKIE_NAME}=${encodeURIComponent(value)}; path=/; expires=${expires}; samesite=lax`
+      const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      Cookies.set(ACHIEVEMENTS_COOKIE_NAME, value, {
+        path: '/',
+        expires: new Date(expires),
+        samesite: 'lax',
+      })
     } catch {}
   }, [unlocked])
 
