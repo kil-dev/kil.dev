@@ -70,6 +70,19 @@
       "problemMatcher": []
     },
     {
+      "label": "bun test",
+      "type": "shell",
+      "command": "bun",
+      "args": [
+        "run",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "bun sync:pet-gallery",
       "type": "shell",
       "command": "bun",
