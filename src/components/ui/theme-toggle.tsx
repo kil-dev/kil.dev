@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
 import { themes, type Theme } from '@/lib/themes'
+import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
@@ -191,7 +192,14 @@ export function ThemeToggle() {
 
   const allOptions: ThemeOption[] = useMemo(() => {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
-    return themeList.map((t): ThemeOption => {
+    const achievementUnlocked = has('THEME_TAPDANCE')
+    const filteredList = themeList.filter(t => {
+      if (t === 'system') return true
+      const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
+      const gated = Boolean(entry?.requiresAchievement)
+      return achievementUnlocked || !gated
+    })
+    return filteredList.map((t): ThemeOption => {
       const label: string = getThemeLabel(t)
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
