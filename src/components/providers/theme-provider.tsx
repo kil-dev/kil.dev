@@ -62,7 +62,7 @@ function readCookieTheme(): Theme | undefined {
     if (match?.[1]) {
       const raw = match[1]
       const decoded = decodeURIComponent(raw)
-      return VALID_THEMES.includes(decoded as Theme) ? (decoded as Theme) : undefined
+      return VALID_THEMES.has(decoded as Theme) ? (decoded as Theme) : undefined
     }
   } catch {}
   return undefined
@@ -72,7 +72,7 @@ function readStorageTheme(): Theme | undefined {
   try {
     const v = localStorage.getItem(storageKey('theme'))
     if (!v) return undefined
-    return VALID_THEMES.includes(v as Theme) ? (v as Theme) : undefined
+    return VALID_THEMES.has(v as Theme) ? (v as Theme) : undefined
   } catch {}
   return undefined
 }
@@ -84,7 +84,7 @@ function readCookieThemeMeta(): { theme: Theme | undefined; updatedAt: number | 
     const mTheme = reTheme.exec(document.cookie)
     const mTs = reTs.exec(document.cookie)
     const themeRaw = mTheme?.[1] ? decodeURIComponent(mTheme[1]) : undefined
-    const theme: Theme | undefined = VALID_THEMES.includes(themeRaw as Theme) ? (themeRaw as Theme) : undefined
+    const theme: Theme | undefined = VALID_THEMES.has(themeRaw as Theme) ? (themeRaw as Theme) : undefined
     const updatedAt = mTs?.[1] ? Number(mTs[1]) : undefined
     return { theme, updatedAt: Number.isFinite(updatedAt) ? updatedAt : undefined }
   } catch {}
@@ -95,8 +95,7 @@ function readStorageThemeMeta(): { theme: Theme | undefined; updatedAt: number |
   try {
     const themeStr = localStorage.getItem(storageKey('theme')) ?? undefined
     const tsStr = localStorage.getItem(storageKey('theme_updatedAt')) ?? undefined
-    const theme: Theme | undefined =
-      themeStr && VALID_THEMES.includes(themeStr as Theme) ? (themeStr as Theme) : undefined
+    const theme: Theme | undefined = themeStr && VALID_THEMES.has(themeStr as Theme) ? (themeStr as Theme) : undefined
     const updatedAt = tsStr ? Number(tsStr) : undefined
     return { theme, updatedAt: Number.isFinite(updatedAt) ? updatedAt : undefined }
   } catch {}
