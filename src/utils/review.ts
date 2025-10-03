@@ -3,9 +3,9 @@ import type { ReviewState } from '@/types/review'
 import { type UnlockedMap } from '@/utils/achievements'
 
 function safeGetWindow(): Window | null {
-  if (typeof window === 'undefined') return null
+  if (typeof globalThis.window === 'undefined') return null
   try {
-    return window
+    return globalThis.window
   } catch {
     return null
   }

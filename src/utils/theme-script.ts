@@ -106,8 +106,8 @@ function removeElementSoon(el: HTMLElement | null): void {
     const rm = () => {
       el?.parentNode?.removeChild(el)
     }
-    if (typeof window.requestAnimationFrame === 'function') {
-      window.requestAnimationFrame(() => rm())
+    if (typeof globalThis.window.requestAnimationFrame === 'function') {
+      globalThis.window.requestAnimationFrame(() => rm())
     } else {
       setTimeout(rm, 0)
     }

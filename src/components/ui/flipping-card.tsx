@@ -139,7 +139,7 @@ export function FlippingCard({
       if (e.pointerType !== 'mouse') return
       pendingPointer.current = { x: e.clientX, y: e.clientY }
       if (frameRequestRef.current != null) return
-      frameRequestRef.current = window.requestAnimationFrame(() => {
+      frameRequestRef.current = globalThis.window.requestAnimationFrame(() => {
         frameRequestRef.current = null
         const point = pendingPointer.current
         if (!point) return

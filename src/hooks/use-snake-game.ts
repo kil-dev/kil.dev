@@ -50,10 +50,12 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
 
   // Track window size
   useEffect(() => {
-    const updateWindowSize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+    const updateWindowSize = () =>
+      setWindowSize({ width: globalThis.window.innerWidth, height: globalThis.window.innerHeight })
     updateWindowSize()
-    window.addEventListener('resize', updateWindowSize)
-    return () => window.removeEventListener('resize', updateWindowSize)
+    if (typeof globalThis.window === 'undefined') return
+    globalThis.window.addEventListener('resize', updateWindowSize)
+    return () => globalThis.window.removeEventListener('resize', updateWindowSize)
   }, [])
 
   // Generate random food position within safe bounds without recursion
@@ -232,7 +234,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     if (!isPlaying || gameOver) return
     if (gameLoopRef.current) clearInterval(gameLoopRef.current)
     const currentSpeed = getCurrentGameSpeed(snake.length)
-    gameLoopRef.current = window.setInterval(moveSnake, currentSpeed)
+    gameLoopRef.current = globalThis.window.setInterval(moveSnake, currentSpeed)
     return () => {
       if (gameLoopRef.current) clearInterval(gameLoopRef.current)
     }
@@ -257,8 +259,8 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     }
   })
   useEffect(() => {
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    globalThis.window.addEventListener('keydown', onKey)
+    return () => globalThis.window.removeEventListener('keydown', onKey)
   }, [onKey])
 
   useEffect(() => {

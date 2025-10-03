@@ -39,9 +39,9 @@ function areUnlockedEqual(a: UnlockedMap, b: UnlockedMap): boolean {
 }
 
 function readFromStorage(): UnlockedMap {
-  if (typeof window === 'undefined') return createEmptyUnlocked()
+  if (typeof globalThis.window === 'undefined') return createEmptyUnlocked()
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = globalThis.window.localStorage.getItem(STORAGE_KEY)
     return parseUnlockedStorage(raw)
   } catch {
     return createEmptyUnlocked()
@@ -49,9 +49,9 @@ function readFromStorage(): UnlockedMap {
 }
 
 function writeToStorage(map: UnlockedMap) {
-  if (typeof window === 'undefined') return
+  if (typeof globalThis.window === 'undefined') return
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map))
+    globalThis.window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map))
   } catch {}
 }
 
@@ -71,15 +71,15 @@ export function AchievementsProvider({
 
   // Cross-tab sync: respond to localStorage updates from other tabs
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof globalThis.window === 'undefined') return
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return
       const next = parseUnlockedStorage(e.newValue)
       setUnlocked(prev => (areUnlockedEqual(prev, next) ? prev : next))
     }
     try {
-      window.addEventListener('storage', onStorage)
-      return () => window.removeEventListener('storage', onStorage)
+      globalThis.window.addEventListener('storage', onStorage)
+      return () => globalThis.window.removeEventListener('storage', onStorage)
     } catch {
       return
     }
@@ -185,12 +185,12 @@ export function AchievementsProvider({
     if (prev === null) return // ignore first run to avoid false positive on reload
     if (!prev && hasRecursiveReward) {
       try {
-        const w = window as unknown as { sessionStorage?: Storage }
+        const w = globalThis.window as unknown as { sessionStorage?: Storage }
         const already = w.sessionStorage?.getItem('kd_achievements_nav_sparkled')
         if (!already) {
           w.sessionStorage?.setItem('kd_achievements_nav_sparkled', '1')
           document.documentElement.setAttribute('data-achievements-just-unlocked', 'true')
-          window.setTimeout(() => {
+          globalThis.window.setTimeout(() => {
             document.documentElement.removeAttribute('data-achievements-just-unlocked')
           }, 1000)
         }
@@ -230,12 +230,12 @@ export function AchievementsProvider({
     if (prev === null) return
     if (!prev && hasPetParade) {
       try {
-        const w = window as unknown as { sessionStorage?: Storage }
+        const w = globalThis.window as unknown as { sessionStorage?: Storage }
         const already = w.sessionStorage?.getItem('kd_pet_gallery_nav_sparkled')
         if (!already) {
           w.sessionStorage?.setItem('kd_pet_gallery_nav_sparkled', '1')
           document.documentElement.setAttribute('data-pet-gallery-just-unlocked', 'true')
-          window.setTimeout(() => {
+          globalThis.window.setTimeout(() => {
             document.documentElement.removeAttribute('data-pet-gallery-just-unlocked')
           }, 1000)
         }

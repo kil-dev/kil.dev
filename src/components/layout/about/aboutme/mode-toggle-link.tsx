@@ -77,8 +77,8 @@ export function ModeToggleLink() {
     (event?: React.MouseEvent<HTMLButtonElement>) => {
       if (resolvedTheme === 'dark') return
 
-      const viewportWidth = window.innerWidth || 1
-      const viewportHeight = window.innerHeight || 1
+      const viewportWidth = globalThis.window.innerWidth ?? 1
+      const viewportHeight = globalThis.window.innerHeight ?? 1
       const clickX = event?.clientX ?? viewportWidth / 2
       const clickY = event?.clientY ?? viewportHeight / 2
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))

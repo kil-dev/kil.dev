@@ -74,8 +74,8 @@ export function SnakeCanvas({
     if (!canvas) return
 
     const setSize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      canvas.width = globalThis.window.innerWidth
+      canvas.height = globalThis.window.innerHeight
       // keep offscreen in sync
       offscreenCanvasRef.current ??= document.createElement('canvas')
       const off = offscreenCanvasRef.current
@@ -86,8 +86,8 @@ export function SnakeCanvas({
     }
 
     setSize()
-    window.addEventListener('resize', setSize)
-    return () => window.removeEventListener('resize', setSize)
+    globalThis.window.addEventListener('resize', setSize)
+    return () => globalThis.window.removeEventListener('resize', setSize)
   }, [])
 
   // Draw static background to offscreen when rare deps change

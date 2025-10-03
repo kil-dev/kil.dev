@@ -32,7 +32,7 @@ export function ProfileImage() {
   const useConfused = mounted && hash === '#YouWereAlreadyHere'
   const [isGrumpy, setIsGrumpy] = useState(false)
   const [isLadybird, setIsLadybird] = useState(() => {
-    if (typeof window === 'undefined') return false
+    if (typeof globalThis.window === 'undefined') return false
     return isLadybirdUA()
   })
   // Amongus variant is handled purely via CSS using the root data attribute
@@ -48,10 +48,10 @@ export function ProfileImage() {
 
   function captureIfNotAlready() {
     try {
-      const alreadyCaptured = window.sessionStorage.getItem('ladybird_detected_event') === '1'
+      const alreadyCaptured = globalThis.window.sessionStorage.getItem('ladybird_detected_event') === '1'
       if (!alreadyCaptured) {
         captureLadybirdDetected(navigator.userAgent || '')
-        window.sessionStorage.setItem('ladybird_detected_event', '1')
+        globalThis.window.sessionStorage.setItem('ladybird_detected_event', '1')
       }
     } catch {}
   }

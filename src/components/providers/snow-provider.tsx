@@ -12,11 +12,11 @@ export function SnowProvider({ children }: { children: React.ReactNode }) {
   )
 
   React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return
+    if (typeof globalThis.window === 'undefined' || typeof document === 'undefined') return
 
     const root = document.documentElement
     const themeNames = themes.map(t => t.name)
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const mql = globalThis.window.matchMedia('(prefers-reduced-motion: reduce)')
 
     const update = () => {
       const activeName = themeNames.find(n => root.classList.contains(n))

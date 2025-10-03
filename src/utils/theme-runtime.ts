@@ -13,7 +13,7 @@ function hasThemeTapdanceAchievement(): boolean {
     }
   }
 
-  if (typeof window === 'undefined') return false
+  if (typeof globalThis.window === 'undefined') return false
   try {
     const stored = localStorage.getItem('kil.dev/achievements/v1')
     if (!stored) return false
