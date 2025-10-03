@@ -1,6 +1,6 @@
 import * as Headshots from '@/images/headshot'
 import type { ThemeConfig } from '@/types/themes'
-import { Ghost, Gift, Leaf, Moon, Sun, Zap } from 'lucide-react'
+import { Ghost, Gift, Leaf, Moon, Sun, Terminal, Zap } from 'lucide-react'
 
 export const themes = [
   {
@@ -23,6 +23,15 @@ export const themes = [
     headshotImage: Headshots.Cyberpunk,
     darkModeNote: '(cyberpunk is cool, too)',
     baseColor: 'dark',
+  },
+  {
+    name: 'matrix',
+    icon: Terminal,
+    headshotImage: Headshots.Headshot,
+    baseColor: 'dark',
+    darkModeNote: '',
+    disableGridLights: true,
+    requiresAchievement: true,
   },
   {
     name: 'halloween',
