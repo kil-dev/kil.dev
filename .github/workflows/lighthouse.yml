@@ -31,6 +31,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
         run: |
           set +e
+          bun run build:runtimes
           bunx -y @lhci/cli@0.14.x autorun --config=.lighthouserc.json
           echo "exit_code=$?" >> $GITHUB_OUTPUT
 
