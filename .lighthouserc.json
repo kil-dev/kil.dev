@@ -3,8 +3,11 @@
     "collect": {
       "numberOfRuns": 1,
       "startServerCommand": "bun run start",
-      "startServerReadyPattern": "started server on",
+      "startServerReadyPattern": "Ready in",
       "startServerReadyTimeout": 180000,
+      "settings": {
+        "preset": "desktop"
+      },
       "url": [
         "http://localhost:3000/",
         "http://localhost:3000/about",
