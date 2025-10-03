@@ -50,10 +50,10 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
 
   // Track window size
   useEffect(() => {
+    if (globalThis.window === undefined) return
     const updateWindowSize = () =>
       setWindowSize({ width: globalThis.window.innerWidth, height: globalThis.window.innerHeight })
     updateWindowSize()
-    if (globalThis.window === undefined) return
     globalThis.window.addEventListener('resize', updateWindowSize)
     return () => globalThis.window.removeEventListener('resize', updateWindowSize)
   }, [])
@@ -231,6 +231,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
 
   // game loop
   useEffect(() => {
+    if (globalThis.window === undefined) return
     if (!isPlaying || gameOver) return
     if (gameLoopRef.current) clearInterval(gameLoopRef.current)
     const currentSpeed = getCurrentGameSpeed(snake.length)
@@ -259,6 +260,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     }
   })
   useEffect(() => {
+    if (globalThis.window === undefined) return
     globalThis.window.addEventListener('keydown', onKey)
     return () => globalThis.window.removeEventListener('keydown', onKey)
   }, [onKey])
