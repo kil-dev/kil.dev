@@ -12,7 +12,7 @@ import {
 import { buttonVariants } from '@/components/ui/button'
 import type { ReviewConfig, StarValue } from '@/types/review'
 import { cn } from '@/utils/utils'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 
 type ReviewDialogProps = {
   open: boolean
@@ -76,10 +76,6 @@ export function ReviewDialog({ open, rating, onSelect, onSubmit, copy, snark }: 
     },
     [onSelect, rating],
   )
-
-  useEffect(() => {
-    if (!open) return
-  }, [open])
 
   const canSubmit = rating === 5
 
