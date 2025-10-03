@@ -38,7 +38,7 @@ export function PetCardBack({ pet }: PetCardBackProps) {
               <dt className="text-primary font-bold">Birthday:</dt>
               <dd className="font-medium text-foreground">
                 {formatBirthday(pet.birthday)}
-                {ageYears == null ? null : ` (${ageYears} ${ageYears === 1 ? 'year' : 'years'})`}
+                {ageYears === null ? null : ` (${ageYears} ${ageYears === 1 ? 'year' : 'years'})`}
               </dd>
             </dl>
           </div>
