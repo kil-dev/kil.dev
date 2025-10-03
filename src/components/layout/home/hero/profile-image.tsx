@@ -32,7 +32,7 @@ export function ProfileImage() {
   const useConfused = mounted && hash === '#YouWereAlreadyHere'
   const [isGrumpy, setIsGrumpy] = useState(false)
   const [isLadybird, setIsLadybird] = useState(() => {
-    if (typeof globalThis.window === 'undefined') return false
+    if (globalThis.window === undefined) return false
     return isLadybirdUA()
   })
   // Amongus variant is handled purely via CSS using the root data attribute

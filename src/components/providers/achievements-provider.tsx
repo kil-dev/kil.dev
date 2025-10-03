@@ -39,7 +39,7 @@ function areUnlockedEqual(a: UnlockedMap, b: UnlockedMap): boolean {
 }
 
 function readFromStorage(): UnlockedMap {
-  if (typeof globalThis.window === 'undefined') return createEmptyUnlocked()
+  if (globalThis.window === undefined) return createEmptyUnlocked()
   try {
     const raw = globalThis.window.localStorage.getItem(STORAGE_KEY)
     return parseUnlockedStorage(raw)
@@ -49,7 +49,7 @@ function readFromStorage(): UnlockedMap {
 }
 
 function writeToStorage(map: UnlockedMap) {
-  if (typeof globalThis.window === 'undefined') return
+  if (globalThis.window === undefined) return
   try {
     globalThis.window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map))
   } catch {}
@@ -71,7 +71,7 @@ export function AchievementsProvider({
 
   // Cross-tab sync: respond to localStorage updates from other tabs
   useEffect(() => {
-    if (typeof globalThis.window === 'undefined') return
+    if (globalThis.window === undefined) return
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return
       const next = parseUnlockedStorage(e.newValue)

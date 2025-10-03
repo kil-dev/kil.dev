@@ -47,7 +47,7 @@ export function calculateAgeYears(value: string | undefined, now: Date = new Dat
  * @returns true if the browser is Safari, false otherwise
  */
 export function isSafari(): boolean {
-  if (typeof globalThis.window === 'undefined') return false
+  if (globalThis.window === undefined) return false
 
   const userAgent = globalThis.window.navigator.userAgent
   const isSafariUA = userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Chromium')

@@ -12,7 +12,7 @@ export function SnowProvider({ children }: { children: React.ReactNode }) {
   )
 
   React.useEffect(() => {
-    if (typeof globalThis.window === 'undefined' || typeof document === 'undefined') return
+    if (globalThis.window === undefined || typeof document === 'undefined') return
 
     const root = document.documentElement
     const themeNames = themes.map(t => t.name)

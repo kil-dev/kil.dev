@@ -2,7 +2,7 @@
 
 export function generateArcadeSound(frequency: number, duration = 100) {
   // Simple beep sound generation for arcade feel
-  if (typeof globalThis.window === 'undefined') return
+  if (globalThis.window === undefined) return
 
   const audioContext = new (globalThis.window.AudioContext ||
     (globalThis.window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()

@@ -53,7 +53,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     const updateWindowSize = () =>
       setWindowSize({ width: globalThis.window.innerWidth, height: globalThis.window.innerHeight })
     updateWindowSize()
-    if (typeof globalThis.window === 'undefined') return
+    if (globalThis.window === undefined) return
     globalThis.window.addEventListener('resize', updateWindowSize)
     return () => globalThis.window.removeEventListener('resize', updateWindowSize)
   }, [])

@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
 export function useHash() {
-  const [hash, setHash] = useState(() =>
-    typeof globalThis.window === 'undefined' ? '' : globalThis.window.location.hash,
-  )
+  const [hash, setHash] = useState(() => (globalThis.window === undefined ? '' : globalThis.window.location.hash))
 
   const readHash = useCallback(() => {
-    if (typeof globalThis.window === 'undefined') return
+    if (globalThis.window === undefined) return
     setHash(globalThis.window.location.hash)
   }, [])
 
@@ -24,7 +22,7 @@ export function useHash() {
 
   // Catch Next.js router navigations (pushState/replaceState) that won't trigger hashchange
   useEffect(() => {
-    if (typeof globalThis.window === 'undefined') return
+    if (globalThis.window === undefined) return
 
     const originalPushState = globalThis.window.history.pushState.bind(globalThis.window.history)
     const originalReplaceState = globalThis.window.history.replaceState.bind(globalThis.window.history)
