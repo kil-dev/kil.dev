@@ -2,10 +2,10 @@
 
 export function generateArcadeSound(frequency: number, duration = 100) {
   // Simple beep sound generation for arcade feel
-  if (typeof window === 'undefined') return
+  if (globalThis.window === undefined) return
 
-  const audioContext = new (window.AudioContext ||
-    (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+  const audioContext = new (globalThis.window.AudioContext ||
+    (globalThis.window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
   const oscillator = audioContext.createOscillator()
   const gainNode = audioContext.createGain()
 
@@ -50,7 +50,7 @@ export function generateArcadeSound(frequency: number, duration = 100) {
   oscillator.stop(audioContext.currentTime + duration / 1000)
 
   // Fallback in case onended doesn't fire (browser quirks)
-  fallbackTimeoutId = window.setTimeout(cleanup, Math.ceil(duration * 1.5))
+  fallbackTimeoutId = globalThis.window.setTimeout(cleanup, Math.ceil(duration * 1.5))
 }
 
 export function playScoreSound(score: number) {

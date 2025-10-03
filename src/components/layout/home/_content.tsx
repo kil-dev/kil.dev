@@ -1,9 +1,13 @@
 'use client'
 
 import { useKonamiAnimation } from '@/components/providers/konami-animation-provider'
-import { BackgroundSnakeGame } from './background-snake-game'
+import dynamic from 'next/dynamic'
 import { HeroContent } from './hero/hero-content'
 import { ProfileImage } from './hero/profile-image'
+
+const BackgroundSnakeGame = dynamic(() => import('./background-snake-game').then(m => m.BackgroundSnakeGame), {
+  ssr: false,
+})
 
 export function HomeContent() {
   const { startCrtAnimation } = useKonamiAnimation()

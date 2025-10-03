@@ -83,7 +83,7 @@ export function ScoreSubmission({ score, onComplete }: ScoreSubmissionProps) {
           clearTimeout(timeoutRef.current)
           timeoutRef.current = null
         }
-        timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = globalThis.window.setTimeout(() => {
           onComplete()
           timeoutRef.current = null
         }, 2000)

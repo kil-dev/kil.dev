@@ -16,7 +16,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function getContainerSize(el: HTMLElement | null): { width: number; height: number } {
-  if (!el) return { width: window.innerWidth, height: window.innerHeight }
+  if (!el) return { width: globalThis.window.innerWidth, height: globalThis.window.innerHeight }
   const rect = el.getBoundingClientRect()
   return { width: Math.round(rect.width), height: Math.round(rect.height) }
 }
@@ -141,8 +141,8 @@ export function GridLights() {
   const [disableGridLights, setDisableGridLights] = useState(false)
 
   const prefersReducedMotion = useMemo(() => {
-    if (typeof window === 'undefined') return false
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (globalThis.window?.matchMedia('(prefers-reduced-motion: reduce)')?.matches) return true
+    return false
   }, [])
 
   // Track whether the active theme requests grid lights to be disabled (from themes.ts)
@@ -185,8 +185,8 @@ export function GridLights() {
 
     regenerate()
     const handle = () => regenerate()
-    window.addEventListener('resize', handle)
-    return () => window.removeEventListener('resize', handle)
+    globalThis.window.addEventListener('resize', handle)
+    return () => globalThis.window.removeEventListener('resize', handle)
   }, [prefersReducedMotion, disableGridLights, numLights])
 
   const dotClass = 'absolute rounded-full pointer-events-none'

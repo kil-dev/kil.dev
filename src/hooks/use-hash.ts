@@ -1,31 +1,31 @@
 import { useCallback, useEffect, useState } from 'react'
 
 export function useHash() {
-  const [hash, setHash] = useState(() => (typeof window === 'undefined' ? '' : window.location.hash))
+  const [hash, setHash] = useState(() => (globalThis.window === undefined ? '' : globalThis.window.location.hash))
 
   const readHash = useCallback(() => {
-    if (typeof window === 'undefined') return
-    setHash(window.location.hash)
+    if (globalThis.window === undefined) return
+    setHash(globalThis.window.location.hash)
   }, [])
 
   useEffect(() => {
     readHash()
     const onHashChange = () => readHash()
     const onPopState = () => readHash()
-    window.addEventListener('hashchange', onHashChange, { passive: true })
-    window.addEventListener('popstate', onPopState)
+    globalThis.window.addEventListener('hashchange', onHashChange, { passive: true })
+    globalThis.window.addEventListener('popstate', onPopState)
     return () => {
-      window.removeEventListener('hashchange', onHashChange)
-      window.removeEventListener('popstate', onPopState)
+      globalThis.window.removeEventListener('hashchange', onHashChange)
+      globalThis.window.removeEventListener('popstate', onPopState)
     }
   }, [readHash])
 
   // Catch Next.js router navigations (pushState/replaceState) that won't trigger hashchange
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (globalThis.window === undefined) return
 
-    const originalPushState = window.history.pushState.bind(window.history)
-    const originalReplaceState = window.history.replaceState.bind(window.history)
+    const originalPushState = globalThis.window.history.pushState.bind(globalThis.window.history)
+    const originalReplaceState = globalThis.window.history.replaceState.bind(globalThis.window.history)
 
     const patchedPushState: History['pushState'] = (...args) => {
       const result = originalPushState(...args)
@@ -43,12 +43,12 @@ export function useHash() {
       return result
     }
 
-    window.history.pushState = patchedPushState
-    window.history.replaceState = patchedReplaceState
+    globalThis.window.history.pushState = patchedPushState
+    globalThis.window.history.replaceState = patchedReplaceState
 
     return () => {
-      window.history.pushState = originalPushState
-      window.history.replaceState = originalReplaceState
+      globalThis.window.history.pushState = originalPushState
+      globalThis.window.history.replaceState = originalReplaceState
     }
   }, [readHash])
 
