@@ -94,7 +94,7 @@ export function AchievementsProvider({
       const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
       Cookies.set(ACHIEVEMENTS_COOKIE_NAME, value, {
         path: '/',
-        expires: new Date(expires),
+        expires: expires,
         samesite: 'lax',
       })
     } catch {}
