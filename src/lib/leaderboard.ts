@@ -103,7 +103,10 @@ async function getQualificationThreshold(): Promise<number> {
     if (leaderboardSize < MAX_LEADERBOARD_SIZE) {
       const scores = await redis.zrange(LEADERBOARD_KEY, 0, 0, { withScores: true, rev: false })
       if (scores.length >= 2) {
-        const lowestScore = scores[1] as number
+        const rawLowestScore = scores[1]
+        const lowestScore =
+          typeof rawLowestScore === 'string' ? Number(rawLowestScore) : Number(rawLowestScore ?? Number.NaN)
+        if (Number.isNaN(lowestScore)) return SCORE_QUALIFICATION_THRESHOLD
         const threshold = lowestScore + 1 // Must beat the lowest score, not just tie it
         // Ensure threshold is never 0 or negative
         return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
@@ -120,7 +123,9 @@ async function getQualificationThreshold(): Promise<number> {
       return SCORE_QUALIFICATION_THRESHOLD
     }
 
-    const tenthHighestScore = scores[1] as number
+    const rawScore = scores[1]
+    const tenthHighestScore = typeof rawScore === 'string' ? Number(rawScore) : Number(rawScore ?? Number.NaN)
+    if (Number.isNaN(tenthHighestScore)) return SCORE_QUALIFICATION_THRESHOLD
     const threshold = tenthHighestScore + 1 // Must beat the 10th highest score, not just tie it
     // Ensure threshold is never 0 or negative
     return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
