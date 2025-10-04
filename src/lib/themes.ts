@@ -1,6 +1,6 @@
 import * as Headshots from '@/images/headshot'
 import type { ThemeConfig } from '@/types/themes'
-import { Ghost, Gift, Leaf, Moon, Sun, Terminal, Zap } from 'lucide-react'
+import { Ghost, Gift, Leaf, Moon, Rainbow, Sun, Terminal, Zap } from 'lucide-react'
 
 export const themes = [
   {
@@ -32,6 +32,14 @@ export const themes = [
     darkModeNote: '',
     disableGridLights: true,
     requiresAchievement: true,
+  },
+  {
+    name: 'pride',
+    icon: Rainbow,
+    headshotImage: Headshots.Pride,
+    baseColor: 'dark',
+    darkModeNote: '(Be yourself 🌈)',
+    timeRange: { start: { month: 6, day: 1 }, end: { month: 7, day: 1 } },
   },
   {
     name: 'halloween',

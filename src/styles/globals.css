@@ -7,6 +7,7 @@
 @custom-variant thanksgiving (&:is(.thanksgiving *));
 @custom-variant christmas (&:is(.christmas *));
 @custom-variant matrix (&:is(.matrix *));
+@custom-variant pride (&:is(.pride *));
 @variant nav (@media (min-width: 920px));
 
 @theme {
@@ -356,6 +357,52 @@
     drop-shadow(0 0 14px oklch(75% 0.21 145 / 0.18));
 }
 
+/* Pride theme */
+.pride {
+  /* Dark base with vibrant rainbow accents */
+  --background: oklch(20% 0.04 300);
+  --foreground: oklch(98% 0 0);
+  --card: oklch(24% 0.04 300);
+  --card-foreground: oklch(98% 0 0);
+  --popover: oklch(24% 0.04 300);
+  --popover-foreground: oklch(98% 0 0);
+  /* Use magenta/pink as primary, supported by rainbow secondary/accent */
+  --primary: oklch(78% 0.3 330);
+  --primary-foreground: oklch(12% 0 0);
+  --secondary: oklch(86% 0.18 95);
+  --secondary-foreground: oklch(12% 0 0);
+  --muted: oklch(22% 0.01 300);
+  --muted-foreground: oklch(78% 0.02 300);
+  --accent: oklch(82% 0.24 220);
+  --accent-foreground: oklch(12% 0 0);
+  --destructive: oklch(66% 0.26 25);
+  --destructive-foreground: oklch(98% 0 0);
+  --border: oklch(36% 0.02 300);
+  --input: oklch(36% 0.02 300);
+  --ring: oklch(78% 0.3 330);
+  --grid-color: oklch(82% 0.18 320 / 0.18);
+  --grid-light: oklch(82% 0.3 330);
+  /* Rainbow chart palette: red, orange, yellow, green, blue */
+  --chart-1: oklch(68% 0.3 25); /* red */
+  --chart-2: oklch(76% 0.26 60); /* orange */
+  --chart-3: oklch(88% 0.18 95); /* yellow */
+  --chart-4: oklch(78% 0.24 145); /* green */
+  --chart-5: oklch(72% 0.28 260); /* blue */
+  --sidebar: oklch(20% 0.04 300);
+  --sidebar-foreground: oklch(98% 0 0);
+  --sidebar-primary: oklch(78% 0.3 330);
+  --sidebar-primary-foreground: oklch(12% 0 0);
+  --sidebar-accent: oklch(22% 0.01 300);
+  --sidebar-accent-foreground: oklch(92% 0.02 300);
+  --sidebar-border: oklch(36% 0.02 300);
+  --sidebar-ring: oklch(78% 0.3 330);
+  --theme-darklike: 1;
+  --card-backdrop: oklch(0 0 0 / 0.6);
+  color-scheme: dark;
+  --card-back-shadow: drop-shadow(0 0 6px oklch(78% 0.3 330 / 0.45)) drop-shadow(0 0 10px oklch(82% 0.24 220 / 0.35))
+    drop-shadow(0 0 14px oklch(72% 0.28 260 / 0.25));
+}
+
 /* Custom utilities */
 @utility blur-2xs {
   filter: blur(2px);
@@ -646,4 +693,48 @@ html[data-has-pet-gallery='true'][data-pet-gallery-just-unlocked='true'] .js-pet
 body.snake-game-active .absolute.inset-0.overflow-hidden {
   opacity: 0 !important;
   transition: opacity 0.3s ease-in-out;
+}
+
+/* Pride enhancements */
+/* Animate grid lights through a subtle rainbow hue rotation when Pride theme is active */
+.pride .absolute.inset-0.overflow-hidden[aria-hidden] {
+  animation: kd-hue-spin 20s linear infinite;
+  will-change: filter;
+}
+
+@keyframes kd-hue-spin {
+  from {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Animated Pride conic gradient overlay (subtle, screen blend) */
+.pride .pride-gradient-overlay {
+  background: conic-gradient(
+    at 50% 50%,
+    oklch(66% 0.26 25) 0deg,
+    oklch(74% 0.22 60) 60deg,
+    oklch(84% 0.16 95) 120deg,
+    oklch(76% 0.2 145) 180deg,
+    oklch(68% 0.23 260) 240deg,
+    oklch(76% 0.24 320) 300deg,
+    oklch(66% 0.26 25) 360deg
+  );
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  animation: kd-pride-rotate 60s linear infinite;
+  will-change: transform;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .pride .absolute.inset-0.overflow-hidden[aria-hidden] {
+    animation: none;
+  }
+  .pride .pride-gradient-overlay {
+    animation: none;
+  }
 }
