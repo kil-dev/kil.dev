@@ -41,7 +41,7 @@ export function MatrixRain() {
     if (!ctx) return
 
     // Use device pixel ratio for crisp rendering
-    const dpr = Math.max(1, Math.floor(globalThis.window?.devicePixelRatio || 1))
+    const dpr = Math.max(1, Math.round(globalThis.window?.devicePixelRatio || 1))
 
     // Character/glyph setup
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'
