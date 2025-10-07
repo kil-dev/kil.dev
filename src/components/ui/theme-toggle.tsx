@@ -466,31 +466,38 @@ export function ThemeToggle() {
                 </div>
               </div>
               <div className="max-h-[48vh] overflow-hidden flex-1">
-                <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
-                  {optionsToShow.map((opt, idx) => (
-                    <Button
+                <motion.div
+                  className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1"
+                  initial="hidden"
+                  animate={open ? 'show' : 'hidden'}
+                  variants={{
+                    hidden: { opacity: 0, y: -4 },
+                    show: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
+                  }}>
+                  {optionsToShow.map(opt => (
+                    <motion.div
                       key={opt.value}
-                      ref={el => {
-                        optionRefs.current[idx] = el
-                      }}
-                      onClick={e => handleThemeChange(opt.value, e)}
-                      role="menuitem"
-                      aria-label={opt.label}
-                      title={opt.label}
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        'flex w-full transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2 rounded-md',
-                        open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
-                      )}
-                      style={{ transitionDelay: `${idx * 30}ms` }}>
-                      <span className="grid size-7 place-items-center shrink-0">
-                        <opt.Icon className="size-4" />
-                      </span>
-                      <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
-                    </Button>
+                      variants={{ hidden: { opacity: 0, y: -4 }, show: { opacity: 1, y: 0 } }}>
+                      <Button
+                        ref={el => {
+                          const idx = optionsToShow.findIndex(o => o.value === opt.value)
+                          optionRefs.current[idx] = el
+                        }}
+                        onClick={e => handleThemeChange(opt.value, e)}
+                        role="menuitem"
+                        aria-label={opt.label}
+                        title={opt.label}
+                        variant="ghost"
+                        size="sm"
+                        className={cn('flex w-full hover:bg-accent/70 justify-start gap-2 rounded-md')}>
+                        <span className="grid size-7 place-items-center shrink-0">
+                          <opt.Icon className="size-4" />
+                        </span>
+                        <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
+                      </Button>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>
