@@ -6,7 +6,16 @@ import { Sun } from 'lucide-react'
 import type { StaticImageData } from 'next/image'
 
 export function getThemeLabel(theme: Theme): string {
-  if (theme === 'system') return 'Seasonal'
+  if (theme === 'system') {
+    try {
+      // If seasonal overlays are disabled, show 'System' instead of 'Seasonal'
+      const overlaysEnabled =
+        typeof document === 'undefined' ? true : document.documentElement.dataset.seasonalOverlaysEnabled !== '0'
+      return overlaysEnabled ? 'Seasonal' : 'System'
+    } catch {
+      return 'Seasonal'
+    }
+  }
   const s = `${theme}`
   return s.slice(0, 1).toUpperCase() + s.slice(1)
 }

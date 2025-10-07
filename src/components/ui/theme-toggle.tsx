@@ -12,12 +12,17 @@ import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
-import { CalendarDays, Settings } from 'lucide-react'
+import { CalendarDays, Monitor, Settings } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
 
 function SystemIcon({ className }: { className?: string }) {
-  return <CalendarDays className={cn(className)} />
+  // Avoid hydration mismatch: default to Seasonal icon until mounted
+  const { seasonalOverlaysEnabled } = useTheme()
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+  const Icon = hydrated ? (seasonalOverlaysEnabled ? CalendarDays : Monitor) : CalendarDays
+  return <Icon className={cn(className)} />
 }
 
 export function ThemeToggle() {
@@ -189,7 +194,7 @@ export function ThemeToggle() {
       return { label, value: t, Icon: resolvedIcon }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iconByTheme, has, unlocked, forceUpdate])
+  }, [iconByTheme, has, unlocked, forceUpdate, seasonalOverlaysEnabled])
 
   const optionsToShow = useMemo(() => {
     const systemOpt = allOptions.find(opt => opt.value === 'system')
@@ -398,7 +403,7 @@ export function ThemeToggle() {
         <TooltipContent side="bottom">
           {(() => {
             if (open || tooltipHold) {
-              if (currentPreference === 'system') return 'Seasonal'
+              if (currentPreference === 'system') return seasonalOverlaysEnabled ? 'Seasonal' : 'System'
               return `${currentPreference.slice(0, 1).toUpperCase()}${currentPreference.slice(1)}`
             }
             return 'Theme Toggle'
@@ -518,9 +523,9 @@ export function ThemeToggle() {
                 const seasonalDefault = getDefaultThemeForNow()
                 const visualTheme =
                   currentPreference === 'system'
-                    ? seasonalDefault !== 'system'
-                      ? (seasonalDefault as Theme)
-                      : ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                    ? seasonalDefault === 'system'
+                      ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                      : (seasonalDefault as Theme)
                     : currentPreference
                 return (
                   <>
