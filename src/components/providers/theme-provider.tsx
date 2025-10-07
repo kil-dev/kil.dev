@@ -327,6 +327,88 @@ export function ThemeProvider({
     applyClasses(next, getSystemTheme())
   }, [])
 
+  // Re-evaluate seasonal default on visibility/focus and at minute ticks
+  React.useEffect(() => {
+    if (typeof globalThis === 'undefined') return
+
+    const injectCircleBlurTransitionStyles = () => {
+      try {
+        const styleId = `theme-transition-${Date.now()}`
+        const style = document.createElement('style')
+        style.id = styleId
+        const originXPercent = 50
+        const originYPercent = 50
+        const css = `\n      @supports (view-transition-name: root) {\n        ::view-transition-old(root) {\n          animation: none;\n        }\n        ::view-transition-new(root) {\n          animation: circle-blur-expand 0.5s ease-out;\n          transform-origin: ${originXPercent}% ${originYPercent}%;\n          filter: blur(0);\n        }\n        @keyframes circle-blur-expand {\n          from {\n            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);\n            filter: blur(4px);\n          }\n          to {\n            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);\n            filter: blur(0);\n          }\n        }\n      }\n    `
+        style.textContent = css
+        document.head.append(style)
+        setTimeout(() => {
+          const styleEl = document.getElementById(styleId)
+          if (styleEl) styleEl.remove()
+        }, 3000)
+      } catch {}
+    }
+
+    const runViewTransition = (updateFn: () => void) => {
+      if ('startViewTransition' in document && !isSafari()) {
+        injectCircleBlurTransitionStyles()
+        ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(updateFn)
+      } else {
+        updateFn()
+      }
+    }
+
+    const reapply = () => {
+      const currentPref: Theme = theme ?? 'system'
+      const seasonalDefaultNow = getDefaultThemeForNow()
+      // If user is on system, apply seasonal overlay if changed
+      if (currentPref === 'system') {
+        const root = document.documentElement
+        const had = (root.dataset.seasonalDefault as Theme | undefined) ?? undefined
+        const overlayChanged = seasonalDefaultNow !== (had ?? 'system')
+        if (overlayChanged) {
+          runViewTransition(() => applyClasses('system', getSystemTheme()))
+        } else {
+          applyClasses('system', getSystemTheme())
+        }
+        return
+      }
+
+      // If an explicit seasonal theme is no longer available (e.g., expired, or hidden window), normalize
+      const allowed = getAvailableThemes() as readonly Theme[]
+      if (!allowed.includes(currentPref)) {
+        runViewTransition(() => setTheme('system'))
+        return
+      }
+
+      // Re-apply classes to ensure overlays and base classes are correct
+      applyClasses(currentPref, getSystemTheme())
+    }
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') reapply()
+    }
+    const onShow = () => reapply()
+    const onFocus = () => reapply()
+
+    try {
+      document.addEventListener('visibilitychange', onVis)
+      globalThis.addEventListener?.('pageshow', onShow)
+      globalThis.addEventListener?.('focus', onFocus)
+    } catch {}
+
+    // Minute ticker detects date rollovers even if tab stays visible
+    const interval = globalThis.setInterval?.(() => reapply(), 60000)
+
+    return () => {
+      try {
+        document.removeEventListener('visibilitychange', onVis)
+        globalThis.removeEventListener?.('pageshow', onShow)
+        globalThis.removeEventListener?.('focus', onFocus)
+        if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+      } catch {}
+    }
+  }, [theme, setTheme])
+
   // If user explicitly selected a seasonal theme, schedule a check at next midnight
   // to auto-revert to 'system' when the seasonal theme expires while the tab is open.
   React.useEffect(() => {
