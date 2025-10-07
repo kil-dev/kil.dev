@@ -210,6 +210,9 @@ function applyClasses(preference: Theme, system: SystemTheme | undefined) {
     const other = effective === 'dark' ? 'light' : 'dark'
     if (root.classList.contains(other)) remove(other)
 
+    // Honor seasonal overlay preference
+    const overlaysEnabled = root.dataset.seasonalOverlaysEnabled !== '0'
+
     // Handle seasonal themes based on requirements
     const activeSeasonalThemes = getActiveSeasonalThemes()
     const hasActiveSeasonalTheme = activeSeasonalThemes.length > 0
@@ -217,7 +220,7 @@ function applyClasses(preference: Theme, system: SystemTheme | undefined) {
     for (const cls of allThemeClassNames) {
       if (cls === 'light' || cls === 'dark') continue
 
-      if (hasActiveSeasonalTheme) {
+      if (hasActiveSeasonalTheme && overlaysEnabled) {
         // During seasonal periods, apply seasonal theme regardless of unlock status
         if (cls === seasonalDefault) {
           if (!root.classList.contains(cls)) add(cls)
