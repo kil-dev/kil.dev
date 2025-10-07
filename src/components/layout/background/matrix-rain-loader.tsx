@@ -28,7 +28,9 @@ export function MatrixRainLoader() {
     }
 
     const update = () => {
-      const isActive = themeNames.some(n => root.classList.contains(n))
+      const isThemeActive = themeNames.some(n => root.classList.contains(n))
+      const userDisabled = root.dataset.disableCodeRain === '1'
+      const isActive = isThemeActive && !userDisabled
       setActive(isActive)
       if (isActive) {
         ensureFontLoaded()
@@ -43,7 +45,7 @@ export function MatrixRainLoader() {
 
     update()
     const observer = new MutationObserver(() => update())
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'data-disable-code-rain'] })
     return () => observer.disconnect()
   }, [])
 
