@@ -16,7 +16,7 @@ import { CalendarDays, Monitor, Settings } from 'lucide-react'
 import { motion } from 'motion/react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
-import { ThemeOptionsPanel } from './theme-options-panel'
+import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
   // Avoid hydration mismatch: default to Seasonal icon until mounted
@@ -462,8 +462,9 @@ export function ThemeToggle() {
                   className="h-7 w-7">
                   <Settings className="size-4" />
                 </Button>
-                <div className="absolute right-0 top-full">
-                  <ThemeOptionsPanel open={showOptions} />
+                {/* Desktop: anchored popover under the cog */}
+                <div className="absolute right-0 top-full hidden sm:block">
+                  <ThemeOptionsPanel open={showOptions} align="right" />
                 </div>
               </div>
               <div className="max-h-[48vh] overflow-hidden flex-1">
@@ -501,6 +502,12 @@ export function ThemeToggle() {
                 </motion.div>
               </div>
             </div>
+            {/* Mobile: inline options below the list to avoid overlay */}
+            {showOptions ? (
+              <div className="mt-2 sm:hidden">
+                <ThemeOptionsSheet />
+              </div>
+            ) : null}
           </div>
         )}
       </div>
