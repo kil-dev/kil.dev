@@ -461,6 +461,15 @@
   filter: var(--card-back-shadow);
 }
 
+/* Hide scrollbar utility for scrollable containers */
+@utility no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 /* Scrollbar */
 
 /* Firefox */
