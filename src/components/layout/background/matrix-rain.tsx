@@ -18,7 +18,7 @@ const MATRIX_RAIN_COLUMN_JITTER_PER_SECOND = 0.15
 const MATRIX_RAIN_FONT_SIZE_PX = 16
 
 function getContainerSize(el: HTMLElement | null): { width: number; height: number } {
-  if (!el) return { width: globalThis.window.innerWidth, height: globalThis.window.innerHeight }
+  if (!el) return { width: globalThis.window?.innerWidth ?? 800, height: globalThis.window?.innerHeight ?? 600 }
   const rect = el.getBoundingClientRect()
   return { width: Math.round(rect.width), height: Math.round(rect.height) }
 }
