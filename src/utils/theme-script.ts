@@ -129,12 +129,8 @@ export function initTheme(config: ThemeScriptConfig): void {
         try {
           const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
           const cookieMatch = cookieRegex.exec(document.cookie)
-          if (cookieMatch?.[1]) {
-            const cookieValue = decodeURIComponent(cookieMatch[1])
-            if (cookieValue.includes('THEME_TAPDANCE')) {
-              hasThemeTapdance = true
-            }
-          }
+          const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
+          hasThemeTapdance = cookieValue.includes('THEME_TAPDANCE')
         } catch {}
       }
     }
