@@ -2,6 +2,25 @@
 
 import * as React from 'react'
 
+const MATRIX_THEME_NAMES = ['matrix'] as const
+
+function isMatrixThemeActive(root: HTMLElement) {
+  const isThemeActive = MATRIX_THEME_NAMES.some(n => root.classList.contains(n))
+  const userDisabled = root.dataset.disableCodeRain === '1'
+  return isThemeActive && !userDisabled
+}
+
+function ensureMatrixFontLoaded(doc: Document) {
+  const existing = doc.getElementById('matrix-font-css')
+  if (existing) return
+  const link = doc.createElement('link')
+  link.id = 'matrix-font-css'
+  link.rel = 'stylesheet'
+  link.href = 'https://fonts.cdnfonts.com/css/matrix-code-nfi'
+  link.media = 'all'
+  doc.head.append(link)
+}
+
 // Client-only loader that mounts MatrixRain when the matrix theme is active.
 // Ensures the heavy code and external font are only downloaded for users who select Matrix.
 export function MatrixRainLoader() {
