@@ -44,7 +44,7 @@ export function MatrixRainLoader() {
       import('./matrix-rain')
         .then(mod => {
           if (disposed) return
-          setComponent(mod.MatrixRain)
+          setComponent(() => mod.MatrixRain)
           componentLoaded = true
         })
         .catch(() => {
