@@ -66,11 +66,10 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
               const seasonalDefault = getDefaultThemeForNow()
               let visualTheme: Theme
               if (currentPreference === 'system') {
-                if (seasonalDefault === 'system') {
-                  visualTheme = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
-                } else {
-                  visualTheme = seasonalDefault as Theme
-                }
+                visualTheme =
+                  seasonalDefault === 'system'
+                    ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                    : (seasonalDefault as Theme)
               } else {
                 visualTheme = currentPreference
               }
@@ -178,11 +177,10 @@ export function ThemeOptionsSheet() {
           const seasonalDefault = getDefaultThemeForNow()
           let visualTheme: Theme
           if (currentPreference === 'system') {
-            if (seasonalDefault === 'system') {
-              visualTheme = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
-            } else {
-              visualTheme = seasonalDefault as Theme
-            }
+            visualTheme =
+              seasonalDefault === 'system'
+                ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                : (seasonalDefault as Theme)
           } else {
             visualTheme = currentPreference
           }
