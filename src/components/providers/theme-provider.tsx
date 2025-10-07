@@ -24,6 +24,10 @@ type ThemeContextValue = {
   setSeasonalOverlaysEnabled: (enabled: boolean) => void
   disableSnow: boolean
   setDisableSnow: (disabled: boolean) => void
+  disableCodeRain: boolean
+  setDisableCodeRain: (disabled: boolean) => void
+  disableGridLights: boolean
+  setDisableGridLights: (disabled: boolean) => void
 }
 
 const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined)
@@ -301,6 +305,30 @@ export function ThemeProvider({
     }
   })
 
+  const [disableCodeRain, setDisableCodeRainState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableCodeRain'))
+      const val = v === '1'
+      document.documentElement.dataset.disableCodeRain = val ? '1' : '0'
+      return val
+    } catch {
+      return false
+    }
+  })
+
+  const [disableGridLights, setDisableGridLightsState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableGridLights'))
+      const val = v === '1'
+      document.documentElement.dataset.disableGridLights = val ? '1' : '0'
+      return val
+    } catch {
+      return false
+    }
+  })
+
   // Initialize from storage/cookie and normalize expired seasonal themes back to system
   // Use layout effect to apply classes before paint to avoid light-theme flash
   React.useLayoutEffect(() => {
@@ -409,6 +437,26 @@ export function ThemeProvider({
     } catch {}
     try {
       document.documentElement.dataset.disableSnow = disabled ? '1' : '0'
+    } catch {}
+  }, [])
+
+  const setDisableCodeRain = React.useCallback((disabled: boolean) => {
+    setDisableCodeRainState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableCodeRain'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableCodeRain = disabled ? '1' : '0'
+    } catch {}
+  }, [])
+
+  const setDisableGridLights = React.useCallback((disabled: boolean) => {
+    setDisableGridLightsState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableGridLights'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableGridLights = disabled ? '1' : '0'
     } catch {}
   }, [])
 
@@ -558,6 +606,10 @@ export function ThemeProvider({
       setSeasonalOverlaysEnabled,
       disableSnow,
       setDisableSnow,
+      disableCodeRain,
+      setDisableCodeRain,
+      disableGridLights,
+      setDisableGridLights,
     }
   }, [
     theme,
@@ -569,6 +621,10 @@ export function ThemeProvider({
     setSeasonalOverlaysEnabled,
     disableSnow,
     setDisableSnow,
+    disableCodeRain,
+    setDisableCodeRain,
+    disableGridLights,
+    setDisableGridLights,
   ])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
