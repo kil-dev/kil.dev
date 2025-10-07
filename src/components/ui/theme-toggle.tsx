@@ -469,7 +469,7 @@ export function ThemeToggle() {
               </div>
               <div className="max-h-[48vh] overflow-hidden flex-1">
                 <motion.div
-                  className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1"
+                  className="overflow-y-auto overflow-x-hidden no-scrollbar pr-1 flex flex-col gap-1"
                   initial="hidden"
                   animate={open ? 'show' : 'hidden'}
                   variants={{
