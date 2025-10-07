@@ -111,92 +111,79 @@ function removeElementSoon(el: HTMLElement | null): void {
   } catch {}
 }
 
+function overlaysEnabledFromStorage(): boolean {
+  try {
+    const match = /(?:^|;\s*)seasonalOverlaysEnabled=([^;]+)/.exec(document.cookie)
+    if (match?.[1] === '0') return false
+    if (match?.[1] === '1') return true
+  } catch {}
+  try {
+    const stored = localStorage.getItem('seasonalOverlaysEnabled')
+    if (stored === '0') return false
+    if (stored === '1') return true
+  } catch {}
+  return true
+}
+
+function detectHasThemeTapdance(root: HTMLElement): boolean {
+  try {
+    if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) return true
+  } catch {}
+  try {
+    const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
+    const cookieMatch = cookieRegex.exec(document.cookie)
+    const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
+    return cookieValue.includes('THEME_TAPDANCE')
+  } catch {}
+  return false
+}
+
+function applyThemeDomChanges(
+  root: HTMLElement,
+  knownClasses: string[],
+  targetClasses: string[],
+  overlaysEnabled: boolean,
+  pref: string,
+  overlay: string | null,
+  explicit: string | null,
+  baseClass: string,
+): void {
+  try {
+    root.dataset.seasonalOverlaysEnabled = overlaysEnabled ? '1' : '0'
+  } catch {}
+
+  for (const cls of knownClasses) {
+    if (!targetClasses.includes(cls)) {
+      try {
+        root.classList.remove(cls)
+      } catch {}
+    }
+  }
+
+  for (const cls of targetClasses) {
+    try {
+      root.classList.add(cls)
+    } catch {}
+  }
+
+  try {
+    root.dataset.themePref = pref ?? ''
+    root.dataset.seasonalDefault = overlay ?? ''
+    root.dataset.appliedTheme = explicit ?? baseClass ?? ''
+  } catch {}
+}
+
 export function initTheme(config: ThemeScriptConfig): void {
   validateConfig(config)
 
   // Internal evaluator: computes allowed themes and applies classes
   const evaluateAndApply = (allowAnimation = true): void => {
-    const isSafari = (): boolean => {
-      try {
-        const ua = navigator.userAgent
-        return (
-          ua.includes('Safari/') &&
-          !(ua.includes('Chrome/') || ua.includes('Chromium/') || ua.includes('Edg/') || ua.includes('OPR/'))
-        )
-      } catch {
-        return false
-      }
-    }
-
-    const injectCircleBlurTransitionStyles = () => {
-      try {
-        const styleId = `theme-transition-${Date.now()}`
-        const style = document.createElement('style')
-        style.id = styleId
-        const originXPercent = 50
-        const originYPercent = 50
-        const css = `
-      @supports (view-transition-name: root) {
-        ::view-transition-old(root) {
-          animation: none;
-        }
-        ::view-transition-new(root) {
-          animation: circle-blur-expand 0.5s ease-out;
-          transform-origin: ${originXPercent}% ${originYPercent}%;
-          filter: blur(0);
-        }
-        @keyframes circle-blur-expand {
-          from {
-            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(4px);
-          }
-          to {
-            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(0);
-          }
-        }
-      }
-    `
-        style.textContent = css
-        document.head.append(style)
-        setTimeout(() => {
-          const styleEl = document.getElementById(styleId)
-          if (styleEl) styleEl.remove()
-        }, 3000)
-      } catch {}
-    }
     const now = new Date()
     const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
+    const root = document.documentElement
 
-    // Check if user has theme tapdance achievement (bypasses date restrictions)
-    let hasThemeTapdance = false
-    if (typeof document !== 'undefined') {
-      hasThemeTapdance = Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
-
-      // Fallback: if CSS attribute not set yet, try to detect from cookie directly
-      if (!hasThemeTapdance) {
-        try {
-          const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
-          const cookieMatch = cookieRegex.exec(document.cookie)
-          const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
-          hasThemeTapdance = cookieValue.includes('THEME_TAPDANCE')
-        } catch {}
-      }
-    }
-
-    const overlaysEnabled = (() => {
-      try {
-        const match = /(?:^|;\s*)seasonalOverlaysEnabled=([^;]+)/.exec(document.cookie)
-        if (match?.[1] === '0') return false
-        if (match?.[1] === '1') return true
-      } catch {}
-      try {
-        const stored = localStorage.getItem('seasonalOverlaysEnabled')
-        if (stored === '0') return false
-        if (stored === '1') return true
-      } catch {}
-      return true
-    })()
+    const hasThemeTapdance = detectHasThemeTapdance(root)
+    const overlaysEnabled = overlaysEnabledFromStorage()
     const allowed = hasThemeTapdance
       ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
       : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
