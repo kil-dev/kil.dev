@@ -215,7 +215,6 @@ export function initTheme(config: ThemeScriptConfig): void {
       explicit = baseClass
     }
 
-    const root = document.documentElement
     const oldOverlay = root.dataset.seasonalDefault ?? ''
     const oldApplied = root.dataset.appliedTheme ?? ''
 
