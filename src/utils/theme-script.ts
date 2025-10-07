@@ -116,6 +116,55 @@ export function initTheme(config: ThemeScriptConfig): void {
 
   // Internal evaluator: computes allowed themes and applies classes
   const evaluateAndApply = (): void => {
+    const isSafari = (): boolean => {
+      try {
+        const ua = navigator.userAgent
+        return (
+          ua.includes('Safari/') &&
+          !(ua.includes('Chrome/') || ua.includes('Chromium/') || ua.includes('Edg/') || ua.includes('OPR/'))
+        )
+      } catch {
+        return false
+      }
+    }
+
+    const injectCircleBlurTransitionStyles = () => {
+      try {
+        const styleId = `theme-transition-${Date.now()}`
+        const style = document.createElement('style')
+        style.id = styleId
+        const originXPercent = 50
+        const originYPercent = 50
+        const css = `
+      @supports (view-transition-name: root) {
+        ::view-transition-old(root) {
+          animation: none;
+        }
+        ::view-transition-new(root) {
+          animation: circle-blur-expand 0.5s ease-out;
+          transform-origin: ${originXPercent}% ${originYPercent}%;
+          filter: blur(0);
+        }
+        @keyframes circle-blur-expand {
+          from {
+            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);
+            filter: blur(4px);
+          }
+          to {
+            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);
+            filter: blur(0);
+          }
+        }
+      }
+    `
+        style.textContent = css
+        document.head.append(style)
+        setTimeout(() => {
+          const styleEl = document.getElementById(styleId)
+          if (styleEl) styleEl.remove()
+        }, 3000)
+      } catch {}
+    }
     const now = new Date()
     const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
 
@@ -167,7 +216,8 @@ export function initTheme(config: ThemeScriptConfig): void {
     }
 
     const root = document.documentElement
-    const disable = addDisableTransitionStyle()
+    const oldOverlay = root.dataset.seasonalDefault ?? ''
+    const oldApplied = root.dataset.appliedTheme ?? ''
 
     const targetClasses: string[] = []
     if (explicit) {
@@ -179,27 +229,41 @@ export function initTheme(config: ThemeScriptConfig): void {
 
     const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
 
-    for (const cls of known) {
-      if (!targetClasses.includes(cls)) {
+    const applyDomChanges = () => {
+      for (const cls of known) {
+        if (!targetClasses.includes(cls)) {
+          try {
+            root.classList.remove(cls)
+          } catch {}
+        }
+      }
+
+      for (const cls of targetClasses) {
         try {
-          root.classList.remove(cls)
+          root.classList.add(cls)
         } catch {}
       }
-    }
 
-    for (const cls of targetClasses) {
       try {
-        root.classList.add(cls)
+        root.dataset.themePref = pref ?? ''
+        root.dataset.seasonalDefault = overlay ?? ''
+        root.dataset.appliedTheme = explicit ?? baseClass ?? ''
       } catch {}
     }
 
-    try {
-      root.dataset.themePref = pref ?? ''
-      root.dataset.seasonalDefault = overlay ?? ''
-      root.dataset.appliedTheme = explicit ?? baseClass ?? ''
-    } catch {}
+    const overlayChanged = (overlay ?? '') !== oldOverlay
+    const appliedAfter = explicit ?? baseClass ?? ''
+    const appliedChanged = appliedAfter !== oldApplied
+    const shouldAnimate = pref === 'system' ? overlayChanged : appliedChanged
 
-    removeElementSoon(disable)
+    if ('startViewTransition' in document && shouldAnimate && !isSafari()) {
+      injectCircleBlurTransitionStyles()
+      ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(applyDomChanges)
+    } else {
+      const disable = addDisableTransitionStyle()
+      applyDomChanges()
+      removeElementSoon(disable)
+    }
   }
 
   // Initial apply
