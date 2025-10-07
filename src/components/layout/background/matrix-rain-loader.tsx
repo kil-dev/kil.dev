@@ -31,41 +31,25 @@ export function MatrixRainLoader() {
     if (typeof document === 'undefined') return
 
     const root = document.documentElement
-    const themeNames = ['matrix']
     let disposed = false
-
-    const ensureFontLoaded = () => {
-      // Avoid duplicate injection
-      const existing = document.getElementById('matrix-font-css')
-      if (existing) return
-      // CSS provided by cdnfonts.com for "Matrix Code NFI"
-      const link = document.createElement('link')
-      link.id = 'matrix-font-css'
-      link.rel = 'stylesheet'
-      link.href = 'https://fonts.cdnfonts.com/css/matrix-code-nfi'
-      link.media = 'all'
-      document.head.append(link)
-    }
+    let componentLoaded = false
 
     const update = () => {
       if (disposed) return
-      const isThemeActive = themeNames.some(n => root.classList.contains(n))
-      const userDisabled = root.dataset.disableCodeRain === '1'
-      const isActive = isThemeActive && !userDisabled
-      if (disposed) return
+      const isActive = isMatrixThemeActive(root)
       setActive(isActive)
-      if (isActive) {
-        ensureFontLoaded()
-        // Dynamically import the renderer only when needed
-        import('./matrix-rain')
-          .then(mod => {
-            if (disposed) return
-            setComponent(() => mod.MatrixRain)
-          })
-          .catch(() => {
-            /* empty */
-          })
-      }
+      if (!isActive) return
+      ensureMatrixFontLoaded(document)
+      if (componentLoaded) return
+      import('./matrix-rain')
+        .then(mod => {
+          if (disposed) return
+          setComponent(mod.MatrixRain)
+          componentLoaded = true
+        })
+        .catch(() => {
+          /* noop */
+        })
     }
 
     update()
