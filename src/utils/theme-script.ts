@@ -115,7 +115,7 @@ export function initTheme(config: ThemeScriptConfig): void {
   validateConfig(config)
 
   // Internal evaluator: computes allowed themes and applies classes
-  const evaluateAndApply = (): void => {
+  const evaluateAndApply = (allowAnimation = true): void => {
     const isSafari = (): boolean => {
       try {
         const ua = navigator.userAgent
@@ -256,7 +256,7 @@ export function initTheme(config: ThemeScriptConfig): void {
     const appliedChanged = appliedAfter !== oldApplied
     const shouldAnimate = pref === 'system' ? overlayChanged : appliedChanged
 
-    if ('startViewTransition' in document && shouldAnimate && !isSafari()) {
+    if (allowAnimation && 'startViewTransition' in document && shouldAnimate && !isSafari()) {
       injectCircleBlurTransitionStyles()
       ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(applyDomChanges)
     } else {
@@ -267,7 +267,7 @@ export function initTheme(config: ThemeScriptConfig): void {
   }
 
   // Initial apply
-  evaluateAndApply()
+  evaluateAndApply(false)
 
   // Re-evaluate on visibility/focus and page show (e.g., after BFCache restore or wake)
   try {
