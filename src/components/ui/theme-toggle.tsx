@@ -458,85 +458,10 @@ export function ThemeToggle() {
             aria-label="Theme controls">
             {/* Cog moved next to the first theme item, not occupying header space */}
 
-            {/* Options overlay to the left (absolute), avoids container width reflow */}
-            <div
-              id="theme-options-panel"
-              className={cn(
-                'absolute right-full top-0 mr-2 w-[200px] text-xs flex-col gap-2',
-                showOptions ? 'flex' : 'hidden',
-              )}
-              aria-hidden={!showOptions}>
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Options</div>
-              <label className="flex items-center gap-2 select-none">
-                <input
-                  type="checkbox"
-                  checked={seasonalOverlaysEnabled}
-                  onChange={e => setSeasonalOverlaysEnabled(e.target.checked)}
-                  aria-label="Seasonal overlays"
-                  className="accent-primary"
-                />
-                Seasonal overlays
-              </label>
-              {(() => {
-                const seasonalDefault = getDefaultThemeForNow()
-                const visualTheme =
-                  currentPreference === 'system'
-                    ? seasonalDefault === 'system'
-                      ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
-                      : (seasonalDefault as Theme)
-                    : currentPreference
-                return (
-                  <>
-                    {visualTheme === 'christmas' && (
-                      <label className="flex items-center gap-2 select-none">
-                        <input
-                          type="checkbox"
-                          checked={disableSnow}
-                          onChange={e => setDisableSnow(e.target.checked)}
-                          aria-label="Disable snow"
-                          className="accent-primary"
-                        />
-                        Disable snow
-                      </label>
-                    )}
-                    {visualTheme === 'matrix' && (
-                      <label className="flex items-center gap-2 select-none">
-                        <input
-                          type="checkbox"
-                          checked={disableCodeRain}
-                          onChange={e => setDisableCodeRain(e.target.checked)}
-                          aria-label="Disable code rain"
-                          className="accent-primary"
-                        />
-                        Disable code rain
-                      </label>
-                    )}
-                    {(() => {
-                      // Show grid lights toggle for themes that support grid lights by default
-                      const entry = themes.find(t => t.name === visualTheme) as ThemeConfig | undefined
-                      const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
-                      return (
-                        themeHasGrid && (
-                          <label className="flex items-center gap-2 select-none">
-                            <input
-                              type="checkbox"
-                              checked={disableGridLights}
-                              onChange={e => setDisableGridLights(e.target.checked)}
-                              aria-label="Disable grid lights"
-                              className="accent-primary"
-                            />
-                            Disable grid lights
-                          </label>
-                        )
-                      )
-                    })()}
-                  </>
-                )
-              })()}
-            </div>
+            {/* Options popover will render under the settings button */}
 
             <div className="flex items-start gap-2">
-              <div className="shrink-0 pt-1">
+              <div className="shrink-0 pt-1 relative">
                 <Button
                   type="button"
                   variant="ghost"
@@ -548,6 +473,83 @@ export function ThemeToggle() {
                   className="h-7 w-7">
                   <Settings className="size-4" />
                 </Button>
+                <div
+                  id="theme-options-panel"
+                  className={cn(
+                    'absolute right-0 top-full mt-2 w-[200px] text-xs flex-col gap-2 z-10 items-stretch text-right',
+                    showOptions ? 'flex' : 'hidden',
+                  )}
+                  aria-hidden={!showOptions}>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2 text-right">
+                    Theme Options
+                  </div>
+                  <label className="flex items-center justify-between gap-2 select-none w-full">
+                    <span>Seasonal overlays</span>
+                    <input
+                      type="checkbox"
+                      checked={seasonalOverlaysEnabled}
+                      onChange={e => setSeasonalOverlaysEnabled(e.target.checked)}
+                      aria-label="Seasonal overlays"
+                      className="accent-primary"
+                    />
+                  </label>
+                  {(() => {
+                    const seasonalDefault = getDefaultThemeForNow()
+                    const visualTheme =
+                      currentPreference === 'system'
+                        ? seasonalDefault === 'system'
+                          ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                          : (seasonalDefault as Theme)
+                        : currentPreference
+                    return (
+                      <>
+                        {visualTheme === 'christmas' && (
+                          <label className="flex items-center justify-between gap-2 select-none w-full">
+                            <span>Disable snow</span>
+                            <input
+                              type="checkbox"
+                              checked={disableSnow}
+                              onChange={e => setDisableSnow(e.target.checked)}
+                              aria-label="Disable snow"
+                              className="accent-primary"
+                            />
+                          </label>
+                        )}
+                        {visualTheme === 'matrix' && (
+                          <label className="flex items-center justify-between gap-2 select-none w-full">
+                            <span>Disable code rain</span>
+                            <input
+                              type="checkbox"
+                              checked={disableCodeRain}
+                              onChange={e => setDisableCodeRain(e.target.checked)}
+                              aria-label="Disable code rain"
+                              className="accent-primary"
+                            />
+                          </label>
+                        )}
+                        {(() => {
+                          // Show grid lights toggle for themes that support grid lights by default
+                          const entry = themes.find(t => t.name === visualTheme) as ThemeConfig | undefined
+                          const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
+                          return (
+                            themeHasGrid && (
+                              <label className="flex items-center justify-between gap-2 select-none w-full">
+                                <span>Disable grid lights</span>
+                                <input
+                                  type="checkbox"
+                                  checked={disableGridLights}
+                                  onChange={e => setDisableGridLights(e.target.checked)}
+                                  aria-label="Disable grid lights"
+                                  className="accent-primary"
+                                />
+                              </label>
+                            )
+                          )
+                        })()}
+                      </>
+                    )
+                  })()}
+                </div>
               </div>
               <div className="max-h-[48vh] overflow-hidden flex-1">
                 <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
