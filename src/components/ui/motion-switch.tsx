@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useRef } from 'react'
 
 import * as SwitchPrimitive from '@radix-ui/react-switch'
 import { motion } from 'motion/react'
@@ -25,15 +26,19 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
   const { TRACK_WIDTH, THUMB_SIZE, THUMB_STRETCH } = SIZES[size]
   const [isChecked, setIsChecked] = React.useState(props.checked ?? props.defaultChecked ?? false)
   const [isStretching, setIsStretching] = React.useState(false)
+  const isFirstMountRef = useRef(true)
 
   React.useEffect(() => {
     if (props.checked !== undefined) setIsChecked(props.checked)
   }, [props.checked])
 
   React.useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false
+      return
+    }
     setIsStretching(true)
     const timeout = setTimeout(() => setIsStretching(false), STRETCH_DURATION)
-
     return () => clearTimeout(timeout)
   }, [isChecked])
 
@@ -47,6 +52,7 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
   const offsetChecked = TRACK_WIDTH - thumbWidth - 2
 
   const thumbLeft = isChecked ? offsetChecked : offsetUnchecked
+  const disableInitialMotion = isFirstMountRef.current
 
   return (
     <SwitchPrimitive.Root
@@ -66,15 +72,22 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
           className={cn(
             'bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none absolute block rounded-full ring-0',
           )}
+          initial={false}
           animate={{
             width: thumbWidth,
             left: thumbLeft,
-            transition: { duration: STRETCH_DURATION / 1000 },
+            transition: {
+              width: disableInitialMotion ? { duration: 0 } : { duration: STRETCH_DURATION / 1000 },
+              left: disableInitialMotion
+                ? { duration: 0 }
+                : { type: 'spring', stiffness: 520, damping: 34, mass: 0.25 },
+            },
           }}
           style={{
             height: THUMB_SIZE,
             minWidth: THUMB_SIZE,
             maxWidth: THUMB_STRETCH,
+            left: thumbLeft,
           }}
         />
       </SwitchPrimitive.Thumb>
