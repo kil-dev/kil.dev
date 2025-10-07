@@ -39,6 +39,7 @@ export function MatrixRain() {
     if (!canvas) return
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d')
     if (!ctx) return
+    const renderCtx: CanvasRenderingContext2D = ctx
 
     // Use device pixel ratio for crisp rendering
     const dpr = Math.max(1, Math.round(globalThis.window?.devicePixelRatio || 1))
@@ -57,7 +58,7 @@ export function MatrixRain() {
     const glyphColor = 'rgb(20, 255, 120)'
 
     function resize() {
-      if (!ctx || !canvas) return
+      if (!canvas) return
       const { width, height } = getContainerSize(container)
       const cWidth = Math.max(1, Math.floor(width))
       const cHeight = Math.max(1, Math.floor(height))
@@ -76,12 +77,12 @@ export function MatrixRain() {
       canvas.style.width = cWidth + 'px'
       canvas.style.height = cHeight + 'px'
       // Set DPR transform for CSS-unit drawing
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
       // Keep a fixed glyph size for consistency across pages
       fontSize = MATRIX_RAIN_FONT_SIZE_PX
-      ctx.font = `${fontSize}px "Matrix Code NFI", monospace`
-      ctx.textBaseline = 'top'
+      renderCtx.font = `${fontSize}px "Matrix Code NFI", monospace`
+      renderCtx.textBaseline = 'top'
 
       const newColumns = Math.max(1, Math.ceil(cWidth / fontSize))
       if (columns === 0) {
