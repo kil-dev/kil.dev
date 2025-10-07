@@ -12,7 +12,7 @@ import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Settings } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
 
@@ -21,7 +21,16 @@ function SystemIcon({ className }: { className?: string }) {
 }
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme, systemTheme } = useTheme()
+  const {
+    theme,
+    setTheme,
+    resolvedTheme,
+    systemTheme,
+    seasonalOverlaysEnabled,
+    setSeasonalOverlaysEnabled,
+    disableSnow,
+    setDisableSnow,
+  } = useTheme()
   const { startTransition } = useThemeTransition()
   const { unlocked, has, unlock } = useAchievements()
 
@@ -39,6 +48,7 @@ export function ThemeToggle() {
 
   const [hydrated, setHydrated] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(0)
+  const [showOptions, setShowOptions] = useState(false)
   useEffect(() => {
     setHydrated(true)
   }, [])
@@ -178,11 +188,40 @@ export function ThemeToggle() {
   }, [iconByTheme, has, unlocked, forceUpdate])
 
   const optionsToShow = useMemo(() => {
+    const systemOpt = allOptions.find(opt => opt.value === 'system')
+    const base = allOptions.filter(opt => {
+      if (opt.value === 'system') return false
+      const entry = themes.find(e => e.name === opt.value) as ThemeConfig | undefined
+      return entry && !('timeRange' in entry)
+    })
+    const seasonalActiveNames = new Set((getAvailableThemes() as readonly Theme[]).filter(t => t !== 'system'))
+    const seasonalActive = allOptions.filter(opt => {
+      if (opt.value === 'system') return false
+      const entry = themes.find(e => e.name === opt.value) as ThemeConfig | undefined
+      return entry && 'timeRange' in entry && seasonalActiveNames.has(opt.value)
+    })
+
+    let list: ThemeOption[] = [...base, ...seasonalActive]
+    if (systemOpt) list = [systemOpt, ...list]
+    // Hide the currently selected preference to avoid no-op selection
     if (currentPreference === 'system') {
-      return allOptions.filter(opt => opt.value !== 'system')
+      list = list.filter(opt => opt.value !== 'system')
+    } else {
+      list = list.filter(opt => opt.value !== currentPreference)
     }
-    return allOptions.filter(opt => opt.value !== currentPreference)
+    return list
   }, [allOptions, currentPreference])
+
+  // Determine current visual theme for options
+  const visualThemeForOptions: Theme = useMemo(() => {
+    const seasonalDefault = getDefaultThemeForNow()
+    if (currentPreference === 'system') {
+      if (seasonalDefault !== 'system') return seasonalDefault as Theme
+      const sys = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
+      return sys
+    }
+    return currentPreference
+  }, [currentPreference, resolvedTheme, systemTheme])
 
   const onDocClick = useEffectEvent((e: MouseEvent) => {
     const target = e.target as Node | null
@@ -399,34 +438,104 @@ export function ThemeToggle() {
         tabIndex={-1}
         onKeyDown={handleMenuKeyDown}
         className={cn(
-          'absolute left-1/2 top-full -translate-x-1/2 mt-2 z-[120]',
-          'flex flex-col items-stretch gap-2',
+          'absolute right-0 top-full mt-2 z-[120]',
+          'flex flex-col items-stretch gap-3',
           open ? 'pointer-events-auto' : 'pointer-events-none',
         )}>
-        {hydrated &&
-          optionsToShow.map((opt, idx) => (
-            <Button
-              key={opt.value}
-              ref={el => {
-                optionRefs.current[idx] = el
-              }}
-              onClick={e => handleThemeChange(opt.value, e)}
-              role="menuitem"
-              aria-label={opt.label}
-              title={opt.label}
-              variant="ghost"
-              size="sm"
+        {hydrated && (
+          <div
+            className={cn(
+              'w-[min(92vw,280px)] p-3 transition-all duration-200 ease-out',
+              open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
+            )}
+            role="group"
+            aria-label="Theme controls">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Themes</div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-controls="theme-options-panel"
+                aria-expanded={showOptions}
+                onClick={() => setShowOptions(v => !v)}
+                aria-label={showOptions ? 'Hide options' : 'Show options'}
+                className="h-7 w-7">
+                <Settings className="size-4" />
+              </Button>
+            </div>
+
+            <div className="max-h-[48vh] overflow-hidden">
+              <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
+                {optionsToShow.map((opt, idx) => (
+                  <Button
+                    key={opt.value}
+                    ref={el => {
+                      optionRefs.current[idx] = el
+                    }}
+                    onClick={e => handleThemeChange(opt.value, e)}
+                    role="menuitem"
+                    aria-label={opt.label}
+                    title={opt.label}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      'flex w-full transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2 rounded-md',
+                      open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
+                    )}
+                    style={{ transitionDelay: `${idx * 30}ms` }}>
+                    <span className="grid size-7 place-items-center shrink-0">
+                      <opt.Icon className="size-4" />
+                    </span>
+                    <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div
+              id="theme-options-panel"
               className={cn(
-                'transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2',
-                open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
+                'mt-3 border-t border-border/50 pt-2 flex flex-col gap-2 text-xs',
+                showOptions ? 'block' : 'hidden',
               )}
-              style={{ transitionDelay: `${idx * 60}ms` }}>
-              <span className="grid size-8 place-items-center shrink-0">
-                <opt.Icon className="size-4" />
-              </span>
-              <span className="text-xs font-medium text-foreground/90">{opt.label}</span>
-            </Button>
-          ))}
+              aria-hidden={!showOptions}>
+              <label className="flex items-center gap-2 select-none">
+                <input
+                  type="checkbox"
+                  checked={seasonalOverlaysEnabled}
+                  onChange={e => setSeasonalOverlaysEnabled(e.target.checked)}
+                  aria-label="Seasonal overlays"
+                  className="accent-primary"
+                />
+                Seasonal overlays
+              </label>
+              {(() => {
+                const seasonalDefault = getDefaultThemeForNow()
+                const visualTheme =
+                  currentPreference === 'system'
+                    ? seasonalDefault !== 'system'
+                      ? (seasonalDefault as Theme)
+                      : ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                    : currentPreference
+                return (
+                  visualTheme === 'christmas' && (
+                    <label className="flex items-center gap-2 select-none">
+                      <input
+                        type="checkbox"
+                        checked={disableSnow}
+                        onChange={e => setDisableSnow(e.target.checked)}
+                        aria-label="Disable snow"
+                        className="accent-primary"
+                      />
+                      Disable snow
+                    </label>
+                  )
+                )
+              })()}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
