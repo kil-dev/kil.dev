@@ -7,7 +7,7 @@ import type { ThemeConfig } from '@/types/themes'
 import { getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { AnimatePresence, motion } from 'motion/react'
 
-export function ThemeOptionsPanel({ open }: { open: boolean }) {
+export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; align?: 'right' | 'center' }) {
   const {
     seasonalOverlaysEnabled,
     setSeasonalOverlaysEnabled,
@@ -24,6 +24,11 @@ export function ThemeOptionsPanel({ open }: { open: boolean }) {
 
   const currentPreference: Theme = theme ?? 'system'
 
+  const containerPosClass =
+    align === 'right'
+      ? 'absolute right-0 top-full mt-2 w-[200px]'
+      : 'absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[min(92vw,200px)]'
+
   return (
     <AnimatePresence>
       {open && (
@@ -33,7 +38,7 @@ export function ThemeOptionsPanel({ open }: { open: boolean }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
           transition={{ type: 'spring', stiffness: 420, damping: 26, mass: 0.3 }}
-          className="absolute right-0 top-full mt-2 w-[200px] text-xs z-10 text-right"
+          className={`${containerPosClass} text-xs z-10 text-right`}
           aria-hidden={!open}>
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">Theme Options</div>
           <motion.div
