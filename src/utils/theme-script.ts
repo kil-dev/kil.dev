@@ -219,12 +219,32 @@ export function initTheme(config: ThemeScriptConfig): void {
     // Lightweight minute ticker to catch date rollovers while tab is visible
     let lastDay = new Date().getDate()
     const interval = globalThis.setInterval?.(() => {
-      const d = new Date().getDate()
+      const now = new Date()
+      const d = now.getDate()
       if (d !== lastDay) {
         lastDay = d
         evaluateAndApply()
       }
     }, 60000)
+
+    // Exact midnight trigger (more precise than minute ticker)
+    const msUntilNextMidnight = () => {
+      const now = new Date()
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+      return Math.max(250, next.getTime() - now.getTime())
+    }
+    let midnightTimeout: number | undefined
+    const scheduleMidnight = () => {
+      const ms = msUntilNextMidnight()
+      midnightTimeout = globalThis.setTimeout?.(() => {
+        try {
+          evaluateAndApply()
+        } finally {
+          scheduleMidnight()
+        }
+      }, ms) as unknown as number
+    }
+    scheduleMidnight()
 
     // Clean up listeners when the script is re-run (defensive)
     ;(globalThis as unknown as { __kd_cleanup_theme_listeners__?: () => void }).__kd_cleanup_theme_listeners__ = () => {
@@ -233,6 +253,7 @@ export function initTheme(config: ThemeScriptConfig): void {
         globalThis.removeEventListener?.('pageshow', onShow)
         globalThis.removeEventListener?.('focus', onFocus)
         if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+        if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
       } catch {}
     }
   } catch {}

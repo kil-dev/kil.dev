@@ -400,12 +400,32 @@ export function ThemeProvider({
     // Minute ticker detects date rollovers even if tab stays visible
     const interval = globalThis.setInterval?.(() => reapply(), 60000)
 
+    // Exact midnight trigger to re-evaluate themes precisely at midnight
+    const msUntilNextMidnight = () => {
+      const now = new Date()
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+      return Math.max(250, next.getTime() - now.getTime())
+    }
+    const scheduleMidnight = (): number | undefined => {
+      const ms = msUntilNextMidnight()
+      return globalThis.setTimeout?.(() => {
+        try {
+          reapply()
+        } finally {
+          // Re-schedule for the next midnight
+          midnightTimeout = scheduleMidnight()
+        }
+      }, ms) as unknown as number
+    }
+    let midnightTimeout = scheduleMidnight()
+
     return () => {
       try {
         document.removeEventListener('visibilitychange', onVis)
         globalThis.removeEventListener?.('pageshow', onShow)
         globalThis.removeEventListener?.('focus', onFocus)
         if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+        if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
       } catch {}
     }
   }, [theme, setTheme])
