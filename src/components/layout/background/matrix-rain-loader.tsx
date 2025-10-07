@@ -13,6 +13,7 @@ export function MatrixRainLoader() {
 
     const root = document.documentElement
     const themeNames = ['matrix']
+    let disposed = false
 
     const ensureFontLoaded = () => {
       // Avoid duplicate injection
@@ -28,15 +29,20 @@ export function MatrixRainLoader() {
     }
 
     const update = () => {
+      if (disposed) return
       const isThemeActive = themeNames.some(n => root.classList.contains(n))
       const userDisabled = root.dataset.disableCodeRain === '1'
       const isActive = isThemeActive && !userDisabled
+      if (disposed) return
       setActive(isActive)
       if (isActive) {
         ensureFontLoaded()
         // Dynamically import the renderer only when needed
         import('./matrix-rain')
-          .then(mod => setComponent(() => mod.MatrixRain))
+          .then(mod => {
+            if (disposed) return
+            setComponent(() => mod.MatrixRain)
+          })
           .catch(() => {
             /* empty */
           })
@@ -44,9 +50,15 @@ export function MatrixRainLoader() {
     }
 
     update()
-    const observer = new MutationObserver(() => update())
+    const observer = new MutationObserver(() => {
+      if (disposed) return
+      update()
+    })
     observer.observe(root, { attributes: true, attributeFilter: ['class', 'data-disable-code-rain'] })
-    return () => observer.disconnect()
+    return () => {
+      disposed = true
+      observer.disconnect()
+    }
   }, [])
 
   if (!active || !Component) return null
