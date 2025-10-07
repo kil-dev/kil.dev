@@ -114,94 +114,132 @@ function removeElementSoon(el: HTMLElement | null): void {
 export function initTheme(config: ThemeScriptConfig): void {
   validateConfig(config)
 
-  const now = new Date()
-  const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
+  // Internal evaluator: computes allowed themes and applies classes
+  const evaluateAndApply = (): void => {
+    const now = new Date()
+    const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
 
-  // Check if user has theme tapdance achievement (bypasses date restrictions)
-  let hasThemeTapdance = false
-  if (typeof document !== 'undefined') {
-    hasThemeTapdance = Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
+    // Check if user has theme tapdance achievement (bypasses date restrictions)
+    let hasThemeTapdance = false
+    if (typeof document !== 'undefined') {
+      hasThemeTapdance = Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
 
-    // Fallback: if CSS attribute not set yet, try to detect from cookie directly
-    if (!hasThemeTapdance) {
-      try {
-        const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
-        const cookieMatch = cookieRegex.exec(document.cookie)
-        if (cookieMatch?.[1]) {
-          const cookieValue = decodeURIComponent(cookieMatch[1])
-          if (cookieValue.includes('THEME_TAPDANCE')) {
-            hasThemeTapdance = true
+      // Fallback: if CSS attribute not set yet, try to detect from cookie directly
+      if (!hasThemeTapdance) {
+        try {
+          const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
+          const cookieMatch = cookieRegex.exec(document.cookie)
+          if (cookieMatch?.[1]) {
+            const cookieValue = decodeURIComponent(cookieMatch[1])
+            if (cookieValue.includes('THEME_TAPDANCE')) {
+              hasThemeTapdance = true
+            }
           }
-        }
-      } catch {}
+        } catch {}
+      }
     }
-  }
 
-  const allowed = hasThemeTapdance
-    ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
-    : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
+    const allowed = hasThemeTapdance
+      ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
+      : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
 
-  const defaultTheme = hasThemeTapdance
-    ? (active[0]?.theme ?? null) // Only use active seasonal themes, even when unlocked
-    : (active[0]?.theme ?? null)
+    const defaultTheme = hasThemeTapdance
+      ? (active[0]?.theme ?? null) // Only use active seasonal themes, even when unlocked
+      : (active[0]?.theme ?? null)
 
-  const isAllowed = (t: unknown): t is string => typeof t === 'string' && allowed.includes(t)
+    const isAllowed = (t: unknown): t is string => typeof t === 'string' && allowed.includes(t)
 
-  const cookieTheme = getCookieTheme()
-  const lsTheme = getLocalStorageTheme()
-  const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
+    const cookieTheme = getCookieTheme()
+    const lsTheme = getLocalStorageTheme()
+    const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
 
-  const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
+    const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
 
-  const baseClass = sysDark ? 'dark' : ''
+    const baseClass = sysDark ? 'dark' : ''
 
-  let explicit: string | null = null
-  let overlay: string | null = null
+    let explicit: string | null = null
+    let overlay: string | null = null
 
-  if (pref === 'system') {
-    overlay = defaultTheme ?? null
-  } else if (isAllowed(pref)) {
-    explicit = pref
-  } else if (defaultTheme) {
-    explicit = defaultTheme
-  } else {
-    explicit = baseClass
-  }
+    if (pref === 'system') {
+      overlay = defaultTheme ?? null
+    } else if (isAllowed(pref)) {
+      explicit = pref
+    } else if (defaultTheme) {
+      explicit = defaultTheme
+    } else {
+      explicit = baseClass
+    }
 
-  const root = document.documentElement
-  const disable = addDisableTransitionStyle()
+    const root = document.documentElement
+    const disable = addDisableTransitionStyle()
 
-  const targetClasses: string[] = []
-  if (explicit) {
-    targetClasses.push(explicit)
-  } else {
-    if (baseClass) targetClasses.push(baseClass)
-    if (overlay) targetClasses.push(overlay)
-  }
+    const targetClasses: string[] = []
+    if (explicit) {
+      targetClasses.push(explicit)
+    } else {
+      if (baseClass) targetClasses.push(baseClass)
+      if (overlay) targetClasses.push(overlay)
+    }
 
-  const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
+    const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
 
-  for (const cls of known) {
-    if (!targetClasses.includes(cls)) {
+    for (const cls of known) {
+      if (!targetClasses.includes(cls)) {
+        try {
+          root.classList.remove(cls)
+        } catch {}
+      }
+    }
+
+    for (const cls of targetClasses) {
       try {
-        root.classList.remove(cls)
+        root.classList.add(cls)
       } catch {}
     }
-  }
 
-  for (const cls of targetClasses) {
     try {
-      root.classList.add(cls)
+      root.dataset.themePref = pref ?? ''
+      root.dataset.seasonalDefault = overlay ?? ''
+      root.dataset.appliedTheme = explicit ?? baseClass ?? ''
     } catch {}
+
+    removeElementSoon(disable)
   }
 
-  try {
-    root.dataset.themePref = pref ?? ''
-    root.dataset.seasonalDefault = overlay ?? ''
-    root.dataset.appliedTheme = explicit ?? baseClass ?? ''
-  } catch {}
+  // Initial apply
+  evaluateAndApply()
 
-  removeElementSoon(disable)
+  // Re-evaluate on visibility/focus and page show (e.g., after BFCache restore or wake)
+  try {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') evaluateAndApply()
+    }
+    const onShow = () => evaluateAndApply()
+    const onFocus = () => evaluateAndApply()
+    document.addEventListener('visibilitychange', onVis)
+    globalThis.addEventListener?.('pageshow', onShow)
+    globalThis.addEventListener?.('focus', onFocus)
+
+    // Lightweight minute ticker to catch date rollovers while tab is visible
+    let lastDay = new Date().getDate()
+    const interval = globalThis.setInterval?.(() => {
+      const d = new Date().getDate()
+      if (d !== lastDay) {
+        lastDay = d
+        evaluateAndApply()
+      }
+    }, 60000)
+
+    // Clean up listeners when the script is re-run (defensive)
+    ;(globalThis as unknown as { __kd_cleanup_theme_listeners__?: () => void }).__kd_cleanup_theme_listeners__ = () => {
+      try {
+        document.removeEventListener('visibilitychange', onVis)
+        globalThis.removeEventListener?.('pageshow', onShow)
+        globalThis.removeEventListener?.('focus', onFocus)
+        if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+      } catch {}
+    }
+  } catch {}
 }
 
 export default initTheme
