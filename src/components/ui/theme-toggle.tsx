@@ -437,14 +437,13 @@ export function ThemeToggle() {
           open ? 'pointer-events-auto' : 'pointer-events-none',
         )}>
         {hydrated && (
-          <div
+          <fieldset
             className={cn(
               'p-3 pt-8 transition-all duration-200 ease-out relative',
               open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
             )}
-            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}
-            role="group"
-            aria-label="Theme controls">
+            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}>
+            <legend className="sr-only">Theme controls</legend>
             {/* Cog moved next to the first theme item, not occupying header space */}
 
             {/* Options popover will render under the settings button */}
@@ -508,7 +507,7 @@ export function ThemeToggle() {
                 <ThemeOptionsSheet />
               </div>
             ) : null}
-          </div>
+          </fieldset>
         )}
       </div>
     </div>
