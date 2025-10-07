@@ -7,6 +7,7 @@ import { captureDarkModeEasterEgg } from '@/hooks/posthog'
 import { themes } from '@/lib/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { isSafari } from '@/utils/utils'
+import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { useCallback, useMemo } from 'react'
 
 export function ModeToggleNote() {
@@ -34,43 +35,9 @@ export function ModeToggleLink() {
   const { resolvedTheme, setTheme } = useTheme()
   const { startTransition } = useThemeTransition()
 
-  const injectCircleBlurTransitionStyles = useCallback((originXPercent: number, originYPercent: number) => {
-    // Skip circle-blur animation in Safari due to 3D performance issues
-    if (isSafari()) {
-      return
-    }
-
-    const styleId = `theme-transition-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`
-    const style = document.createElement('style')
-    style.id = styleId
-    const css = `
-      @supports (view-transition-name: root) {
-        ::view-transition-old(root) {
-          animation: none;
-        }
-        ::view-transition-new(root) {
-          animation: circle-blur-expand 0.5s ease-out;
-          transform-origin: ${originXPercent}% ${originYPercent}%;
-          filter: blur(0);
-        }
-        @keyframes circle-blur-expand {
-          from {
-            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(4px);
-          }
-          to {
-            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(0);
-          }
-        }
-      }
-    `
-    style.textContent = css
-    document.head.append(style)
-    setTimeout(() => {
-      const styleEl = document.getElementById(styleId)
-      if (styleEl) styleEl.remove()
-    }, 3000)
+  const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
+    if (isSafari()) return
+    injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'theme-transition')
   }, [])
 
   const handleClick = useCallback(
@@ -84,13 +51,13 @@ export function ModeToggleLink() {
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
       const originYPercent = Math.max(0, Math.min(100, (clickY / viewportHeight) * 100))
 
-      injectCircleBlurTransitionStyles(originXPercent, originYPercent)
+      injectCircleBlur(originXPercent, originYPercent)
       startTransition(() => {
         setTheme('dark')
         captureDarkModeEasterEgg()
       })
     },
-    [injectCircleBlurTransitionStyles, resolvedTheme, setTheme, startTransition],
+    [injectCircleBlur, resolvedTheme, setTheme, startTransition],
   )
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
