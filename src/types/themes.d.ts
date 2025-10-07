@@ -14,4 +14,6 @@ export type ThemeConfig = {
   timeRange?: { start: MonthDay; end: MonthDay }
   disableGridLights?: boolean
   enableSnow?: boolean
+  requiresAchievement?: boolean
+  alwaysHidden?: boolean
 }

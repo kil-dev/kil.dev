@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
+import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { MenuIcon, PawPrint, Trophy } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter } from 'next/navigation'
@@ -64,29 +65,8 @@ export function MobileNav() {
     return navigationItems
   }, [isMounted, showAchievements, showPetGallery])
 
-  const injectCircleBlurTransitionStyles = useCallback((originXPercent: number, originYPercent: number) => {
-    const styleId = `nav-transition-${Date.now()}`
-    const style = document.createElement('style')
-    style.id = styleId
-    style.textContent = `
-      @supports (view-transition-name: root) {
-        ::view-transition-old(root) { animation: none; }
-        ::view-transition-new(root) {
-          animation: kd-circle-blur-expand 0.5s ease-out;
-          transform-origin: ${originXPercent}% ${originYPercent}%;
-          filter: blur(0);
-        }
-        @keyframes kd-circle-blur-expand {
-          from { clip-path: circle(0% at ${originXPercent}% ${originYPercent}%); filter: blur(4px); }
-          to { clip-path: circle(150% at ${originXPercent}% ${originYPercent}%); filter: blur(0); }
-        }
-      }
-    `
-    document.head.append(style)
-    globalThis.setTimeout(() => {
-      const el = document.getElementById(styleId)
-      if (el) el.remove()
-    }, 3000)
+  const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
+    injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'nav-transition')
   }, [])
 
   const triggerOpenFx = useCallback(() => {
@@ -432,7 +412,7 @@ export function MobileNav() {
                     const vh = globalThis.innerHeight || 1
                     const originXPercent = Math.max(0, Math.min(100, ((btnRect.left + btnRect.width / 2) / vw) * 100))
                     const originYPercent = Math.max(0, Math.min(100, ((btnRect.top + btnRect.height / 2) / vh) * 100))
-                    injectCircleBlurTransitionStyles(originXPercent, originYPercent)
+                    injectCircleBlur(originXPercent, originYPercent)
                   }
                   closeWithAnimation(item.href, idx)
                 }}

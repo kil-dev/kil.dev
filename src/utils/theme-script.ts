@@ -1,6 +1,7 @@
 // Theme initialization runtime (browser)
 // This file is compiled and minified at build-time into an IIFE that exposes
 // a global object `ThemeRuntime` with a named export function `initTheme`.
+import { maybeStartViewTransition } from './view-transition'
 
 export type CompactDate = { m: number; d: number }
 
@@ -8,6 +9,7 @@ export type SeasonalEntry = {
   theme: string
   start: CompactDate
   end: CompactDate
+  hidden?: boolean
 }
 
 export type ThemeScriptConfig = {
@@ -110,77 +112,48 @@ function removeElementSoon(el: HTMLElement | null): void {
   } catch {}
 }
 
-export function initTheme(config: ThemeScriptConfig): void {
-  validateConfig(config)
+function overlaysEnabledFromStorage(): boolean {
+  try {
+    const match = /(?:^|;\s*)seasonalOverlaysEnabled=([^;]+)/.exec(document.cookie)
+    if (match?.[1] === '0') return false
+    if (match?.[1] === '1') return true
+  } catch {}
+  try {
+    const stored = localStorage.getItem('seasonalOverlaysEnabled')
+    if (stored === '0') return false
+    if (stored === '1') return true
+  } catch {}
+  return true
+}
 
-  const now = new Date()
-  const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
+function detectHasThemeTapdance(root: HTMLElement): boolean {
+  try {
+    if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) return true
+  } catch {}
+  try {
+    const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
+    const cookieMatch = cookieRegex.exec(document.cookie)
+    const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
+    return cookieValue.includes('THEME_TAPDANCE')
+  } catch {}
+  return false
+}
 
-  // Check if user has theme tapdance achievement (bypasses date restrictions)
-  let hasThemeTapdance = false
-  if (typeof document !== 'undefined') {
-    hasThemeTapdance = Object.hasOwn(document.documentElement.dataset, 'hasThemeTapdance')
+function applyThemeDomChanges(
+  root: HTMLElement,
+  knownClasses: string[],
+  targetClasses: string[],
+  overlaysEnabled: boolean,
+  pref: string,
+  overlay: string | null,
+  explicit: string | null,
+  baseClass: string,
+): void {
+  try {
+    root.dataset.seasonalOverlaysEnabled = overlaysEnabled ? '1' : '0'
+  } catch {}
 
-    // Fallback: if CSS attribute not set yet, try to detect from cookie directly
-    if (!hasThemeTapdance) {
-      try {
-        const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
-        const cookieMatch = cookieRegex.exec(document.cookie)
-        if (cookieMatch?.[1]) {
-          const cookieValue = decodeURIComponent(cookieMatch[1])
-          if (cookieValue.includes('THEME_TAPDANCE')) {
-            hasThemeTapdance = true
-          }
-        }
-      } catch {}
-    }
-  }
-
-  const allowed = hasThemeTapdance
-    ? uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme)])
-    : uniqueStrings([...config.base, ...active.map(s => s.theme)])
-
-  const defaultTheme = hasThemeTapdance
-    ? (active[0]?.theme ?? null) // Only use active seasonal themes, even when unlocked
-    : (active[0]?.theme ?? null)
-
-  const isAllowed = (t: unknown): t is string => typeof t === 'string' && allowed.includes(t)
-
-  const cookieTheme = getCookieTheme()
-  const lsTheme = getLocalStorageTheme()
-  const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
-
-  const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
-
-  const baseClass = sysDark ? 'dark' : ''
-
-  let explicit: string | null = null
-  let overlay: string | null = null
-
-  if (pref === 'system') {
-    overlay = defaultTheme ?? null
-  } else if (isAllowed(pref)) {
-    explicit = pref
-  } else if (defaultTheme) {
-    explicit = defaultTheme
-  } else {
-    explicit = baseClass
-  }
-
-  const root = document.documentElement
-  const disable = addDisableTransitionStyle()
-
-  const targetClasses: string[] = []
-  if (explicit) {
-    targetClasses.push(explicit)
-  } else {
-    if (baseClass) targetClasses.push(baseClass)
-    if (overlay) targetClasses.push(overlay)
-  }
-
-  const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
-
-  for (const cls of known) {
+  for (const cls of knownClasses) {
     if (!targetClasses.includes(cls)) {
       try {
         root.classList.remove(cls)
@@ -199,8 +172,141 @@ export function initTheme(config: ThemeScriptConfig): void {
     root.dataset.seasonalDefault = overlay ?? ''
     root.dataset.appliedTheme = explicit ?? baseClass ?? ''
   } catch {}
+}
 
-  removeElementSoon(disable)
+export function initTheme(config: ThemeScriptConfig): void {
+  validateConfig(config)
+
+  // Internal evaluator: computes allowed themes and applies classes
+  const evaluateAndApply = (allowAnimation = true): void => {
+    const now = new Date()
+    const active = config.seasonal.filter(s => inRange(now, s.start, s.end))
+    const root = document.documentElement
+
+    const hasThemeTapdance = detectHasThemeTapdance(root)
+    const overlaysEnabled = overlaysEnabledFromStorage()
+    const allowed = hasThemeTapdance
+      ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
+      : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
+
+    const defaultTheme = hasThemeTapdance
+      ? (active[0]?.theme ?? null) // Only use active seasonal themes, even when unlocked
+      : (active[0]?.theme ?? null)
+
+    const isAllowed = (t: unknown): t is string => typeof t === 'string' && allowed.includes(t)
+
+    const cookieTheme = getCookieTheme()
+    const lsTheme = getLocalStorageTheme()
+    const sysDark = !!globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
+
+    const pref = isAllowed(lsTheme) ? lsTheme : isAllowed(cookieTheme) ? cookieTheme : 'system'
+
+    const baseClass = sysDark ? 'dark' : ''
+
+    let explicit: string | null = null
+    let overlay: string | null = null
+
+    if (pref === 'system') {
+      overlay = overlaysEnabled ? (defaultTheme ?? null) : null
+    } else if (isAllowed(pref)) {
+      explicit = pref
+    } else if (defaultTheme) {
+      explicit = defaultTheme
+    } else {
+      explicit = baseClass
+    }
+
+    const oldOverlay = root.dataset.seasonalDefault ?? ''
+    const oldApplied = root.dataset.appliedTheme ?? ''
+
+    const targetClasses: string[] = []
+    if (explicit) {
+      targetClasses.push(explicit)
+    } else {
+      if (baseClass) targetClasses.push(baseClass)
+      if (overlay) targetClasses.push(overlay)
+    }
+
+    const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
+
+    const applyDomChanges = () =>
+      applyThemeDomChanges(root, known, targetClasses, overlaysEnabled, pref, overlay, explicit, baseClass)
+
+    const overlayChanged = (overlay ?? '') !== oldOverlay
+    const appliedAfter = explicit ?? baseClass ?? ''
+    const appliedChanged = appliedAfter !== oldApplied
+    const shouldAnimate = pref === 'system' ? overlayChanged : appliedChanged
+
+    const usedTransition =
+      allowAnimation && shouldAnimate
+        ? maybeStartViewTransition(applyDomChanges, {
+            originXPercent: 50,
+            originYPercent: 50,
+            styleIdPrefix: 'theme-transition',
+          })
+        : false
+    if (!usedTransition) {
+      const disable = addDisableTransitionStyle()
+      applyDomChanges()
+      removeElementSoon(disable)
+    }
+  }
+
+  // Initial apply
+  evaluateAndApply(false)
+
+  // Re-evaluate on visibility/focus and page show (e.g., after BFCache restore or wake)
+  try {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') evaluateAndApply()
+    }
+    const onShow = () => evaluateAndApply()
+    const onFocus = () => evaluateAndApply()
+    document.addEventListener('visibilitychange', onVis)
+    globalThis.addEventListener?.('pageshow', onShow)
+    globalThis.addEventListener?.('focus', onFocus)
+
+    // Lightweight minute ticker to catch date rollovers while tab is visible
+    let lastDay = new Date().getDate()
+    const interval = globalThis.setInterval?.(() => {
+      const now = new Date()
+      const d = now.getDate()
+      if (d !== lastDay) {
+        lastDay = d
+        evaluateAndApply()
+      }
+    }, 60000)
+
+    // Exact midnight trigger (more precise than minute ticker)
+    const msUntilNextMidnight = () => {
+      const now = new Date()
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+      return Math.max(250, next.getTime() - now.getTime())
+    }
+    let midnightTimeout: number | undefined
+    const scheduleMidnight = () => {
+      const ms = msUntilNextMidnight()
+      midnightTimeout = globalThis.setTimeout?.(() => {
+        try {
+          evaluateAndApply()
+        } finally {
+          scheduleMidnight()
+        }
+      }, ms) as unknown as number
+    }
+    scheduleMidnight()
+
+    // Clean up listeners when the script is re-run (defensive)
+    ;(globalThis as unknown as { __kd_cleanup_theme_listeners__?: () => void }).__kd_cleanup_theme_listeners__ = () => {
+      try {
+        document.removeEventListener('visibilitychange', onVis)
+        globalThis.removeEventListener?.('pageshow', onShow)
+        globalThis.removeEventListener?.('focus', onFocus)
+        if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+        if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
+      } catch {}
+    }
+  } catch {}
 }
 
 export default initTheme

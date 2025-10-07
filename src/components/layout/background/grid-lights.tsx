@@ -160,11 +160,13 @@ export function GridLights() {
     const update = () => {
       const activeName = themeNames.find(n => root.classList.contains(n))
       const cfg = themes.find(t => t.name === activeName)
-      setDisableGridLights(supportsDisable(cfg) ? Boolean(cfg.disableGridLights) : false)
+      const themeRequestsDisable = supportsDisable(cfg) ? Boolean(cfg.disableGridLights) : false
+      const userOverride = root.dataset.disableGridLights === '1'
+      setDisableGridLights(themeRequestsDisable || userOverride)
     }
     update()
     const observer = new MutationObserver(() => update())
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'data-disable-grid-lights'] })
     return () => observer.disconnect()
   }, [])
 

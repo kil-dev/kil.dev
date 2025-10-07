@@ -22,14 +22,15 @@ export function SnowProvider({ children }: { children: React.ReactNode }) {
       const activeName = themeNames.find(n => root.classList.contains(n))
       const cfg = themes.find(t => t.name === activeName)
       const enableSnowByTheme = !!(cfg && 'enableSnow' in cfg && cfg.enableSnow)
+      const disableSnowOverride = root.dataset.disableSnow === '1'
       const reduceMotion = mql.matches
-      setIsActive(enableSnowByTheme && !reduceMotion)
+      setIsActive(enableSnowByTheme && !reduceMotion && !disableSnowOverride)
     }
 
     update()
 
     const observer = new MutationObserver(() => update())
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'data-disable-snow'] })
 
     const handleMqlChange = () => update()
     if (typeof mql.addEventListener === 'function') {

@@ -38,7 +38,10 @@ export const SEASONAL_THEMES: SeasonalThemeConfig[] = themes
   .filter(hasTimeRange)
   .map(t => ({ theme: t.name, start: t.timeRange.start, end: t.timeRange.end }))
 
-const BASE_CSS_THEMES: ThemeName[] = themes.filter(t => !('timeRange' in t)).map(t => t.name)
+const BASE_CSS_THEMES: ThemeName[] = themes
+  .filter(t => !('timeRange' in t))
+  .filter(t => !('alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden))
+  .map(t => t.name)
 
 function compareMonthDay(a: MonthDay, b: MonthDay): number {
   if (a.month !== b.month) return a.month < b.month ? -1 : 1
@@ -77,15 +80,21 @@ export function getActiveSeasonalThemes(date: Date = new Date()): SeasonalThemeC
 }
 
 export function getAvailableThemes(date: Date = new Date(), overrideDateRestrictions = false): Theme[] {
-  // Check if we should bypass date restrictions
+  const hiddenNames = new Set(
+    themes
+      .filter(t => 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden)
+      .map(t => t.name),
+  )
+
+  // Check if we should bypass date restrictions (but still exclude alwaysHidden)
   if (overrideDateRestrictions || hasThemeTapdanceAchievement()) {
-    // Return all themes when achievement is unlocked
-    return ['system', ...BASE_CSS_THEMES, ...SEASONAL_THEMES.map(st => st.theme)]
+    const seasonalAll = SEASONAL_THEMES.map(st => st.theme).filter(name => !hiddenNames.has(name))
+    return ['system', ...BASE_CSS_THEMES, ...seasonalAll]
   }
 
   // Normal date-based filtering
   const active = getActiveSeasonalThemes(date)
-  const seasonalNames = active.map(a => a.theme)
+  const seasonalNames = active.map(a => a.theme).filter(name => !hiddenNames.has(name))
   return ['system', ...BASE_CSS_THEMES, ...seasonalNames]
 }
 
@@ -96,10 +105,17 @@ export function getDefaultThemeForNow(date: Date = new Date()): Theme {
 }
 
 export function buildThemeScript(): string {
+  const hiddenNames = new Set(
+    themes
+      .filter(t => 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden)
+      .map(t => t.name),
+  )
+
   const seasonal = SEASONAL_THEMES.map(s => ({
     theme: s.theme,
     start: { m: s.start.month, d: s.start.day },
     end: { m: s.end.month, d: s.end.day },
+    hidden: hiddenNames.has(s.theme),
   }))
   const base = BASE_CSS_THEMES
   const cfg = { base, seasonal }

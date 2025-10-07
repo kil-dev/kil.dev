@@ -7,6 +7,7 @@ import {
   getDefaultThemeForNow,
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
+import { maybeStartViewTransition } from '@/utils/view-transition'
 import Cookies from 'js-cookie'
 import * as React from 'react'
 import { useEffectEvent } from 'react'
@@ -19,6 +20,14 @@ type ThemeContextValue = {
   resolvedTheme: Theme | SystemTheme | undefined
   systemTheme: SystemTheme | undefined
   initialAppliedThemeName?: ThemeName
+  seasonalOverlaysEnabled: boolean
+  setSeasonalOverlaysEnabled: (enabled: boolean) => void
+  disableSnow: boolean
+  setDisableSnow: (disabled: boolean) => void
+  disableCodeRain: boolean
+  setDisableCodeRain: (disabled: boolean) => void
+  disableGridLights: boolean
+  setDisableGridLights: (disabled: boolean) => void
 }
 
 const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined)
@@ -146,6 +155,41 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   } catch {}
 }
 
+function readSeasonalOverlaysEnabled(): boolean {
+  // default true (enabled)
+  try {
+    // cookie wins
+    const re = new RegExp(`(?:^|; )${cookieKey('seasonalOverlaysEnabled')}=([^;]+)`)
+    const m = re.exec(document.cookie)
+    if (m?.[1]) return m[1] === '1'
+  } catch {}
+  try {
+    const v = localStorage.getItem(storageKey('seasonalOverlaysEnabled'))
+    if (v === '0') return false
+    if (v === '1') return true
+  } catch {}
+  return true
+}
+
+function writeSeasonalOverlaysEnabled(value: boolean) {
+  try {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
+    Cookies.set(cookieKey('seasonalOverlaysEnabled'), value ? '1' : '0', {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
+  } catch {}
+  try {
+    localStorage.setItem(storageKey('seasonalOverlaysEnabled'), value ? '1' : '0')
+  } catch {}
+  try {
+    document.documentElement.dataset.seasonalOverlaysEnabled = value ? '1' : '0'
+  } catch {}
+}
+
 function getSystemTheme(): SystemTheme | undefined {
   if (typeof globalThis === 'undefined') return undefined
   try {
@@ -170,6 +214,9 @@ function applyClasses(preference: Theme, system: SystemTheme | undefined) {
     const other = effective === 'dark' ? 'light' : 'dark'
     if (root.classList.contains(other)) remove(other)
 
+    // Honor seasonal overlay preference
+    const overlaysEnabled = root.dataset.seasonalOverlaysEnabled !== '0'
+
     // Handle seasonal themes based on requirements
     const activeSeasonalThemes = getActiveSeasonalThemes()
     const hasActiveSeasonalTheme = activeSeasonalThemes.length > 0
@@ -177,7 +224,7 @@ function applyClasses(preference: Theme, system: SystemTheme | undefined) {
     for (const cls of allThemeClassNames) {
       if (cls === 'light' || cls === 'dark') continue
 
-      if (hasActiveSeasonalTheme) {
+      if (hasActiveSeasonalTheme && overlaysEnabled) {
         // During seasonal periods, apply seasonal theme regardless of unlock status
         if (cls === seasonalDefault) {
           if (!root.classList.contains(cls)) add(cls)
@@ -232,6 +279,53 @@ export function ThemeProvider({
       return getSystemTheme()
     } catch {
       return
+    }
+  })
+
+  const [seasonalOverlaysEnabled, setSeasonalOverlaysEnabledState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return true
+    try {
+      const v = readSeasonalOverlaysEnabled()
+      document.documentElement.dataset.seasonalOverlaysEnabled = v ? '1' : '0'
+      return v
+    } catch {
+      return true
+    }
+  })
+
+  const [disableSnow, setDisableSnowState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableSnow'))
+      const val = v === '1'
+      document.documentElement.dataset.disableSnow = val ? '1' : '0'
+      return val
+    } catch {
+      return false
+    }
+  })
+
+  const [disableCodeRain, setDisableCodeRainState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableCodeRain'))
+      const val = v === '1'
+      document.documentElement.dataset.disableCodeRain = val ? '1' : '0'
+      return val
+    } catch {
+      return false
+    }
+  })
+
+  const [disableGridLights, setDisableGridLightsState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableGridLights'))
+      const val = v === '1'
+      document.documentElement.dataset.disableGridLights = val ? '1' : '0'
+      return val
+    } catch {
+      return false
     }
   })
 
@@ -326,6 +420,132 @@ export function ThemeProvider({
     applyClasses(next, getSystemTheme())
   }, [])
 
+  const setSeasonalOverlaysEnabled = React.useCallback(
+    (enabled: boolean) => {
+      setSeasonalOverlaysEnabledState(enabled)
+      writeSeasonalOverlaysEnabled(enabled)
+      // Re-apply classes to reflect overlay preference immediately
+      applyClasses(theme ?? 'system', getSystemTheme())
+    },
+    [theme],
+  )
+
+  const setDisableSnow = React.useCallback((disabled: boolean) => {
+    setDisableSnowState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableSnow'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableSnow = disabled ? '1' : '0'
+    } catch {}
+  }, [])
+
+  const setDisableCodeRain = React.useCallback((disabled: boolean) => {
+    setDisableCodeRainState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableCodeRain'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableCodeRain = disabled ? '1' : '0'
+    } catch {}
+  }, [])
+
+  const setDisableGridLights = React.useCallback((disabled: boolean) => {
+    setDisableGridLightsState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableGridLights'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableGridLights = disabled ? '1' : '0'
+    } catch {}
+  }, [])
+
+  // Re-evaluate seasonal default on visibility/focus and at minute ticks
+  React.useEffect(() => {
+    if (typeof globalThis === 'undefined') return
+
+    const runViewTransition = (updateFn: () => void) => {
+      const used = maybeStartViewTransition(updateFn, {
+        originXPercent: 50,
+        originYPercent: 50,
+        styleIdPrefix: 'theme-transition',
+      })
+      if (!used) updateFn()
+    }
+
+    const reapply = () => {
+      const currentPref: Theme = theme ?? 'system'
+      const seasonalDefaultNow = getDefaultThemeForNow()
+      // If user is on system, apply seasonal overlay if changed
+      if (currentPref === 'system') {
+        const root = document.documentElement
+        const hadRaw = root.dataset.seasonalDefault
+        const had: Theme = (hadRaw && hadRaw.length > 0 ? hadRaw : 'system') as Theme
+        const overlayChanged = seasonalDefaultNow !== had
+        if (overlayChanged) {
+          runViewTransition(() => applyClasses('system', getSystemTheme()))
+        } else {
+          applyClasses('system', getSystemTheme())
+        }
+        return
+      }
+
+      // If an explicit seasonal theme is no longer available (e.g., expired, or hidden window), normalize
+      const allowed = getAvailableThemes() as readonly Theme[]
+      if (!allowed.includes(currentPref)) {
+        runViewTransition(() => setTheme('system'))
+        return
+      }
+
+      // Re-apply classes to ensure overlays and base classes are correct
+      applyClasses(currentPref, getSystemTheme())
+    }
+
+    const onVis = () => {
+      if (document.visibilityState === 'visible') reapply()
+    }
+    const onShow = () => reapply()
+    const onFocus = () => reapply()
+
+    try {
+      document.addEventListener('visibilitychange', onVis)
+      globalThis.addEventListener?.('pageshow', onShow)
+      globalThis.addEventListener?.('focus', onFocus)
+    } catch {}
+
+    // Minute ticker detects date rollovers even if tab stays visible
+    const interval = globalThis.setInterval?.(() => reapply(), 60000)
+
+    // Exact midnight trigger to re-evaluate themes precisely at midnight
+    const msUntilNextMidnight = () => {
+      const now = new Date()
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+      return Math.max(250, next.getTime() - now.getTime())
+    }
+    const scheduleMidnight = (): number | undefined => {
+      const ms = msUntilNextMidnight()
+      return globalThis.setTimeout?.(() => {
+        try {
+          reapply()
+        } finally {
+          // Re-schedule for the next midnight
+          midnightTimeout = scheduleMidnight()
+        }
+      }, ms) as unknown as number
+    }
+    let midnightTimeout = scheduleMidnight()
+
+    return () => {
+      try {
+        document.removeEventListener('visibilitychange', onVis)
+        globalThis.removeEventListener?.('pageshow', onShow)
+        globalThis.removeEventListener?.('focus', onFocus)
+        if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+        if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
+      } catch {}
+    }
+  }, [theme, setTheme])
+
   // If user explicitly selected a seasonal theme, schedule a check at next midnight
   // to auto-revert to 'system' when the seasonal theme expires while the tab is open.
   React.useEffect(() => {
@@ -376,8 +596,36 @@ export function ThemeProvider({
       (typeof document === 'undefined'
         ? undefined
         : ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined))
-    return { theme, setTheme, resolvedTheme, systemTheme, initialAppliedThemeName: computedInitial }
-  }, [theme, setTheme, resolvedTheme, systemTheme, initialAppliedTheme])
+    return {
+      theme,
+      setTheme,
+      resolvedTheme,
+      systemTheme,
+      initialAppliedThemeName: computedInitial,
+      seasonalOverlaysEnabled,
+      setSeasonalOverlaysEnabled,
+      disableSnow,
+      setDisableSnow,
+      disableCodeRain,
+      setDisableCodeRain,
+      disableGridLights,
+      setDisableGridLights,
+    }
+  }, [
+    theme,
+    setTheme,
+    resolvedTheme,
+    systemTheme,
+    initialAppliedTheme,
+    seasonalOverlaysEnabled,
+    setSeasonalOverlaysEnabled,
+    disableSnow,
+    setDisableSnow,
+    disableCodeRain,
+    setDisableCodeRain,
+    disableGridLights,
+    setDisableGridLights,
+  ])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

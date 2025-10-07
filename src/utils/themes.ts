@@ -1,4 +1,4 @@
-import Headshot from '@/images/headshot/cartoon-headshot.webp'
+import Headshot from '@/images/headshot/headshot.webp'
 import type { ThemeEntry, ThemeName } from '@/lib/themes'
 import { themes, type Theme } from '@/lib/themes'
 import type { BaseColor, IconComponent } from '@/types/themes'
@@ -6,7 +6,16 @@ import { Sun } from 'lucide-react'
 import type { StaticImageData } from 'next/image'
 
 export function getThemeLabel(theme: Theme): string {
-  if (theme === 'system') return 'System'
+  if (theme === 'system') {
+    try {
+      // If seasonal overlays are disabled, show 'System' instead of 'Seasonal'
+      const overlaysEnabled =
+        typeof document === 'undefined' ? true : document.documentElement.dataset.seasonalOverlaysEnabled !== '0'
+      return overlaysEnabled ? 'Seasonal' : 'System'
+    } catch {
+      return 'Seasonal'
+    }
+  }
   const s = `${theme}`
   return s.slice(0, 1).toUpperCase() + s.slice(1)
 }

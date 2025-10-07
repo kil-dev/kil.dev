@@ -6,25 +6,31 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
 import { themes, type Theme } from '@/lib/themes'
+import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
-import { Laptop, Smartphone } from 'lucide-react'
+import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
+import { CalendarDays, Monitor, Settings } from 'lucide-react'
+import { motion } from 'motion/react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
+import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
-  return (
-    <>
-      <Smartphone suppressHydrationWarning className={cn(className, 'md:hidden')} />
-      <Laptop className={cn(className, 'hidden md:inline-block')} />
-    </>
-  )
+  // Avoid hydration mismatch: default to Seasonal icon until mounted
+  const { seasonalOverlaysEnabled } = useTheme()
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+  if (!hydrated) {
+    return <CalendarDays className={cn(className)} />
+  }
+  return seasonalOverlaysEnabled ? <CalendarDays className={cn(className)} /> : <Monitor className={cn(className)} />
 }
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme, systemTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme, systemTheme, seasonalOverlaysEnabled } = useTheme()
   const { startTransition } = useThemeTransition()
   const { unlocked, has, unlock } = useAchievements()
 
@@ -42,6 +48,7 @@ export function ThemeToggle() {
 
   const [hydrated, setHydrated] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(0)
+  const [showOptions, setShowOptions] = useState(false)
   useEffect(() => {
     setHydrated(true)
   }, [])
@@ -88,40 +95,8 @@ export function ThemeToggle() {
     }
   }, [open])
 
-  const injectCircleBlurTransitionStyles = useCallback((originXPercent: number, originYPercent: number) => {
-    const styleId = `theme-transition-${Date.now()}`
-    const style = document.createElement('style')
-    style.id = styleId
-    const css = `
-      @supports (view-transition-name: root) {
-        ::view-transition-old(root) {
-          animation: none;
-        }
-        ::view-transition-new(root) {
-          animation: circle-blur-expand 0.5s ease-out;
-          transform-origin: ${originXPercent}% ${originYPercent}%;
-          filter: blur(0);
-        }
-        @keyframes circle-blur-expand {
-          from {
-            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(4px);
-          }
-          to {
-            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(0);
-          }
-        }
-      }
-    `
-    style.textContent = css
-    document.head.append(style)
-    setTimeout(() => {
-      const styleEl = document.getElementById(styleId)
-      if (styleEl) {
-        styleEl.remove()
-      }
-    }, 3000)
+  const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
+    injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'theme-transition')
   }, [])
 
   const handleThemeChange = useCallback(
@@ -172,7 +147,7 @@ export function ThemeToggle() {
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
       const originYPercent = Math.max(0, Math.min(100, (clickY / viewportHeight) * 100))
 
-      injectCircleBlurTransitionStyles(originXPercent, originYPercent)
+      injectCircleBlur(originXPercent, originYPercent)
       startTransition(() => {
         setTheme(nextPref)
         captureThemeChanged(nextPref)
@@ -181,7 +156,7 @@ export function ThemeToggle() {
     },
     [
       currentPreference,
-      injectCircleBlurTransitionStyles,
+      injectCircleBlur,
       resolvedTheme,
       setTheme,
       startTransition,
@@ -196,7 +171,15 @@ export function ThemeToggle() {
 
   const allOptions: ThemeOption[] = useMemo(() => {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
-    return themeList.map((t): ThemeOption => {
+    const achievementUnlocked = has('THEME_TAPDANCE')
+    const filteredList = themeList.filter(t => {
+      if (t === 'system') return true
+      const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
+      if (entry?.alwaysHidden) return false
+      const gated = Boolean(entry?.requiresAchievement)
+      return achievementUnlocked || !gated
+    })
+    return filteredList.map((t): ThemeOption => {
       const label: string = getThemeLabel(t)
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
@@ -204,11 +187,36 @@ export function ThemeToggle() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iconByTheme, has, unlocked, forceUpdate])
 
+  // Compute dynamic width based on the longest theme label (in ch units)
+  const menuWidthCh = useMemo(() => {
+    const longest = allOptions.reduce((max, o) => Math.max(max, o.label.length), 0)
+    // Add room for icon + gaps; clamp to [18ch, 32ch]
+    const ch = Math.max(18, Math.min(32, longest + 8))
+    return ch
+  }, [allOptions])
+
   const optionsToShow = useMemo(() => {
-    if (currentPreference === 'system') {
-      return allOptions.filter(opt => opt.value !== 'system')
-    }
-    return allOptions.filter(opt => opt.value !== currentPreference)
+    const systemOpt = allOptions.find(opt => opt.value === 'system')
+    const base = allOptions.filter(opt => {
+      if (opt.value === 'system') return false
+      const entry = themes.find(e => e.name === opt.value) as ThemeConfig | undefined
+      return entry && !('timeRange' in entry)
+    })
+    const seasonalActiveNames = new Set((getAvailableThemes() as readonly Theme[]).filter(t => t !== 'system'))
+    const seasonalActive = allOptions.filter(opt => {
+      if (opt.value === 'system') return false
+      const entry = themes.find(e => e.name === opt.value) as ThemeConfig | undefined
+      return entry && 'timeRange' in entry && seasonalActiveNames.has(opt.value)
+    })
+
+    let list: ThemeOption[] = [...base, ...seasonalActive]
+    if (systemOpt) list = [systemOpt, ...list]
+    // Hide the currently selected preference to avoid no-op selection
+    list =
+      currentPreference === 'system'
+        ? list.filter(opt => opt.value !== 'system')
+        : list.filter(opt => opt.value !== currentPreference)
+    return list
   }, [allOptions, currentPreference])
 
   const onDocClick = useEffectEvent((e: MouseEvent) => {
@@ -382,7 +390,7 @@ export function ThemeToggle() {
         <TooltipContent side="bottom">
           {(() => {
             if (open || tooltipHold) {
-              if (currentPreference === 'system') return 'System'
+              if (currentPreference === 'system') return seasonalOverlaysEnabled ? 'Seasonal' : 'System'
               return `${currentPreference.slice(0, 1).toUpperCase()}${currentPreference.slice(1)}`
             }
             return 'Theme Toggle'
@@ -426,34 +434,83 @@ export function ThemeToggle() {
         tabIndex={-1}
         onKeyDown={handleMenuKeyDown}
         className={cn(
-          'absolute left-1/2 top-full -translate-x-1/2 mt-2 z-[120]',
-          'flex flex-col items-stretch gap-2',
+          'absolute left-1/2 -translate-x-1/2 top-full mt-2 z-[120]',
+          'flex flex-col items-stretch gap-3',
           open ? 'pointer-events-auto' : 'pointer-events-none',
         )}>
-        {hydrated &&
-          optionsToShow.map((opt, idx) => (
-            <Button
-              key={opt.value}
-              ref={el => {
-                optionRefs.current[idx] = el
-              }}
-              onClick={e => handleThemeChange(opt.value, e)}
-              role="menuitem"
-              aria-label={opt.label}
-              title={opt.label}
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2',
-                open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
-              )}
-              style={{ transitionDelay: `${idx * 60}ms` }}>
-              <span className="grid size-8 place-items-center shrink-0">
-                <opt.Icon className="size-4" />
-              </span>
-              <span className="text-xs font-medium text-foreground/90">{opt.label}</span>
-            </Button>
-          ))}
+        {hydrated && (
+          <fieldset
+            className={cn(
+              'p-3 pt-8 transition-all duration-200 ease-out relative',
+              open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
+            )}
+            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}>
+            <legend className="sr-only">Theme controls</legend>
+            {/* Cog moved next to the first theme item, not occupying header space */}
+
+            {/* Options popover will render under the settings button */}
+
+            <div className="flex items-start gap-2">
+              <div className="shrink-0 pt-1 relative">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-controls="theme-options-panel"
+                  aria-expanded={showOptions}
+                  onClick={() => setShowOptions(v => !v)}
+                  aria-label={showOptions ? 'Hide options' : 'Show options'}
+                  className="h-7 w-7">
+                  <Settings className="size-4" />
+                </Button>
+                {/* Desktop: anchored popover under the cog */}
+                <div className="absolute right-0 top-full hidden sm:block">
+                  <ThemeOptionsPanel open={showOptions} align="right" />
+                </div>
+              </div>
+              <div className="max-h-[48vh] overflow-hidden flex-1">
+                <motion.div
+                  className="overflow-y-auto overflow-x-hidden no-scrollbar pr-1 flex flex-col gap-1"
+                  initial="hidden"
+                  animate={open ? 'show' : 'hidden'}
+                  variants={{
+                    hidden: { opacity: 0, y: -4 },
+                    show: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
+                  }}>
+                  {optionsToShow.map(opt => (
+                    <motion.div
+                      key={opt.value}
+                      variants={{ hidden: { opacity: 0, y: -4 }, show: { opacity: 1, y: 0 } }}>
+                      <Button
+                        ref={el => {
+                          const idx = optionsToShow.findIndex(o => o.value === opt.value)
+                          optionRefs.current[idx] = el
+                        }}
+                        onClick={e => handleThemeChange(opt.value, e)}
+                        role="menuitem"
+                        aria-label={opt.label}
+                        title={opt.label}
+                        variant="ghost"
+                        size="sm"
+                        className={cn('flex w-full hover:bg-accent/70 justify-start gap-2 rounded-md')}>
+                        <span className="grid size-7 place-items-center shrink-0">
+                          <opt.Icon className="size-4" />
+                        </span>
+                        <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
+                      </Button>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            </div>
+            {/* Mobile: inline options below the list to avoid overlay */}
+            {showOptions ? (
+              <div className="mt-2 sm:hidden">
+                <ThemeOptionsSheet />
+              </div>
+            ) : null}
+          </fieldset>
+        )}
       </div>
     </div>
   )
