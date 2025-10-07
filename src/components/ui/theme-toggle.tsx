@@ -443,68 +443,30 @@ export function ThemeToggle() {
         tabIndex={-1}
         onKeyDown={handleMenuKeyDown}
         className={cn(
-          'absolute right-0 top-full mt-2 z-[120]',
+          'absolute left-1/2 -translate-x-1/2 top-full mt-2 z-[120]',
           'flex flex-col items-stretch gap-3',
           open ? 'pointer-events-auto' : 'pointer-events-none',
         )}>
         {hydrated && (
           <div
             className={cn(
-              'w-[min(92vw,280px)] p-3 transition-all duration-200 ease-out',
+              'p-3 pt-8 transition-all duration-200 ease-out relative',
               open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
             )}
+            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}
             role="group"
             aria-label="Theme controls">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Themes</div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-controls="theme-options-panel"
-                aria-expanded={showOptions}
-                onClick={() => setShowOptions(v => !v)}
-                aria-label={showOptions ? 'Hide options' : 'Show options'}
-                className="h-7 w-7">
-                <Settings className="size-4" />
-              </Button>
-            </div>
+            {/* Cog moved next to the first theme item, not occupying header space */}
 
-            <div className="max-h-[48vh] overflow-hidden">
-              <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
-                {optionsToShow.map((opt, idx) => (
-                  <Button
-                    key={opt.value}
-                    ref={el => {
-                      optionRefs.current[idx] = el
-                    }}
-                    onClick={e => handleThemeChange(opt.value, e)}
-                    role="menuitem"
-                    aria-label={opt.label}
-                    title={opt.label}
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      'flex w-full transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2 rounded-md',
-                      open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
-                    )}
-                    style={{ transitionDelay: `${idx * 30}ms` }}>
-                    <span className="grid size-7 place-items-center shrink-0">
-                      <opt.Icon className="size-4" />
-                    </span>
-                    <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-
+            {/* Options overlay to the left (absolute), avoids container width reflow */}
             <div
               id="theme-options-panel"
               className={cn(
-                'mt-3 border-t border-border/50 pt-2 flex flex-col gap-2 text-xs',
-                showOptions ? 'block' : 'hidden',
+                'absolute right-full top-0 mr-2 w-[200px] text-xs flex-col gap-2',
+                showOptions ? 'flex' : 'hidden',
               )}
               aria-hidden={!showOptions}>
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Options</div>
               <label className="flex items-center gap-2 select-none">
                 <input
                   type="checkbox"
