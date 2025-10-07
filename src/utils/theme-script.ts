@@ -184,6 +184,19 @@ export function initTheme(config: ThemeScriptConfig): void {
       }
     }
 
+    const overlaysEnabled = (() => {
+      try {
+        const match = /(?:^|;\s*)seasonalOverlaysEnabled=([^;]+)/.exec(document.cookie)
+        if (match?.[1] === '0') return false
+        if (match?.[1] === '1') return true
+      } catch {}
+      try {
+        const stored = localStorage.getItem('seasonalOverlaysEnabled')
+        if (stored === '0') return false
+        if (stored === '1') return true
+      } catch {}
+      return true
+    })()
     const allowed = hasThemeTapdance
       ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
       : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
@@ -206,7 +219,7 @@ export function initTheme(config: ThemeScriptConfig): void {
     let overlay: string | null = null
 
     if (pref === 'system') {
-      overlay = defaultTheme ?? null
+      overlay = overlaysEnabled ? (defaultTheme ?? null) : null
     } else if (isAllowed(pref)) {
       explicit = pref
     } else if (defaultTheme) {
@@ -230,6 +243,9 @@ export function initTheme(config: ThemeScriptConfig): void {
     const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
 
     const applyDomChanges = () => {
+      try {
+        root.dataset.seasonalOverlaysEnabled = overlaysEnabled ? '1' : '0'
+      } catch {}
       for (const cls of known) {
         if (!targetClasses.includes(cls)) {
           try {
