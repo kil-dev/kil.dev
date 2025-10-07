@@ -30,7 +30,7 @@ export function SnowProvider({ children }: { children: React.ReactNode }) {
     update()
 
     const observer = new MutationObserver(() => update())
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'data-disable-snow'] })
 
     const handleMqlChange = () => update()
     if (typeof mql.addEventListener === 'function') {
