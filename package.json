@@ -31,6 +31,7 @@
     "@radix-ui/react-collapsible": "1.1.12",
     "@radix-ui/react-scroll-area": "1.2.10",
     "@radix-ui/react-slot": "1.2.3",
+    "@radix-ui/react-switch": "1.2.6",
     "@radix-ui/react-tooltip": "1.2.8",
     "@t3-oss/env-nextjs": "0.13.8",
     "@upstash/ratelimit": "2.0.6",
