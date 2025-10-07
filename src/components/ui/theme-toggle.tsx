@@ -23,8 +23,10 @@ function SystemIcon({ className }: { className?: string }) {
   const { seasonalOverlaysEnabled } = useTheme()
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
-  const Icon = hydrated ? (seasonalOverlaysEnabled ? CalendarDays : Monitor) : CalendarDays
-  return <Icon className={cn(className)} />
+  if (!hydrated) {
+    return <CalendarDays className={cn(className)} />
+  }
+  return seasonalOverlaysEnabled ? <CalendarDays className={cn(className)} /> : <Monitor className={cn(className)} />
 }
 
 export function ThemeToggle() {
