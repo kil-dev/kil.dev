@@ -363,8 +363,9 @@ export function ThemeProvider({
       // If user is on system, apply seasonal overlay if changed
       if (currentPref === 'system') {
         const root = document.documentElement
-        const had = (root.dataset.seasonalDefault as Theme | undefined) ?? undefined
-        const overlayChanged = seasonalDefaultNow !== (had ?? 'system')
+        const hadRaw = root.dataset.seasonalDefault as string | undefined
+        const had: Theme = (hadRaw && hadRaw.length > 0 ? hadRaw : 'system') as Theme
+        const overlayChanged = seasonalDefaultNow !== had
         if (overlayChanged) {
           runViewTransition(() => applyClasses('system', getSystemTheme()))
         } else {
