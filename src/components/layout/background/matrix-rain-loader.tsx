@@ -24,7 +24,7 @@ export function MatrixRainLoader() {
       link.rel = 'stylesheet'
       link.href = 'https://fonts.cdnfonts.com/css/matrix-code-nfi'
       link.media = 'all'
-      document.head.appendChild(link)
+      document.head.append(link)
     }
 
     const update = () => {
@@ -33,7 +33,11 @@ export function MatrixRainLoader() {
       if (isActive) {
         ensureFontLoaded()
         // Dynamically import the renderer only when needed
-        import('./matrix-rain').then(mod => setComponent(() => mod.MatrixRain)).catch(() => {})
+        import('./matrix-rain')
+          .then(mod => setComponent(() => mod.MatrixRain))
+          .catch(() => {
+            /* empty */
+          })
       }
     }
 
