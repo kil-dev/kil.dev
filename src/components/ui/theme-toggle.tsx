@@ -486,12 +486,11 @@ export function ThemeToggle() {
                   </div>
                   <label className="flex items-center justify-between gap-2 select-none w-full">
                     <span>Seasonal overlays</span>
-                    <input
-                      type="checkbox"
+                    <MotionSwitch
                       checked={seasonalOverlaysEnabled}
-                      onChange={e => setSeasonalOverlaysEnabled(e.target.checked)}
+                      onCheckedChange={setSeasonalOverlaysEnabled}
                       aria-label="Seasonal overlays"
-                      className="accent-primary"
+                      size="md"
                     />
                   </label>
                   {(() => {
@@ -507,24 +506,22 @@ export function ThemeToggle() {
                         {visualTheme === 'christmas' && (
                           <label className="flex items-center justify-between gap-2 select-none w-full">
                             <span>Disable snow</span>
-                            <input
-                              type="checkbox"
+                            <MotionSwitch
                               checked={disableSnow}
-                              onChange={e => setDisableSnow(e.target.checked)}
+                              onCheckedChange={setDisableSnow}
                               aria-label="Disable snow"
-                              className="accent-primary"
+                              size="md"
                             />
                           </label>
                         )}
                         {visualTheme === 'matrix' && (
                           <label className="flex items-center justify-between gap-2 select-none w-full">
                             <span>Disable code rain</span>
-                            <input
-                              type="checkbox"
+                            <MotionSwitch
                               checked={disableCodeRain}
-                              onChange={e => setDisableCodeRain(e.target.checked)}
+                              onCheckedChange={setDisableCodeRain}
                               aria-label="Disable code rain"
-                              className="accent-primary"
+                              size="md"
                             />
                           </label>
                         )}
@@ -536,12 +533,11 @@ export function ThemeToggle() {
                             themeHasGrid && (
                               <label className="flex items-center justify-between gap-2 select-none w-full">
                                 <span>Disable grid lights</span>
-                                <input
-                                  type="checkbox"
+                                <MotionSwitch
                                   checked={disableGridLights}
-                                  onChange={e => setDisableGridLights(e.target.checked)}
+                                  onCheckedChange={setDisableGridLights}
                                   aria-label="Disable grid lights"
-                                  className="accent-primary"
+                                  size="md"
                                 />
                               </label>
                             )
