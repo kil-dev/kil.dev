@@ -213,24 +213,12 @@ export function ThemeToggle() {
     let list: ThemeOption[] = [...base, ...seasonalActive]
     if (systemOpt) list = [systemOpt, ...list]
     // Hide the currently selected preference to avoid no-op selection
-    if (currentPreference === 'system') {
-      list = list.filter(opt => opt.value !== 'system')
-    } else {
-      list = list.filter(opt => opt.value !== currentPreference)
-    }
+    list =
+      currentPreference === 'system'
+        ? list.filter(opt => opt.value !== 'system')
+        : list.filter(opt => opt.value !== currentPreference)
     return list
   }, [allOptions, currentPreference])
-
-  // Determine current visual theme for options
-  const visualThemeForOptions: Theme = useMemo(() => {
-    const seasonalDefault = getDefaultThemeForNow()
-    if (currentPreference === 'system') {
-      if (seasonalDefault !== 'system') return seasonalDefault as Theme
-      const sys = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
-      return sys
-    }
-    return currentPreference
-  }, [currentPreference, resolvedTheme, systemTheme])
 
   const onDocClick = useEffectEvent((e: MouseEvent) => {
     const target = e.target as Node | null
@@ -555,7 +543,7 @@ export function ThemeToggle() {
                     )}
                     {(() => {
                       // Show grid lights toggle for themes that support grid lights by default
-                      const entry = themes.find(t => t.name === (visualTheme as any)) as ThemeConfig | undefined
+                      const entry = themes.find(t => t.name === visualTheme) as ThemeConfig | undefined
                       const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
                       return (
                         themeHasGrid && (
