@@ -3,7 +3,6 @@
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
-import { Switch as MotionSwitch } from '@/components/ui/motion-switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
 import { themes, type Theme } from '@/lib/themes'
@@ -14,9 +13,9 @@ import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays, Monitor, Settings } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
+import { ThemeOptionsPanel } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
   // Avoid hydration mismatch: default to Seasonal icon until mounted
@@ -28,20 +27,7 @@ function SystemIcon({ className }: { className?: string }) {
 }
 
 export function ThemeToggle() {
-  const {
-    theme,
-    setTheme,
-    resolvedTheme,
-    systemTheme,
-    seasonalOverlaysEnabled,
-    setSeasonalOverlaysEnabled,
-    disableSnow,
-    setDisableSnow,
-    disableCodeRain,
-    setDisableCodeRain,
-    disableGridLights,
-    setDisableGridLights,
-  } = useTheme()
+  const { theme, setTheme, resolvedTheme, systemTheme, seasonalOverlaysEnabled } = useTheme()
   const { startTransition } = useThemeTransition()
   const { unlocked, has, unlock } = useAchievements()
 
@@ -195,8 +181,7 @@ export function ThemeToggle() {
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iconByTheme, has, unlocked, forceUpdate, seasonalOverlaysEnabled])
+  }, [iconByTheme, has, unlocked, forceUpdate])
 
   // Compute dynamic width based on the longest theme label (in ch units)
   const menuWidthCh = useMemo(() => {
@@ -475,121 +460,9 @@ export function ThemeToggle() {
                   className="h-7 w-7">
                   <Settings className="size-4" />
                 </Button>
-                <AnimatePresence>
-                  {showOptions && (
-                    <motion.div
-                      id="theme-options-panel"
-                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 420, damping: 26, mass: 0.3 }}
-                      className={cn('absolute right-0 top-full mt-2 w-[200px] text-xs z-10 text-right')}
-                      aria-hidden={!showOptions}>
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">
-                        Theme Options
-                      </div>
-                      <motion.div
-                        className="p-2 flex flex-col gap-2"
-                        initial="hidden"
-                        animate="show"
-                        exit="exit"
-                        variants={{
-                          hidden: { opacity: 0, y: -2 },
-                          show: { opacity: 1, y: 0, transition: { staggerChildren: 0.06, delayChildren: 0.03 } },
-                          exit: { opacity: 0, y: -2 },
-                        }}>
-                        <motion.label
-                          variants={{
-                            hidden: { opacity: 0, y: -2 },
-                            show: { opacity: 1, y: 0 },
-                            exit: { opacity: 0, y: -2 },
-                          }}
-                          className="flex items-center justify-between gap-2 select-none w-full">
-                          <span>Seasonal overlays</span>
-                          <MotionSwitch
-                            checked={seasonalOverlaysEnabled}
-                            onCheckedChange={setSeasonalOverlaysEnabled}
-                            aria-label="Seasonal overlays"
-                            size="md"
-                          />
-                        </motion.label>
-                        {(() => {
-                          const seasonalDefault = getDefaultThemeForNow()
-                          const visualTheme =
-                            currentPreference === 'system'
-                              ? seasonalDefault === 'system'
-                                ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
-                                : (seasonalDefault as Theme)
-                              : currentPreference
-                          return (
-                            <>
-                              {visualTheme === 'christmas' && (
-                                <motion.label
-                                  variants={{
-                                    hidden: { opacity: 0, y: -2 },
-                                    show: { opacity: 1, y: 0 },
-                                    exit: { opacity: 0, y: -2 },
-                                  }}
-                                  className="flex items-center justify-between gap-2 select-none w-full">
-                                  <span>Disable snow</span>
-                                  <MotionSwitch
-                                    checked={disableSnow}
-                                    onCheckedChange={setDisableSnow}
-                                    aria-label="Disable snow"
-                                    size="md"
-                                  />
-                                </motion.label>
-                              )}
-                              {visualTheme === 'matrix' && (
-                                <motion.label
-                                  variants={{
-                                    hidden: { opacity: 0, y: -2 },
-                                    show: { opacity: 1, y: 0 },
-                                    exit: { opacity: 0, y: -2 },
-                                  }}
-                                  className="flex items-center justify-between gap-2 select-none w-full">
-                                  <span>Disable code rain</span>
-                                  <MotionSwitch
-                                    checked={disableCodeRain}
-                                    onCheckedChange={setDisableCodeRain}
-                                    aria-label="Disable code rain"
-                                    size="md"
-                                  />
-                                </motion.label>
-                              )}
-                              {(() => {
-                                // Show grid lights toggle for themes that support grid lights by default
-                                const entry = themes.find(t => t.name === visualTheme) as ThemeConfig | undefined
-                                const themeHasGrid = entry
-                                  ? !('disableGridLights' in entry && entry.disableGridLights)
-                                  : true
-                                return (
-                                  themeHasGrid && (
-                                    <motion.label
-                                      variants={{
-                                        hidden: { opacity: 0, y: -2 },
-                                        show: { opacity: 1, y: 0 },
-                                        exit: { opacity: 0, y: -2 },
-                                      }}
-                                      className="flex items-center justify-between gap-2 select-none w-full">
-                                      <span>Disable grid lights</span>
-                                      <MotionSwitch
-                                        checked={disableGridLights}
-                                        onCheckedChange={setDisableGridLights}
-                                        aria-label="Disable grid lights"
-                                        size="md"
-                                      />
-                                    </motion.label>
-                                  )
-                                )
-                              })()}
-                            </>
-                          )
-                        })()}
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div className="absolute right-0 top-full">
+                  <ThemeOptionsPanel open={showOptions} />
+                </div>
               </div>
               <div className="max-h-[48vh] overflow-hidden flex-1">
                 <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
