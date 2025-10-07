@@ -60,7 +60,14 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
       className={cn(
         'peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 relative inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
         // Dynamic width/height
-        size === 'sm' ? 'h-4 w-6.5' : size === 'lg' ? 'h-7 w-12' : 'h-[1.15rem] w-8',
+        (() => {
+          const sizeClassMap: Record<Size, string> = {
+            sm: 'h-4 w-6.5',
+            md: 'h-[1.15rem] w-8',
+            lg: 'h-7 w-12',
+          }
+          return sizeClassMap[size] ?? sizeClassMap.md
+        })(),
         className,
       )}
       {...props}
