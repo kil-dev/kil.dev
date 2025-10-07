@@ -20,6 +20,10 @@ type ThemeContextValue = {
   resolvedTheme: Theme | SystemTheme | undefined
   systemTheme: SystemTheme | undefined
   initialAppliedThemeName?: ThemeName
+  seasonalOverlaysEnabled: boolean
+  setSeasonalOverlaysEnabled: (enabled: boolean) => void
+  disableSnow: boolean
+  setDisableSnow: (disabled: boolean) => void
 }
 
 const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined)
@@ -147,6 +151,41 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   } catch {}
 }
 
+function readSeasonalOverlaysEnabled(): boolean {
+  // default true (enabled)
+  try {
+    // cookie wins
+    const re = new RegExp(`(?:^|; )${cookieKey('seasonalOverlaysEnabled')}=([^;]+)`)
+    const m = re.exec(document.cookie)
+    if (m?.[1]) return m[1] === '1'
+  } catch {}
+  try {
+    const v = localStorage.getItem(storageKey('seasonalOverlaysEnabled'))
+    if (v === '0') return false
+    if (v === '1') return true
+  } catch {}
+  return true
+}
+
+function writeSeasonalOverlaysEnabled(value: boolean) {
+  try {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
+    Cookies.set(cookieKey('seasonalOverlaysEnabled'), value ? '1' : '0', {
+      path: '/',
+      maxAge: 31536000,
+      samesite: 'lax',
+      secure: isSecure === '; secure',
+    })
+  } catch {}
+  try {
+    localStorage.setItem(storageKey('seasonalOverlaysEnabled'), value ? '1' : '0')
+  } catch {}
+  try {
+    document.documentElement.dataset.seasonalOverlaysEnabled = value ? '1' : '0'
+  } catch {}
+}
+
 function getSystemTheme(): SystemTheme | undefined {
   if (typeof globalThis === 'undefined') return undefined
   try {
@@ -233,6 +272,29 @@ export function ThemeProvider({
       return getSystemTheme()
     } catch {
       return
+    }
+  })
+
+  const [seasonalOverlaysEnabled, setSeasonalOverlaysEnabledState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return true
+    try {
+      const v = readSeasonalOverlaysEnabled()
+      document.documentElement.dataset.seasonalOverlaysEnabled = v ? '1' : '0'
+      return v
+    } catch {
+      return true
+    }
+  })
+
+  const [disableSnow, setDisableSnowState] = React.useState<boolean>(() => {
+    if (typeof document === 'undefined') return false
+    try {
+      const v = localStorage.getItem(storageKey('disableSnow'))
+      const val = v === '1'
+      document.documentElement.dataset.disableSnow = val ? '1' : '0'
+      return val
+    } catch {
+      return false
     }
   })
 
@@ -325,6 +387,26 @@ export function ThemeProvider({
     writeStorageTheme(next)
     writeCookieTheme(next)
     applyClasses(next, getSystemTheme())
+  }, [])
+
+  const setSeasonalOverlaysEnabled = React.useCallback(
+    (enabled: boolean) => {
+      setSeasonalOverlaysEnabledState(enabled)
+      writeSeasonalOverlaysEnabled(enabled)
+      // Re-apply classes to reflect overlay preference immediately
+      applyClasses(theme ?? 'system', getSystemTheme())
+    },
+    [theme],
+  )
+
+  const setDisableSnow = React.useCallback((disabled: boolean) => {
+    setDisableSnowState(disabled)
+    try {
+      localStorage.setItem(storageKey('disableSnow'), disabled ? '1' : '0')
+    } catch {}
+    try {
+      document.documentElement.dataset.disableSnow = disabled ? '1' : '0'
+    } catch {}
   }, [])
 
   // Re-evaluate seasonal default on visibility/focus and at minute ticks
@@ -463,8 +545,28 @@ export function ThemeProvider({
       (typeof document === 'undefined'
         ? undefined
         : ((document.documentElement.dataset.appliedTheme as ThemeName | undefined) ?? undefined))
-    return { theme, setTheme, resolvedTheme, systemTheme, initialAppliedThemeName: computedInitial }
-  }, [theme, setTheme, resolvedTheme, systemTheme, initialAppliedTheme])
+    return {
+      theme,
+      setTheme,
+      resolvedTheme,
+      systemTheme,
+      initialAppliedThemeName: computedInitial,
+      seasonalOverlaysEnabled,
+      setSeasonalOverlaysEnabled,
+      disableSnow,
+      setDisableSnow,
+    }
+  }, [
+    theme,
+    setTheme,
+    resolvedTheme,
+    systemTheme,
+    initialAppliedTheme,
+    seasonalOverlaysEnabled,
+    setSeasonalOverlaysEnabled,
+    disableSnow,
+    setDisableSnow,
+  ])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
