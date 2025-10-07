@@ -1,6 +1,7 @@
 // Theme initialization runtime (browser)
 // This file is compiled and minified at build-time into an IIFE that exposes
 // a global object `ThemeRuntime` with a named export function `initTheme`.
+import { maybeStartViewTransition } from './view-transition'
 
 export type CompactDate = { m: number; d: number }
 
@@ -228,40 +229,23 @@ export function initTheme(config: ThemeScriptConfig): void {
 
     const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
 
-    const applyDomChanges = () => {
-      try {
-        root.dataset.seasonalOverlaysEnabled = overlaysEnabled ? '1' : '0'
-      } catch {}
-      for (const cls of known) {
-        if (!targetClasses.includes(cls)) {
-          try {
-            root.classList.remove(cls)
-          } catch {}
-        }
-      }
-
-      for (const cls of targetClasses) {
-        try {
-          root.classList.add(cls)
-        } catch {}
-      }
-
-      try {
-        root.dataset.themePref = pref ?? ''
-        root.dataset.seasonalDefault = overlay ?? ''
-        root.dataset.appliedTheme = explicit ?? baseClass ?? ''
-      } catch {}
-    }
+    const applyDomChanges = () =>
+      applyThemeDomChanges(root, known, targetClasses, overlaysEnabled, pref, overlay, explicit, baseClass)
 
     const overlayChanged = (overlay ?? '') !== oldOverlay
     const appliedAfter = explicit ?? baseClass ?? ''
     const appliedChanged = appliedAfter !== oldApplied
     const shouldAnimate = pref === 'system' ? overlayChanged : appliedChanged
 
-    if (allowAnimation && 'startViewTransition' in document && shouldAnimate && !isSafari()) {
-      injectCircleBlurTransitionStyles()
-      ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(applyDomChanges)
-    } else {
+    const usedTransition =
+      allowAnimation && shouldAnimate
+        ? maybeStartViewTransition(applyDomChanges, {
+            originXPercent: 50,
+            originYPercent: 50,
+            styleIdPrefix: 'theme-transition',
+          })
+        : false
+    if (!usedTransition) {
       const disable = addDisableTransitionStyle()
       applyDomChanges()
       removeElementSoon(disable)
