@@ -63,9 +63,9 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
         size === 'sm' ? 'h-4 w-6.5' : size === 'lg' ? 'h-7 w-12' : 'h-[1.15rem] w-8',
         className,
       )}
-      checked={isChecked}
-      onCheckedChange={handleCheckedChange}
-      {...props}>
+      {...props}
+      checked={props.checked ?? isChecked}
+      onCheckedChange={handleCheckedChange}>
       <SwitchPrimitive.Thumb asChild>
         <motion.span
           data-slot="switch-thumb"
