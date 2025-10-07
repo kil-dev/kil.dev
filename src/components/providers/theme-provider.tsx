@@ -7,7 +7,7 @@ import {
   getDefaultThemeForNow,
   SEASONAL_THEMES,
 } from '@/utils/theme-runtime'
-import { isSafari } from '@/utils/utils'
+import { maybeStartViewTransition } from '@/utils/view-transition'
 import Cookies from 'js-cookie'
 import * as React from 'react'
 import { useEffectEvent } from 'react'
@@ -331,30 +331,13 @@ export function ThemeProvider({
   React.useEffect(() => {
     if (typeof globalThis === 'undefined') return
 
-    const injectCircleBlurTransitionStyles = () => {
-      try {
-        const styleId = `theme-transition-${Date.now()}`
-        const style = document.createElement('style')
-        style.id = styleId
-        const originXPercent = 50
-        const originYPercent = 50
-        const css = `\n      @supports (view-transition-name: root) {\n        ::view-transition-old(root) {\n          animation: none;\n        }\n        ::view-transition-new(root) {\n          animation: circle-blur-expand 0.5s ease-out;\n          transform-origin: ${originXPercent}% ${originYPercent}%;\n          filter: blur(0);\n        }\n        @keyframes circle-blur-expand {\n          from {\n            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);\n            filter: blur(4px);\n          }\n          to {\n            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);\n            filter: blur(0);\n          }\n        }\n      }\n    `
-        style.textContent = css
-        document.head.append(style)
-        setTimeout(() => {
-          const styleEl = document.getElementById(styleId)
-          if (styleEl) styleEl.remove()
-        }, 3000)
-      } catch {}
-    }
-
     const runViewTransition = (updateFn: () => void) => {
-      if ('startViewTransition' in document && !isSafari()) {
-        injectCircleBlurTransitionStyles()
-        ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(updateFn)
-      } else {
-        updateFn()
-      }
+      const used = maybeStartViewTransition(updateFn, {
+        originXPercent: 50,
+        originYPercent: 50,
+        styleIdPrefix: 'theme-transition',
+      })
+      if (!used) updateFn()
     }
 
     const reapply = () => {
@@ -363,7 +346,7 @@ export function ThemeProvider({
       // If user is on system, apply seasonal overlay if changed
       if (currentPref === 'system') {
         const root = document.documentElement
-        const hadRaw = root.dataset.seasonalDefault as string | undefined
+        const hadRaw = root.dataset.seasonalDefault
         const had: Theme = (hadRaw && hadRaw.length > 0 ? hadRaw : 'system') as Theme
         const overlayChanged = seasonalDefaultNow !== had
         if (overlayChanged) {
