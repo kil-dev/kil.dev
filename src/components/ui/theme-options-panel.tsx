@@ -64,12 +64,16 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
             </motion.label>
             {(() => {
               const seasonalDefault = getDefaultThemeForNow()
-              const visualTheme =
-                currentPreference === 'system'
-                  ? seasonalDefault === 'system'
-                    ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
-                    : (seasonalDefault as Theme)
-                  : currentPreference
+              let visualTheme: Theme
+              if (currentPreference === 'system') {
+                if (seasonalDefault === 'system') {
+                  visualTheme = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
+                } else {
+                  visualTheme = seasonalDefault as Theme
+                }
+              } else {
+                visualTheme = currentPreference
+              }
               return (
                 <>
                   {visualTheme === 'christmas' && (
@@ -172,12 +176,16 @@ export function ThemeOptionsSheet() {
         </label>
         {(() => {
           const seasonalDefault = getDefaultThemeForNow()
-          const visualTheme =
-            currentPreference === 'system'
-              ? seasonalDefault === 'system'
-                ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
-                : (seasonalDefault as Theme)
-              : currentPreference
+          let visualTheme: Theme
+          if (currentPreference === 'system') {
+            if (seasonalDefault === 'system') {
+              visualTheme = (systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme
+            } else {
+              visualTheme = seasonalDefault as Theme
+            }
+          } else {
+            visualTheme = currentPreference
+          }
           return (
             <>
               {visualTheme === 'christmas' && (
