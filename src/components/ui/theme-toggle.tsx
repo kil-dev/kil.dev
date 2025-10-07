@@ -30,6 +30,10 @@ export function ThemeToggle() {
     setSeasonalOverlaysEnabled,
     disableSnow,
     setDisableSnow,
+    disableCodeRain,
+    setDisableCodeRain,
+    disableGridLights,
+    setDisableGridLights,
   } = useTheme()
   const { startTransition } = useThemeTransition()
   const { unlocked, has, unlock } = useAchievements()
@@ -519,18 +523,51 @@ export function ThemeToggle() {
                       : ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
                     : currentPreference
                 return (
-                  visualTheme === 'christmas' && (
-                    <label className="flex items-center gap-2 select-none">
-                      <input
-                        type="checkbox"
-                        checked={disableSnow}
-                        onChange={e => setDisableSnow(e.target.checked)}
-                        aria-label="Disable snow"
-                        className="accent-primary"
-                      />
-                      Disable snow
-                    </label>
-                  )
+                  <>
+                    {visualTheme === 'christmas' && (
+                      <label className="flex items-center gap-2 select-none">
+                        <input
+                          type="checkbox"
+                          checked={disableSnow}
+                          onChange={e => setDisableSnow(e.target.checked)}
+                          aria-label="Disable snow"
+                          className="accent-primary"
+                        />
+                        Disable snow
+                      </label>
+                    )}
+                    {visualTheme === 'matrix' && (
+                      <label className="flex items-center gap-2 select-none">
+                        <input
+                          type="checkbox"
+                          checked={disableCodeRain}
+                          onChange={e => setDisableCodeRain(e.target.checked)}
+                          aria-label="Disable code rain"
+                          className="accent-primary"
+                        />
+                        Disable code rain
+                      </label>
+                    )}
+                    {(() => {
+                      // Show grid lights toggle for themes that support grid lights by default
+                      const entry = themes.find(t => t.name === (visualTheme as any)) as ThemeConfig | undefined
+                      const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
+                      return (
+                        themeHasGrid && (
+                          <label className="flex items-center gap-2 select-none">
+                            <input
+                              type="checkbox"
+                              checked={disableGridLights}
+                              onChange={e => setDisableGridLights(e.target.checked)}
+                              aria-label="Disable grid lights"
+                              className="accent-primary"
+                            />
+                            Disable grid lights
+                          </label>
+                        )
+                      )
+                    })()}
+                  </>
                 )
               })()}
             </div>
