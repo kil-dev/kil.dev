@@ -534,6 +534,49 @@ export function ThemeToggle() {
                 )
               })()}
             </div>
+
+            <div className="flex items-start gap-2">
+              <div className="shrink-0 pt-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-controls="theme-options-panel"
+                  aria-expanded={showOptions}
+                  onClick={() => setShowOptions(v => !v)}
+                  aria-label={showOptions ? 'Hide options' : 'Show options'}
+                  className="h-7 w-7">
+                  <Settings className="size-4" />
+                </Button>
+              </div>
+              <div className="max-h-[48vh] overflow-hidden flex-1">
+                <div className="overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-1">
+                  {optionsToShow.map((opt, idx) => (
+                    <Button
+                      key={opt.value}
+                      ref={el => {
+                        optionRefs.current[idx] = el
+                      }}
+                      onClick={e => handleThemeChange(opt.value, e)}
+                      role="menuitem"
+                      aria-label={opt.label}
+                      title={opt.label}
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        'flex w-full transition-[opacity,transform] duration-200 ease-out hover:bg-accent/70 justify-start gap-2 rounded-md',
+                        open ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95',
+                      )}
+                      style={{ transitionDelay: `${idx * 30}ms` }}>
+                      <span className="grid size-7 place-items-center shrink-0">
+                        <opt.Icon className="size-4" />
+                      </span>
+                      <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
