@@ -8,6 +8,7 @@ export type SeasonalEntry = {
   theme: string
   start: CompactDate
   end: CompactDate
+  hidden?: boolean
 }
 
 export type ThemeScriptConfig = {
@@ -137,8 +138,8 @@ export function initTheme(config: ThemeScriptConfig): void {
   }
 
   const allowed = hasThemeTapdance
-    ? uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme)])
-    : uniqueStrings([...config.base, ...active.map(s => s.theme)])
+    ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
+    : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
 
   const defaultTheme = hasThemeTapdance
     ? (active[0]?.theme ?? null) // Only use active seasonal themes, even when unlocked
