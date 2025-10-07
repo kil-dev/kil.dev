@@ -125,11 +125,60 @@ export function MatrixRain() {
 
       // Restore prior raster at the SAME CSS size it previously occupied to avoid glyph scaling
       try {
-        ctx.imageSmoothingEnabled = false
+        renderCtx.imageSmoothingEnabled = false
         const prevCssW = prev.width / dpr
         const prevCssH = prev.height / dpr
-        ctx.drawImage(prev, 0, 0, prev.width, prev.height, 0, 0, prevCssW, prevCssH)
+        renderCtx.drawImage(prev, 0, 0, prev.width, prev.height, 0, 0, prevCssW, prevCssH)
       } catch {}
+    }
+
+    function drawGlyph(x: number, y: number) {
+      renderCtx.fillStyle = 'rgba(0, 0, 0, 1)'
+      renderCtx.fillRect(x, y, fontSize, fontSize)
+      renderCtx.fillStyle = glyphColor
+      const char = alphabet.charAt(Math.floor(Math.random() * alphabet.length))
+      renderCtx.fillText(char, x, y)
+    }
+
+    function advanceColumn(i: number, rowsAdvance: number, dt: number) {
+      const x = i * fontSize
+      const jitter = (Math.random() * 2 - 1) * MATRIX_RAIN_COLUMN_JITTER_PER_SECOND * dt
+      const columnAdvance = rowsAdvance * Math.max(0.05, speedFactorByColumn[i]! + jitter)
+      drops[i]! += columnAdvance
+      const targetRow = Math.floor(drops[i]!)
+      let steps = targetRow - lastDrawnRow[i]!
+
+      while (steps > 0) {
+        const rowIndex = lastDrawnRow[i]! + 1
+        const y = rowIndex * fontSize
+        drawGlyph(x, y)
+        lastDrawnRow[i] = rowIndex
+        trailRowsByColumn[i]!.push(rowIndex)
+        if (trailRowsByColumn[i]!.length > maxTrackedTrailRows) trailRowsByColumn[i]!.shift()
+        steps--
+      }
+    }
+
+    function mutateTrail(i: number, mutateP: number) {
+      if (trailRowsByColumn[i]!.length === 0 || mutateP <= 0) return
+      const attempts = Math.min(2, trailRowsByColumn[i]!.length)
+      const x = i * fontSize
+      for (let k = 0; k < attempts; k++) {
+        if (Math.random() < mutateP) {
+          const idx = Math.floor(Math.random() * trailRowsByColumn[i]!.length)
+          const rowIndex = trailRowsByColumn[i]![idx]!
+          const y = rowIndex * fontSize
+          drawGlyph(x, y)
+        }
+      }
+    }
+
+    function maybeResetDrop(i: number, height: number) {
+      const y = drops[i]! * fontSize
+      if (y <= height || Math.random() <= 0.975) return
+      drops[i] = -Math.random() * 30
+      lastDrawnRow[i] = Math.floor(drops[i])
+      trailRowsByColumn[i] = []
     }
 
     resize()
@@ -137,7 +186,6 @@ export function MatrixRain() {
     let raf = 0
     let lastTs = globalThis.performance?.now() ?? Date.now()
     function draw() {
-      if (!ctx) return
       const { width, height } = getContainerSize(container)
       const now = globalThis.performance?.now() ?? Date.now()
       const dt = Math.min(0.1, Math.max(0.001, (now - lastTs) / 1000)) // clamp to avoid big jumps
@@ -148,64 +196,19 @@ export function MatrixRain() {
       const fadeAlpha = 1 - Math.pow(1 - MATRIX_RAIN_TRAIL_ALPHA_PER_ROW, rowsAdvance)
       const fade = Math.max(0, Math.min(1, fadeAlpha))
       // Soft fade to create trails
-      ctx.fillStyle = `rgba(0, 0, 0, ${fade})`
-      ctx.fillRect(0, 0, width, height)
+      renderCtx.fillStyle = `rgba(0, 0, 0, ${fade})`
+      renderCtx.fillRect(0, 0, width, height)
 
-      ctx.fillStyle = glyphColor
-      ctx.font = `${fontSize}px "Matrix Code NFI", monospace`
+      renderCtx.fillStyle = glyphColor
+      renderCtx.font = `${fontSize}px "Matrix Code NFI", monospace`
 
       // Per-frame mutation probability derived from per-second rate
       const mutateP = 1 - Math.pow(1 - MATRIX_RAIN_TRAIL_MUTATION_PROB_PER_SECOND, dt)
 
       for (let i = 0; i < columns; i++) {
-        const x = i * fontSize
-        // advance fractional position
-        const jitter = (Math.random() * 2 - 1) * MATRIX_RAIN_COLUMN_JITTER_PER_SECOND * dt
-        const columnAdvance = rowsAdvance * Math.max(0.05, speedFactorByColumn[i]! + jitter)
-        drops[i]! += columnAdvance
-        const targetRow = Math.floor(drops[i]!)
-        let steps = targetRow - lastDrawnRow[i]!
-
-        // Draw one glyph per whole-row movement; change character each step.
-        // Overwrite the cell fully before drawing to avoid blurry build-up.
-        while (steps > 0) {
-          const rowIndex = lastDrawnRow[i]! + 1
-          const y = rowIndex * fontSize
-          ctx.fillStyle = 'rgba(0, 0, 0, 1)'
-          ctx.fillRect(x, y, fontSize, fontSize)
-          ctx.fillStyle = glyphColor
-          const char = alphabet.charAt(Math.floor(Math.random() * alphabet.length))
-          ctx.fillText(char, x, y)
-          lastDrawnRow[i] = rowIndex
-          trailRowsByColumn[i]!.push(rowIndex)
-          if (trailRowsByColumn[i]!.length > maxTrackedTrailRows) trailRowsByColumn[i]!.shift()
-          steps--
-        }
-
-        // Randomly mutate a few trail cells while stationary
-        if (trailRowsByColumn[i]!.length > 0 && mutateP > 0) {
-          const attempts = Math.min(2, trailRowsByColumn[i]!.length)
-          for (let k = 0; k < attempts; k++) {
-            if (Math.random() < mutateP) {
-              const idx = Math.floor(Math.random() * trailRowsByColumn[i]!.length)
-              const rowIndex = trailRowsByColumn[i]![idx]!
-              const y = rowIndex * fontSize
-              ctx.fillStyle = 'rgba(0, 0, 0, 1)'
-              ctx.fillRect(x, y, fontSize, fontSize)
-              ctx.fillStyle = glyphColor
-              const char = alphabet.charAt(Math.floor(Math.random() * alphabet.length))
-              ctx.fillText(char, x, y)
-            }
-          }
-        }
-
-        // Reset drop to top after reaching bottom with slight randomness
-        const y = drops[i]! * fontSize
-        if (y > height && Math.random() > 0.975) {
-          drops[i] = -Math.random() * 30
-          lastDrawnRow[i] = Math.floor(drops[i]!)
-          trailRowsByColumn[i] = []
-        }
+        advanceColumn(i, rowsAdvance, dt)
+        mutateTrail(i, mutateP)
+        maybeResetDrop(i, height)
       }
 
       raf = globalThis.requestAnimationFrame(draw)
