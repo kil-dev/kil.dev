@@ -11,6 +11,7 @@ import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
+import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays } from 'lucide-react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
@@ -84,40 +85,8 @@ export function ThemeToggle() {
     }
   }, [open])
 
-  const injectCircleBlurTransitionStyles = useCallback((originXPercent: number, originYPercent: number) => {
-    const styleId = `theme-transition-${Date.now()}`
-    const style = document.createElement('style')
-    style.id = styleId
-    const css = `
-      @supports (view-transition-name: root) {
-        ::view-transition-old(root) {
-          animation: none;
-        }
-        ::view-transition-new(root) {
-          animation: circle-blur-expand 0.5s ease-out;
-          transform-origin: ${originXPercent}% ${originYPercent}%;
-          filter: blur(0);
-        }
-        @keyframes circle-blur-expand {
-          from {
-            clip-path: circle(0% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(4px);
-          }
-          to {
-            clip-path: circle(150% at ${originXPercent}% ${originYPercent}%);
-            filter: blur(0);
-          }
-        }
-      }
-    `
-    style.textContent = css
-    document.head.append(style)
-    setTimeout(() => {
-      const styleEl = document.getElementById(styleId)
-      if (styleEl) {
-        styleEl.remove()
-      }
-    }, 3000)
+  const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
+    injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'theme-transition')
   }, [])
 
   const handleThemeChange = useCallback(
@@ -168,7 +137,7 @@ export function ThemeToggle() {
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
       const originYPercent = Math.max(0, Math.min(100, (clickY / viewportHeight) * 100))
 
-      injectCircleBlurTransitionStyles(originXPercent, originYPercent)
+      injectCircleBlur(originXPercent, originYPercent)
       startTransition(() => {
         setTheme(nextPref)
         captureThemeChanged(nextPref)
@@ -177,7 +146,7 @@ export function ThemeToggle() {
     },
     [
       currentPreference,
-      injectCircleBlurTransitionStyles,
+      injectCircleBlur,
       resolvedTheme,
       setTheme,
       startTransition,
