@@ -15,4 +15,5 @@ export type ThemeConfig = {
   disableGridLights?: boolean
   enableSnow?: boolean
   requiresAchievement?: boolean
+  alwaysHidden?: boolean
 }

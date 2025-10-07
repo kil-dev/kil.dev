@@ -40,6 +40,7 @@ export const themes = [
     baseColor: 'dark',
     darkModeNote: "(It's my birthday!)",
     timeRange: { start: { month: 3, day: 17 }, end: { month: 3, day: 18 } },
+    alwaysHidden: true,
   },
   {
     name: 'pride',
