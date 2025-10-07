@@ -1,6 +1,6 @@
 import * as Headshots from '@/images/headshot'
 import type { ThemeConfig } from '@/types/themes'
-import { Ghost, Gift, Leaf, Moon, Rainbow, Sun, Terminal, Zap } from 'lucide-react'
+import { Clover, Ghost, Gift, Leaf, Moon, Rainbow, Sun, Terminal, Zap } from 'lucide-react'
 
 export const themes = [
   {
@@ -32,6 +32,14 @@ export const themes = [
     darkModeNote: '',
     disableGridLights: true,
     requiresAchievement: true,
+  },
+  {
+    name: 'st-patricks',
+    icon: Clover,
+    headshotImage: Headshots.Birthday,
+    baseColor: 'dark',
+    darkModeNote: "(It's my birthday!)",
+    timeRange: { start: { month: 3, day: 17 }, end: { month: 3, day: 18 } },
   },
   {
     name: 'pride',
