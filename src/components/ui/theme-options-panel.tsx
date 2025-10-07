@@ -138,3 +138,91 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
     </AnimatePresence>
   )
 }
+
+// Static/inline version suitable for mobile drawers
+export function ThemeOptionsSheet() {
+  const {
+    seasonalOverlaysEnabled,
+    setSeasonalOverlaysEnabled,
+    disableSnow,
+    setDisableSnow,
+    disableCodeRain,
+    setDisableCodeRain,
+    disableGridLights,
+    setDisableGridLights,
+    theme,
+    resolvedTheme,
+    systemTheme,
+  } = useTheme()
+
+  const currentPreference: Theme = theme ?? 'system'
+
+  return (
+    <div className="w-full text-xs text-right">
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">Theme Options</div>
+      <div className="p-2 flex flex-col gap-2">
+        <label className="flex items-center justify-between gap-2 select-none w-full">
+          <span>Seasonal overlays</span>
+          <MotionSwitch
+            checked={seasonalOverlaysEnabled}
+            onCheckedChange={setSeasonalOverlaysEnabled}
+            aria-label="Seasonal overlays"
+            size="md"
+          />
+        </label>
+        {(() => {
+          const seasonalDefault = getDefaultThemeForNow()
+          const visualTheme =
+            currentPreference === 'system'
+              ? seasonalDefault === 'system'
+                ? ((systemTheme ?? (resolvedTheme === 'dark' ? 'dark' : 'light')) as Theme)
+                : (seasonalDefault as Theme)
+              : currentPreference
+          return (
+            <>
+              {visualTheme === 'christmas' && (
+                <label className="flex items-center justify-between gap-2 select-none w-full">
+                  <span>Disable snow</span>
+                  <MotionSwitch
+                    checked={disableSnow}
+                    onCheckedChange={setDisableSnow}
+                    aria-label="Disable snow"
+                    size="md"
+                  />
+                </label>
+              )}
+              {visualTheme === 'matrix' && (
+                <label className="flex items-center justify-between gap-2 select-none w-full">
+                  <span>Disable code rain</span>
+                  <MotionSwitch
+                    checked={disableCodeRain}
+                    onCheckedChange={setDisableCodeRain}
+                    aria-label="Disable code rain"
+                    size="md"
+                  />
+                </label>
+              )}
+              {(() => {
+                const entry = themes.find(t => t.name === visualTheme) as ThemeConfig | undefined
+                const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
+                return (
+                  themeHasGrid && (
+                    <label className="flex items-center justify-between gap-2 select-none w-full">
+                      <span>Disable grid lights</span>
+                      <MotionSwitch
+                        checked={disableGridLights}
+                        onCheckedChange={setDisableGridLights}
+                        aria-label="Disable grid lights"
+                        size="md"
+                      />
+                    </label>
+                  )
+                )
+              })()}
+            </>
+          )
+        })()}
+      </div>
+    </div>
+  )
+}
