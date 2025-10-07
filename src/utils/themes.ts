@@ -1,4 +1,4 @@
-import Headshot from '@/images/headshot/cartoon-headshot.webp'
+import Headshot from '@/images/headshot/headshot.webp'
 import type { ThemeEntry, ThemeName } from '@/lib/themes'
 import { themes, type Theme } from '@/lib/themes'
 import type { BaseColor, IconComponent } from '@/types/themes'
