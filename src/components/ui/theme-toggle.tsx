@@ -196,6 +196,14 @@ export function ThemeToggle() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iconByTheme, has, unlocked, forceUpdate, seasonalOverlaysEnabled])
 
+  // Compute dynamic width based on the longest theme label (in ch units)
+  const menuWidthCh = useMemo(() => {
+    const longest = allOptions.reduce((max, o) => Math.max(max, o.label.length), 0)
+    // Add room for icon + gaps; clamp to [18ch, 32ch]
+    const ch = Math.max(18, Math.min(32, longest + 8))
+    return ch
+  }, [allOptions])
+
   const optionsToShow = useMemo(() => {
     const systemOpt = allOptions.find(opt => opt.value === 'system')
     const base = allOptions.filter(opt => {
