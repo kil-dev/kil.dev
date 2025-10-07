@@ -3,6 +3,7 @@
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
+import { Switch as MotionSwitch } from '@/components/ui/motion-switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
 import { themes, type Theme } from '@/lib/themes'
