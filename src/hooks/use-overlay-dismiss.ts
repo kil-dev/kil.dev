@@ -7,10 +7,10 @@ type OverlayDismissOptions = {
   onRequestClose?: () => void
 }
 
-type OverlayDismissResult = {
+type OverlayDismissResult<T extends HTMLElement = HTMLElement> = {
   open: boolean
   setOpen: (next: boolean | ((prev: boolean) => boolean)) => void
-  containerRef: React.RefObject<HTMLElement | null>
+  containerRef: React.RefObject<T | null>
   overlayProps: {
     role: 'button'
     tabIndex: number
@@ -20,10 +20,12 @@ type OverlayDismissResult = {
   }
 }
 
-export function useOverlayDismiss(options: OverlayDismissOptions = {}): OverlayDismissResult {
+export function useOverlayDismiss<T extends HTMLElement = HTMLElement>(
+  options: OverlayDismissOptions = {},
+): OverlayDismissResult<T> {
   const { enabled = true, onRequestClose } = options
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLElement | null>(null)
+  const containerRef = useRef<T | null>(null)
 
   const close = useCallback(() => {
     setOpen(false)
@@ -31,7 +33,7 @@ export function useOverlayDismiss(options: OverlayDismissOptions = {}): OverlayD
   }, [onRequestClose])
 
   // Outside click and Escape via Effect Events to keep handlers stable
-  const onDocumentMouseDown = useEffectEvent((e: MouseEvent) => {
+  const onDocumentMouseDown = useEffectEvent((e: PointerEvent) => {
     if (!open) return
     const target = e.target as Node | null
     const container = containerRef.current
@@ -49,10 +51,10 @@ export function useOverlayDismiss(options: OverlayDismissOptions = {}): OverlayD
   // Attach listeners only when enabled and open
   useEffect(() => {
     if (!enabled || !open) return
-    globalThis.addEventListener('mousedown', onDocumentMouseDown)
+    globalThis.addEventListener('pointerdown', onDocumentMouseDown)
     globalThis.addEventListener('keydown', onDocumentKeyDown)
     return () => {
-      globalThis.removeEventListener('mousedown', onDocumentMouseDown)
+      globalThis.removeEventListener('pointerdown', onDocumentMouseDown)
       globalThis.removeEventListener('keydown', onDocumentKeyDown)
     }
   }, [enabled, open, onDocumentMouseDown, onDocumentKeyDown])
