@@ -71,7 +71,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
               <MotionSwitch
                 checked={!disableThemeHeadshot}
                 onCheckedChange={v => setDisableThemeHeadshot(!v)}
-                aria-label="Theme headshot"
+                aria-label="Enable theme headshot"
                 size="md"
               />
             </motion.label>
