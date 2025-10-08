@@ -1,11 +1,11 @@
 'use client'
 
 import { MobileNavButton } from '@/components/layout/header/mobile-nav-button'
-import { useAchievements } from '@/components/providers/achievements-provider'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
 import { useIsClient } from '@/hooks/use-is-client'
 import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
+import { usePresenceGates } from '@/hooks/use-presence-gates'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
@@ -53,27 +53,23 @@ export function MobileNav() {
     },
   })
 
-  const { has } = useAchievements()
-  const showAchievements = has('RECURSIVE_REWARD')
-  const showPetGallery = has('PET_PARADE')
+  const { allowAchievements, allowPetGallery } = usePresenceGates()
   const items = useMemo(() => {
-    const allowAchievements = isMounted && showAchievements
-    const allowPetGallery = isMounted && showPetGallery
     let navigationItems = NAVIGATION
-    if (allowAchievements) {
+    if (isMounted && allowAchievements) {
       navigationItems = [
         ...navigationItems,
         { label: 'Achievements', href: '/achievements' as Route, icon: Trophy },
       ]
     }
-    if (allowPetGallery) {
+    if (isMounted && allowPetGallery) {
       navigationItems = [
         ...navigationItems,
         { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
       ]
     }
     return navigationItems
-  }, [isMounted, showAchievements, showPetGallery])
+  }, [isMounted, allowAchievements, allowPetGallery])
 
   const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
     injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'nav-transition')
