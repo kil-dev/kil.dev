@@ -119,8 +119,11 @@ export function useThemeMenuState(): UseThemeMenuStateResult {
   )
 
   const injectTransitionFromClick = useCallback((e?: { clientX?: number; clientY?: number }) => {
-    const viewportWidth = globalThis.innerWidth || 1
-    const viewportHeight = globalThis.innerHeight || 1
+    // Guard for SSR – only run in the browser
+    if (globalThis.window === undefined || globalThis.document === undefined) return
+
+    const viewportWidth = globalThis.window.innerWidth || 1
+    const viewportHeight = globalThis.window.innerHeight || 1
     const clickX = e?.clientX ?? viewportWidth / 2
     const clickY = e?.clientY ?? viewportHeight / 2
     const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
