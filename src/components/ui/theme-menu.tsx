@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 
 type IconComponent = React.ComponentType<{ className?: string }>
 
-export type ThemeMenuOption = {
+type ThemeMenuOption = {
   label: string
   value: string
   Icon: IconComponent
