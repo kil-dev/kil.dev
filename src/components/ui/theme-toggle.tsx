@@ -3,10 +3,11 @@
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
+import { ThemeMenu } from '@/components/ui/theme-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
 import { useIsClient } from '@/hooks/use-is-client'
-import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
+import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
@@ -15,9 +16,8 @@ import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays, Monitor, Settings } from 'lucide-react'
-import { motion } from 'motion/react'
-import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react'
 import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
@@ -37,25 +37,20 @@ export function ThemeToggle() {
 
   const currentPreference: Theme = theme ?? 'system'
 
-  const [open, setOpen] = useState(false)
-  const [openedViaKeyboard, setOpenedViaKeyboard] = useState(false)
   const [tooltipHold, setTooltipHold] = useState(false)
   const [toggleCount, setToggleCount] = useState(0)
   const [themeSelected, setThemeSelected] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement | null>(null)
   const {
-    setOpen: setOverlayOpen,
+    open,
+    setOpen,
     containerRef,
+    triggerRef,
+    optionsRef,
+    optionRefs,
     overlayProps,
-  } = useOverlayDismiss({
-    enabled: true,
-    onRequestClose: () => {
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-    },
-  })
-  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
-  const optionsRef = useRef<HTMLDivElement | null>(null)
+    handleTriggerKeyDown,
+    buildMenuKeyDownHandler,
+  } = useThemeMenuState()
 
   const [forceUpdate, setForceUpdate] = useState(0)
   const [showOptions, setShowOptions] = useState(false)
@@ -89,19 +84,8 @@ export function ThemeToggle() {
   }, [])
 
   const showSystemOverlay = isClient && open && currentPreference === 'system'
-  const spinCss = `@keyframes kd-spin-trail{0%{transform:rotate(0deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}70%{transform:rotate(320deg) scale(1.1);filter:drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 0 6px color-mix(in oklch,var(--primary) 70%,transparent)) drop-shadow(0 0 12px color-mix(in oklch,var(--accent,var(--primary)) 50%,transparent))}100%{transform:rotate(360deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}}.theme-system-overlay-anim{animation:kd-spin-trail 260ms ease-out;will-change:transform,filter}`
 
-  // Prevent background scrolling when menu is open (all breakpoints)
-  useEffect(() => {
-    if (typeof globalThis === 'undefined') return
-    if (open) {
-      const prev = document.documentElement.style.overflow
-      document.documentElement.style.overflow = 'hidden'
-      return () => {
-        document.documentElement.style.overflow = prev
-      }
-    }
-  }, [open])
+  // scroll-lock handled in useThemeMenuState
 
   const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
     injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'theme-transition')
@@ -162,14 +146,7 @@ export function ThemeToggle() {
       })
       setOpen(false)
     },
-    [
-      currentPreference,
-      injectCircleBlur,
-      resolvedTheme,
-      setTheme,
-      startTransition,
-      systemTheme,
-    ],
+    [currentPreference, injectCircleBlur, resolvedTheme, setTheme, startTransition, systemTheme, setOpen],
   )
 
   type IconComponent = ComponentType<{ className?: string }>
@@ -227,19 +204,7 @@ export function ThemeToggle() {
     return list
   }, [allOptions, currentPreference])
 
-  // Keep overlay hook state in sync with local open state for correct tabIndex
-  useEffect(() => {
-    setOverlayOpen(open)
-  }, [open, setOverlayOpen])
-
-  // focus first option when opening
-  useEffect(() => {
-    if (!open) return
-    const id = globalThis.setTimeout(() => {
-      if (openedViaKeyboard) optionRefs.current[0]?.focus()
-    }, 0)
-    return () => globalThis.clearTimeout(id)
-  }, [open, openedViaKeyboard])
+  // focus behavior handled in useThemeMenuState
 
   // Removed parent callbacks and md+ width reporting to avoid shifting header
 
@@ -253,55 +218,10 @@ export function ThemeToggle() {
     return () => globalThis.clearTimeout(id)
   }, [open])
 
-  const handleTriggerKeyDown = useCallback(
-    (e: ReactKeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        if (open) {
-          setOpen(false)
-          setOpenedViaKeyboard(false)
-        } else {
-          setOpen(true)
-          setOpenedViaKeyboard(true)
-        }
-        return
-      }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault()
-        setOpen(true)
-        setOpenedViaKeyboard(true)
-        // focus handled by effect
-      }
-    },
-    [open],
-  )
-
-  const handleMenuKeyDown = useCallback(
-    (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const currentIndex = optionRefs.current.indexOf(document.activeElement as HTMLButtonElement | null)
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault()
-        const nextIndex = currentIndex === -1 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
-        optionRefs.current[nextIndex]?.focus()
-        return
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault()
-        const prevIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
-        optionRefs.current[prevIndex]?.focus()
-        return
-      }
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        setOpen(false)
-        triggerRef.current?.focus()
-      }
-    },
-    [optionsToShow.length],
-  )
+  const handleMenuKeyDown = buildMenuKeyDownHandler(optionsToShow.length)
 
   return (
-    <div ref={containerRef as React.MutableRefObject<HTMLDivElement | null>} className="relative">
+    <div ref={containerRef} className="relative">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -337,7 +257,6 @@ export function ThemeToggle() {
                   setToggleCount(0)
                 }
 
-                setOpenedViaKeyboard(false)
                 return next
               })
             }}
@@ -349,7 +268,6 @@ export function ThemeToggle() {
             )}>
             <span className="relative inline-block align-middle">
               <style>{themeIconCss}</style>
-              <style>{spinCss}</style>
               {themes.map(t => {
                 const IconComp = t.icon
                 return (
