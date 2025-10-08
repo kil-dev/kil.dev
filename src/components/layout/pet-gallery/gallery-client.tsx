@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import PhotoAlbum, { type Photo } from 'react-photo-album'
 import InfiniteScroll from 'react-photo-album/scroll'
 import Lightbox, { type SlideImage } from 'yet-another-react-lightbox'
@@ -145,11 +145,10 @@ export function GalleryClient({ images }: GalleryClientProps) {
   )
 }
 
+import { useIsClient } from '@/hooks/use-is-client'
+
 export function ClientMounted({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
-  const [isClient, setIsClient] = useState(false)
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  const isClient = useIsClient()
   if (!isClient) return <>{fallback ?? null}</>
   return <>{children}</>
 }

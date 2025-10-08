@@ -1,16 +1,18 @@
 'use client'
 
 import { MobileNavButton } from '@/components/layout/header/mobile-nav-button'
-import { useAchievements } from '@/components/providers/achievements-provider'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
+import { useIsClient } from '@/hooks/use-is-client'
+import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
+import { usePresenceGates } from '@/hooks/use-presence-gates'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { MenuIcon, PawPrint, Trophy } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export function MobileNav() {
   const pathname = usePathname()
@@ -19,9 +21,7 @@ export function MobileNav() {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
   const [openedViaKeyboard, setOpenedViaKeyboard] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  useEffect(() => setIsMounted(true), [])
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const isMounted = useIsClient()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([])
   type Particle = {
@@ -42,28 +42,34 @@ export function MobileNav() {
   const isExpanded = open && !closing
 
   const overlayRef = useRef<HTMLDivElement | null>(null)
+  const {
+    setOpen: setOverlayOpen,
+    containerRef,
+    overlayProps,
+  } = useOverlayDismiss({
+    enabled: true,
+    onRequestClose: () => {
+      closeWithAnimation()
+    },
+  })
 
-  const { has } = useAchievements()
-  const showAchievements = has('RECURSIVE_REWARD')
-  const showPetGallery = has('PET_PARADE')
+  const { allowAchievements, allowPetGallery } = usePresenceGates()
   const items = useMemo(() => {
-    const allowAchievements = isMounted && showAchievements
-    const allowPetGallery = isMounted && showPetGallery
     let navigationItems = NAVIGATION
-    if (allowAchievements) {
+    if (isMounted && allowAchievements) {
       navigationItems = [
         ...navigationItems,
         { label: 'Achievements', href: '/achievements' as Route, icon: Trophy },
       ]
     }
-    if (allowPetGallery) {
+    if (isMounted && allowPetGallery) {
       navigationItems = [
         ...navigationItems,
         { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
       ]
     }
     return navigationItems
-  }, [isMounted, showAchievements, showPetGallery])
+  }, [isMounted, allowAchievements, allowPetGallery])
 
   const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
     injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'nav-transition')
@@ -130,21 +136,6 @@ export function MobileNav() {
     [router, startTransition, triggerCloseFx, items.length],
   )
 
-  // Document listeners (outside click + Escape) via Effect Events (non-reactive handlers)
-  const onDocumentMouseDown = useEffectEvent((e: MouseEvent) => {
-    const target = e.target as Node | null
-    if (containerRef.current && target && !containerRef.current.contains(target)) {
-      closeWithAnimation()
-    }
-  })
-
-  const onDocumentKeyDown = useEffectEvent((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.stopPropagation()
-      closeWithAnimation()
-    }
-  })
-
   // Prevent background scroll on small screens when menu is open
   useEffect(() => {
     if (typeof globalThis === 'undefined') return
@@ -159,16 +150,10 @@ export function MobileNav() {
     }
   }, [open])
 
-  // Click outside + ESC to close (attach listeners once per open)
+  // Keep overlay hook state in sync with local open state
   useEffect(() => {
-    if (!open) return
-    globalThis.addEventListener('mousedown', onDocumentMouseDown)
-    globalThis.addEventListener('keydown', onDocumentKeyDown)
-    return () => {
-      globalThis.removeEventListener('mousedown', onDocumentMouseDown)
-      globalThis.removeEventListener('keydown', onDocumentKeyDown)
-    }
-  }, [open, onDocumentMouseDown, onDocumentKeyDown])
+    setOverlayOpen(open)
+  }, [open, setOverlayOpen])
 
   // Focus first item when opening via keyboard
   useEffect(() => {
@@ -226,21 +211,6 @@ export function MobileNav() {
       }
     },
     [items.length],
-  )
-
-  // Overlay interactions → share the same close logic
-  const handleOverlayClick = useCallback(() => {
-    closeWithAnimation()
-  }, [closeWithAnimation])
-
-  const handleOverlayKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        closeWithAnimation()
-      }
-    },
-    [closeWithAnimation],
   )
 
   // Ladder layout tuning
@@ -301,7 +271,7 @@ export function MobileNav() {
   }, [open])
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef as React.RefObject<HTMLDivElement | null>} className="relative">
       <div className="relative inline-block nav:hidden">
         <Button
           ref={triggerRef}
@@ -336,11 +306,6 @@ export function MobileNav() {
             aria-hidden="true"
           />
         </Button>
-
-        <style>{`
-          @keyframes kd-burst { from { transform: translate(-50%, -50%) translate(0,0) scale(0.8); opacity: 1 } to { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1); opacity: 0 } }
-          @keyframes kd-implosion { from { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1); opacity: 0.9 } to { transform: translate(-50%, -50%) translate(0,0) scale(0.6); opacity: 0 } }
-        `}</style>
 
         <span
           aria-hidden
@@ -424,12 +389,8 @@ export function MobileNav() {
 
       {/* Backdrop to emphasize the menu and allow closing */}
       <div
-        role="button"
-        tabIndex={open ? 0 : -1}
-        aria-label="Close navigation menu"
         ref={overlayRef}
-        onClick={handleOverlayClick}
-        onKeyDown={handleOverlayKeyDown}
+        {...overlayProps}
         className={cn(
           'fixed inset-0 nav:hidden transition-opacity duration-200',
           open ? 'z-[105] opacity-100 pointer-events-auto' : 'z-[105] opacity-0 pointer-events-none',

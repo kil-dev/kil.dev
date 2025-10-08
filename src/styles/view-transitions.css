@@ -1,0 +1,21 @@
+/* View Transition circle blur animation using CSS variables for origin */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: none;
+  }
+  ::view-transition-new(root) {
+    animation: kd-circle-blur-expand 0.5s ease-out;
+    transform-origin: var(--vt-ox, 50%) var(--vt-oy, 50%);
+    filter: blur(0);
+  }
+  @keyframes kd-circle-blur-expand {
+    from {
+      clip-path: circle(0% at var(--vt-ox, 50%) var(--vt-oy, 50%));
+      filter: blur(4px);
+    }
+    to {
+      clip-path: circle(150% at var(--vt-ox, 50%) var(--vt-oy, 50%));
+      filter: blur(0);
+    }
+  }
+}

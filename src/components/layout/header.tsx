@@ -1,5 +1,3 @@
-'use client'
-
 import { GitHubButton } from '@/components/layout/header/github-button'
 import { HomeLogo } from '@/components/layout/header/home-logo'
 import { LinkedInButton } from '@/components/layout/header/linkedin-button'

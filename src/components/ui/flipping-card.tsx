@@ -1,8 +1,11 @@
 'use client'
 
+import { useTheme } from '@/components/providers/theme-provider'
+import type { ThemeName } from '@/lib/themes'
+import { getThemeBaseColor } from '@/utils/themes'
 import { cn } from '@/utils/utils'
 import Image, { type StaticImageData } from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlipIndicator } from './flip-indicator'
 
 interface FlippingCardProps {
@@ -38,6 +41,14 @@ export function FlippingCard({
   flipLabelBackDesktop,
   flipLabelBackMobile,
 }: FlippingCardProps) {
+  const { resolvedTheme } = useTheme()
+  const isDarkBaseColor = useMemo(() => {
+    if (!resolvedTheme) return false
+    if (resolvedTheme === 'dark') return true
+    if (resolvedTheme === 'light') return false
+    return getThemeBaseColor(resolvedTheme as ThemeName) === 'dark'
+  }, [resolvedTheme])
+
   const [flipped, setFlipped] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const frameRequestRef = useRef<number | null>(null)
@@ -106,13 +117,11 @@ export function FlippingCard({
       const shadowX = clampedX * magnitudeNear
       const shadowY = clampedY * magnitudeNear
 
-      // Read theme luminance hint from CSS var (set per-theme in globals.css)
+      // Read theme luminance from theme baseColor via ThemeProvider
       const root = document.documentElement
-      const darklikeVar = getComputedStyle(root).getPropertyValue('--theme-darklike').trim()
-      const isDarkLike = darklikeVar === '1'
-      const nearAlpha = isDarkLike ? 0.6 : 0.28
-      const farAlpha = isDarkLike ? 0.3 : 0.15
-      const highlightAlpha = isDarkLike ? 0.1 : 0.25
+      const nearAlpha = isDarkBaseColor ? 0.6 : 0.28
+      const farAlpha = isDarkBaseColor ? 0.3 : 0.15
+      const highlightAlpha = isDarkBaseColor ? 0.1 : 0.25
 
       const dynamicShadow =
         `drop-shadow(${shadowX}px ${shadowY}px ${blurNear}px rgba(0,0,0,${nearAlpha})) ` +
@@ -131,7 +140,7 @@ export function FlippingCard({
       const combined = base ? `${base} ${dynamicShadow}` : dynamicShadow
       tiltEl.style.setProperty('--card-back-shadow', combined)
     },
-    [flipped],
+    [flipped, isDarkBaseColor],
   )
 
   const handlePointerMove = useCallback(

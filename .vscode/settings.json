@@ -1,5 +1,10 @@
 {
   "files.associations": {
     "*.css": "tailwindcss"
+  },
+  "typescript.experimental.useTsgo": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "kiliantyler",
+    "projectKey": "kiliantyler_kil.dev"
   }
 }

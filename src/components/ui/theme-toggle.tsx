@@ -3,8 +3,11 @@
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
+import { ThemeMenu } from '@/components/ui/theme-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
+import { useIsClient } from '@/hooks/use-is-client'
+import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
@@ -13,17 +16,21 @@ import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays, Monitor, Settings } from 'lucide-react'
-import { motion } from 'motion/react'
-import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentType,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
 import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
-function SystemIcon({ className }: { className?: string }) {
+function SystemIcon({ className }: Readonly<{ className?: string }>) {
   // Avoid hydration mismatch: default to Seasonal icon until mounted
   const { seasonalOverlaysEnabled } = useTheme()
-  const [hydrated, setHydrated] = useState(false)
-  useEffect(() => setHydrated(true), [])
-  if (!hydrated) {
+  const isClient = useIsClient()
+  if (!isClient) {
     return <CalendarDays className={cn(className)} />
   }
   return seasonalOverlaysEnabled ? <CalendarDays className={cn(className)} /> : <Monitor className={cn(className)} />
@@ -36,22 +43,24 @@ export function ThemeToggle() {
 
   const currentPreference: Theme = theme ?? 'system'
 
-  const [open, setOpen] = useState(false)
-  const [openedViaKeyboard, setOpenedViaKeyboard] = useState(false)
   const [tooltipHold, setTooltipHold] = useState(false)
   const [toggleCount, setToggleCount] = useState(0)
   const [themeSelected, setThemeSelected] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
-  const optionsRef = useRef<HTMLDivElement | null>(null)
+  const {
+    open,
+    setOpen,
+    containerRef,
+    triggerRef,
+    optionsRef,
+    optionRefs,
+    overlayProps,
+    handleTriggerKeyDown,
+    buildMenuKeyDownHandler,
+  } = useThemeMenuState()
 
-  const [hydrated, setHydrated] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(0)
   const [showOptions, setShowOptions] = useState(false)
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
+  const isClient = useIsClient()
 
   // Force re-render after achievement state changes to ensure localStorage sync
   useEffect(() => {
@@ -80,20 +89,9 @@ export function ThemeToggle() {
     })
   }, [])
 
-  const showSystemOverlay = hydrated && open && currentPreference === 'system'
-  const spinCss = `@keyframes kd-spin-trail{0%{transform:rotate(0deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}70%{transform:rotate(320deg) scale(1.1);filter:drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 0 6px color-mix(in oklch,var(--primary) 70%,transparent)) drop-shadow(0 0 12px color-mix(in oklch,var(--accent,var(--primary)) 50%,transparent))}100%{transform:rotate(360deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}}.theme-system-overlay-anim{animation:kd-spin-trail 260ms ease-out;will-change:transform,filter}`
+  const showSystemOverlay = isClient && open && currentPreference === 'system'
 
-  // Prevent background scrolling when menu is open (all breakpoints)
-  useEffect(() => {
-    if (typeof globalThis === 'undefined') return
-    if (open) {
-      const prev = document.documentElement.style.overflow
-      document.documentElement.style.overflow = 'hidden'
-      return () => {
-        document.documentElement.style.overflow = prev
-      }
-    }
-  }, [open])
+  // scroll-lock handled in useThemeMenuState
 
   const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
     injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'theme-transition')
@@ -154,14 +152,7 @@ export function ThemeToggle() {
       })
       setOpen(false)
     },
-    [
-      currentPreference,
-      injectCircleBlur,
-      resolvedTheme,
-      setTheme,
-      startTransition,
-      systemTheme,
-    ],
+    [currentPreference, injectCircleBlur, resolvedTheme, setTheme, startTransition, systemTheme, setOpen],
   )
 
   type IconComponent = ComponentType<{ className?: string }>
@@ -219,40 +210,7 @@ export function ThemeToggle() {
     return list
   }, [allOptions, currentPreference])
 
-  const onDocClick = useEffectEvent((e: MouseEvent) => {
-    const target = e.target as Node | null
-    if (containerRef.current && target && !containerRef.current.contains(target)) {
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-      triggerRef.current?.focus()
-    }
-  })
-  const onDocKey = useEffectEvent((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.stopPropagation()
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-      triggerRef.current?.focus()
-    }
-  })
-  useEffect(() => {
-    if (!open) return
-    globalThis.addEventListener('mousedown', onDocClick)
-    globalThis.addEventListener('keydown', onDocKey)
-    return () => {
-      globalThis.removeEventListener('mousedown', onDocClick)
-      globalThis.removeEventListener('keydown', onDocKey)
-    }
-  }, [open, onDocClick, onDocKey])
-
-  // focus first option when opening
-  useEffect(() => {
-    if (!open) return
-    const id = globalThis.setTimeout(() => {
-      if (openedViaKeyboard) optionRefs.current[0]?.focus()
-    }, 0)
-    return () => globalThis.clearTimeout(id)
-  }, [open, openedViaKeyboard])
+  // focus behavior handled in useThemeMenuState
 
   // Removed parent callbacks and md+ width reporting to avoid shifting header
 
@@ -266,52 +224,7 @@ export function ThemeToggle() {
     return () => globalThis.clearTimeout(id)
   }, [open])
 
-  const handleTriggerKeyDown = useCallback(
-    (e: ReactKeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        if (open) {
-          setOpen(false)
-          setOpenedViaKeyboard(false)
-        } else {
-          setOpen(true)
-          setOpenedViaKeyboard(true)
-        }
-        return
-      }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault()
-        setOpen(true)
-        setOpenedViaKeyboard(true)
-        // focus handled by effect
-      }
-    },
-    [open],
-  )
-
-  const handleMenuKeyDown = useCallback(
-    (e: ReactKeyboardEvent<HTMLDivElement>) => {
-      const currentIndex = optionRefs.current.indexOf(document.activeElement as HTMLButtonElement | null)
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault()
-        const nextIndex = currentIndex === -1 ? 0 : Math.min(optionsToShow.length - 1, currentIndex + 1)
-        optionRefs.current[nextIndex]?.focus()
-        return
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault()
-        const prevIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
-        optionRefs.current[prevIndex]?.focus()
-        return
-      }
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        setOpen(false)
-        triggerRef.current?.focus()
-      }
-    },
-    [optionsToShow.length],
-  )
+  const handleMenuKeyDown = buildMenuKeyDownHandler(optionsToShow.length)
 
   return (
     <div ref={containerRef} className="relative">
@@ -350,19 +263,17 @@ export function ThemeToggle() {
                   setToggleCount(0)
                 }
 
-                setOpenedViaKeyboard(false)
                 return next
               })
             }}
             onKeyDown={handleTriggerKeyDown}
             className={cn(
               'relative hover:ring-accent hover:ring-1 hover:ring-offset-2 ring-offset-background',
-              hydrated ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
+              isClient ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
               open ? 'z-[120] ring-1 ring-accent ring-offset-2 scale-95 rotate-3' : 'z-[70]',
             )}>
             <span className="relative inline-block align-middle">
               <style>{themeIconCss}</style>
-              <style>{spinCss}</style>
               {themes.map(t => {
                 const IconComp = t.icon
                 return (
@@ -401,117 +312,50 @@ export function ThemeToggle() {
       {/* Backdrop overlay (all breakpoints) */}
       <div
         aria-hidden={!open}
-        role="button"
-        tabIndex={open ? 0 : -1}
-        aria-label="Close theme menu"
-        onClick={() => {
-          setOpen(false)
-          setOpenedViaKeyboard(false)
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setOpen(false)
-            setOpenedViaKeyboard(false)
-          }
-        }}
+        {...overlayProps}
         className={cn(
           'fixed inset-0 z-[115] transition-opacity duration-200',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-          // Subtle flashy backdrop: tint + blur + vignette-ish gradient
           'backdrop-blur-sm bg-black/15 dark:bg-black/40',
         )}
       />
 
-      <div
-        id="theme-options"
-        ref={optionsRef}
-        suppressHydrationWarning
-        role="menu"
-        aria-label="Select theme"
-        aria-hidden={!open}
-        inert={!open}
-        tabIndex={-1}
-        onKeyDown={handleMenuKeyDown}
-        className={cn(
-          'absolute left-1/2 -translate-x-1/2 top-full mt-2 z-[120]',
-          'flex flex-col items-stretch gap-3',
-          open ? 'pointer-events-auto' : 'pointer-events-none',
-        )}>
-        {hydrated && (
-          <fieldset
-            className={cn(
-              'p-3 pt-8 transition-all duration-200 ease-out relative',
-              open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
-            )}
-            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}>
-            <legend className="sr-only">Theme controls</legend>
-            {/* Cog moved next to the first theme item, not occupying header space */}
-
-            {/* Options popover will render under the settings button */}
-
-            <div className="flex items-start gap-2">
-              <div className="shrink-0 pt-1 relative">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-controls="theme-options-panel"
-                  aria-expanded={showOptions}
-                  onClick={() => setShowOptions(v => !v)}
-                  aria-label={showOptions ? 'Hide options' : 'Show options'}
-                  className="h-7 w-7">
-                  <Settings className="size-4" />
-                </Button>
-                {/* Desktop: anchored popover under the cog */}
-                <div className="absolute right-0 top-full hidden sm:block">
-                  <ThemeOptionsPanel open={showOptions} align="right" />
-                </div>
+      {isClient && (
+        <ThemeMenu
+          open={open}
+          options={optionsToShow.map(o => ({ label: o.label, value: o.value, Icon: o.Icon }))}
+          optionsWidthCh={menuWidthCh}
+          optionRefs={optionRefs}
+          optionsRef={optionsRef}
+          onOptionClick={(value, e) => handleThemeChange(value, e)}
+          onKeyDown={handleMenuKeyDown}
+          leftSlot={
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-controls="theme-options-panel"
+                aria-expanded={showOptions}
+                onClick={() => setShowOptions(v => !v)}
+                aria-label={showOptions ? 'Hide options' : 'Show options'}
+                className="h-7 w-7">
+                <Settings className="size-4" />
+              </Button>
+              <div className="absolute right-0 top-full hidden sm:block">
+                <ThemeOptionsPanel open={showOptions} align="right" />
               </div>
-              <div className="max-h-[48vh] overflow-hidden flex-1">
-                <motion.div
-                  className="overflow-y-auto overflow-x-hidden no-scrollbar pr-1 flex flex-col gap-1"
-                  initial="hidden"
-                  animate={open ? 'show' : 'hidden'}
-                  variants={{
-                    hidden: { opacity: 0, y: -4 },
-                    show: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
-                  }}>
-                  {optionsToShow.map(opt => (
-                    <motion.div
-                      key={opt.value}
-                      variants={{ hidden: { opacity: 0, y: -4 }, show: { opacity: 1, y: 0 } }}>
-                      <Button
-                        ref={el => {
-                          const idx = optionsToShow.findIndex(o => o.value === opt.value)
-                          optionRefs.current[idx] = el
-                        }}
-                        onClick={e => handleThemeChange(opt.value, e)}
-                        role="menuitem"
-                        aria-label={opt.label}
-                        title={opt.label}
-                        variant="ghost"
-                        size="sm"
-                        className={cn('flex w-full hover:bg-accent/70 justify-start gap-2 rounded-md')}>
-                        <span className="grid size-7 place-items-center shrink-0">
-                          <opt.Icon className="size-4" />
-                        </span>
-                        <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
-                      </Button>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-            </div>
-            {/* Mobile: inline options below the list to avoid overlay */}
-            {showOptions ? (
+            </>
+          }
+          bottomSlot={
+            showOptions ? (
               <div className="mt-2 sm:hidden">
                 <ThemeOptionsSheet />
               </div>
-            ) : null}
-          </fieldset>
-        )}
-      </div>
+            ) : null
+          }
+        />
+      )}
     </div>
   )
 }

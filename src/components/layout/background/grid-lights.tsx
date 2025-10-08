@@ -34,7 +34,7 @@ function generateHorizontalPath(width: number, height: number): Point[] {
   const endXIndex = startSide === 'left' ? cols : 0
   const dir = startSide === 'left' ? 1 : -1
 
-  const points: Point[] = [{ x: xIndex * GRID_SIZE_PX + (dir === 1 ? 0 : 0), y: baseY }]
+  const points: Point[] = [{ x: xIndex * GRID_SIZE_PX, y: baseY }]
 
   // Walk across columns; inject occasional vertical detours by exactly one grid step
   for (let c = 0; c < cols; c++) {
@@ -197,12 +197,15 @@ export function GridLights() {
   const near = LIGHT_GRID.GLOW_NEAR_PX
   const far = LIGHT_GRID.GLOW_FAR_PX
 
+  // Use stable indices for keys to avoid hydration mismatches; lights are never reordered
+  const lightIndices = useMemo(() => Array.from({ length: numLights }, (_, i) => i), [numLights])
+
   if (prefersReducedMotion || disableGridLights) return null
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden" aria-hidden>
       {styleText ? <style>{styleText}</style> : null}
-      {Array.from({ length: numLights }).map((_, i) => (
+      {lightIndices.map(i => (
         <div
           key={i}
           className={`${dotClass} gl-${i}`}

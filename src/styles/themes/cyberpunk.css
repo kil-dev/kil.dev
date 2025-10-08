@@ -1,0 +1,42 @@
+@custom-variant cyberpunk (&:is(.cyberpunk *));
+
+.cyberpunk {
+  --background: oklch(18% 0.12 300);
+  --foreground: oklch(98% 0 0);
+  --card: oklch(22% 0.1 300);
+  --card-foreground: oklch(98% 0 0);
+  --popover: oklch(22% 0.09 300);
+  --popover-foreground: oklch(98% 0 0);
+  --primary: oklch(75% 0.28 328);
+  --primary-foreground: oklch(12% 0.06 300);
+  --secondary: oklch(85% 0.15 205);
+  --secondary-foreground: oklch(18% 0.05 300);
+  --muted: oklch(26% 0.02 270);
+  --muted-foreground: oklch(78% 0.02 270);
+  --accent: oklch(92% 0.23 117);
+  --accent-foreground: oklch(18% 0.06 300);
+  --destructive: oklch(70% 0.23 35);
+  --destructive-foreground: oklch(8% 0 0);
+  --border: oklch(34% 0.04 280);
+  --input: oklch(34% 0.04 280);
+  --ring: oklch(70% 0.22 300);
+  --grid-color: oklch(85% 0.12 205 / 0.15);
+  --grid-light: oklch(0.76 0.28 328);
+  --chart-1: oklch(76% 0.28 328);
+  --chart-2: oklch(85% 0.15 205);
+  --chart-3: oklch(92% 0.23 117);
+  --chart-4: oklch(78% 0.22 292);
+  --chart-5: oklch(82% 0.24 25);
+  --sidebar: oklch(18% 0.12 300);
+  --sidebar-foreground: oklch(98% 0 0);
+  --sidebar-primary: oklch(76% 0.28 328);
+  --sidebar-primary-foreground: oklch(12% 0.06 300);
+  --sidebar-accent: oklch(26% 0.02 270);
+  --sidebar-accent-foreground: oklch(92% 0.02 270);
+  --sidebar-border: oklch(34% 0.04 280);
+  --sidebar-ring: oklch(70% 0.22 300);
+  --card-backdrop: oklch(0 0 0 / 0.6);
+  color-scheme: dark;
+  --card-back-shadow: drop-shadow(0 0 6px oklch(75% 0.28 328 / 0.5)) drop-shadow(0 0 10px oklch(85% 0.15 205 / 0.4))
+    drop-shadow(0 0 14px oklch(92% 0.23 117 / 0.25));
+}
