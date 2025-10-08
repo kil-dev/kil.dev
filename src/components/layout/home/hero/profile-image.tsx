@@ -139,7 +139,14 @@ export function ProfileImage() {
       display: 'block',
     })
     const toggle = `\nhtml[${PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE}="amongus"] .profile-img{display:none!important}\nhtml[${PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE}="amongus"] .amongus-img{display:block!important}`
-    return base + toggle
+    const nonBase = themes.map(t => t.name).filter(n => n !== 'light' && n !== 'dark')
+    const disableRules = nonBase
+      .map(n => `html[data-disable-theme-headshot="1"].${n} .profile-img[data-theme="${n}"]{display:none!important}`)
+      .join('\n')
+    const fallbackRules = nonBase
+      .map(n => `html[data-disable-theme-headshot="1"].${n} .profile-img[data-theme="light"]{display:block!important}`)
+      .join('\n')
+    return base + toggle + '\n' + disableRules + '\n' + fallbackRules
   }, [])
 
   return (
