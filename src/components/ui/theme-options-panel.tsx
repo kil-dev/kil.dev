@@ -67,7 +67,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
             <motion.label
               variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
               className="flex items-center justify-between gap-2 select-none w-full">
-              <span>Theme headshot</span>
+              <span>Themed headshot</span>
               <MotionSwitch
                 checked={!disableThemeHeadshot}
                 onCheckedChange={v => setDisableThemeHeadshot(!v)}
