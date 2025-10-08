@@ -17,6 +17,8 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
     setDisableCodeRain,
     disableGridLights,
     setDisableGridLights,
+    disableThemeHeadshot,
+    setDisableThemeHeadshot,
     theme,
     resolvedTheme,
     systemTheme,
@@ -59,6 +61,17 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                 checked={seasonalOverlaysEnabled}
                 onCheckedChange={setSeasonalOverlaysEnabled}
                 aria-label="Seasonal overlays"
+                size="md"
+              />
+            </motion.label>
+            <motion.label
+              variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
+              className="flex items-center justify-between gap-2 select-none w-full">
+              <span>Theme headshot</span>
+              <MotionSwitch
+                checked={!disableThemeHeadshot}
+                onCheckedChange={v => setDisableThemeHeadshot(!v)}
+                aria-label="Theme headshot"
                 size="md"
               />
             </motion.label>
@@ -153,6 +166,8 @@ export function ThemeOptionsSheet() {
     setDisableCodeRain,
     disableGridLights,
     setDisableGridLights,
+    disableThemeHeadshot,
+    setDisableThemeHeadshot,
     theme,
     resolvedTheme,
     systemTheme,
@@ -170,6 +185,15 @@ export function ThemeOptionsSheet() {
             checked={seasonalOverlaysEnabled}
             onCheckedChange={setSeasonalOverlaysEnabled}
             aria-label="Seasonal overlays"
+            size="md"
+          />
+        </label>
+        <label className="flex items-center justify-between gap-2 select-none w-full">
+          <span>Enable theme headshot</span>
+          <MotionSwitch
+            checked={!disableThemeHeadshot}
+            onCheckedChange={v => setDisableThemeHeadshot(!v)}
+            aria-label="Enable theme headshot"
             size="md"
           />
         </label>
