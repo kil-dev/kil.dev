@@ -46,7 +46,7 @@
     "js-cookie": "3.0.5",
     "lucide-react": "0.544.0",
     "motion": "12.23.22",
-    "next": "15.6.0-canary.43",
+    "next": "15.6.0-canary.44",
     "posthog-js": "1.270.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
