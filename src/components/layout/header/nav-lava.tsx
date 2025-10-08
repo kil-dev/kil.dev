@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
-import { useAchievements } from '@/components/providers/achievements-provider'
-import { useIsClient } from '@/hooks/use-is-client'
+import { usePresenceGates } from '@/hooks/use-presence-gates'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
 
@@ -30,21 +29,7 @@ export function NavLava() {
   const linkRefs = React.useRef<Record<string, HTMLAnchorElement | null>>({})
   const didInitRef = React.useRef(false)
   const baseItems = React.useMemo(() => NAVIGATION, [])
-  const { has } = useAchievements()
-  const isMounted = useIsClient()
-
-  // Read initial DOM data attributes (set pre-hydration) to avoid first-render mismatch
-  const [initialDomFlags] = React.useState(() => {
-    if (typeof document === 'undefined') return { hasAchievements: false, hasPetGallery: false }
-    const root = document.documentElement
-    return {
-      hasAchievements: root.dataset.hasAchievements === 'true',
-      hasPetGallery: root.dataset.hasPetGallery === 'true',
-    }
-  })
-
-  const allowAchievements = initialDomFlags.hasAchievements || (isMounted && has('RECURSIVE_REWARD'))
-  const allowPetGallery = initialDomFlags.hasPetGallery || (isMounted && has('PET_PARADE'))
+  const { allowAchievements, allowPetGallery } = usePresenceGates()
 
   // Items considered for active detection (may include gated links)
   const activeItems = React.useMemo<SimpleNavItem[]>(() => {
