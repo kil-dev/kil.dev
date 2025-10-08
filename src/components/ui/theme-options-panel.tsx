@@ -17,6 +17,8 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
     setDisableCodeRain,
     disableGridLights,
     setDisableGridLights,
+    disableThemeHeadshot,
+    setDisableThemeHeadshot,
     theme,
     resolvedTheme,
     systemTheme,
@@ -62,6 +64,17 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                 size="md"
               />
             </motion.label>
+            <motion.label
+              variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
+              className="flex items-center justify-between gap-2 select-none w-full">
+              <span>Themed headshot</span>
+              <MotionSwitch
+                checked={!disableThemeHeadshot}
+                onCheckedChange={v => setDisableThemeHeadshot(!v)}
+                aria-label="Themed headshot"
+                size="md"
+              />
+            </motion.label>
             {(() => {
               const seasonalDefault = getDefaultThemeForNow()
               let visualTheme: Theme
@@ -83,11 +96,11 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                         exit: { opacity: 0, y: -2 },
                       }}
                       className="flex items-center justify-between gap-2 select-none w-full">
-                      <span>Disable snow</span>
+                      <span>Snow</span>
                       <MotionSwitch
-                        checked={disableSnow}
-                        onCheckedChange={setDisableSnow}
-                        aria-label="Disable snow"
+                        checked={!disableSnow}
+                        onCheckedChange={v => setDisableSnow(!v)}
+                        aria-label="Snow"
                         size="md"
                       />
                     </motion.label>
@@ -100,11 +113,11 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                         exit: { opacity: 0, y: -2 },
                       }}
                       className="flex items-center justify-between gap-2 select-none w-full">
-                      <span>Disable code rain</span>
+                      <span>Code rain</span>
                       <MotionSwitch
-                        checked={disableCodeRain}
-                        onCheckedChange={setDisableCodeRain}
-                        aria-label="Disable code rain"
+                        checked={!disableCodeRain}
+                        onCheckedChange={v => setDisableCodeRain(!v)}
+                        aria-label="Code rain"
                         size="md"
                       />
                     </motion.label>
@@ -121,11 +134,11 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                             exit: { opacity: 0, y: -2 },
                           }}
                           className="flex items-center justify-between gap-2 select-none w-full">
-                          <span>Disable grid lights</span>
+                          <span>Grid lights</span>
                           <MotionSwitch
-                            checked={disableGridLights}
-                            onCheckedChange={setDisableGridLights}
-                            aria-label="Disable grid lights"
+                            checked={!disableGridLights}
+                            onCheckedChange={v => setDisableGridLights(!v)}
+                            aria-label="Grid lights"
                             size="md"
                           />
                         </motion.label>
@@ -153,6 +166,8 @@ export function ThemeOptionsSheet() {
     setDisableCodeRain,
     disableGridLights,
     setDisableGridLights,
+    disableThemeHeadshot,
+    setDisableThemeHeadshot,
     theme,
     resolvedTheme,
     systemTheme,
@@ -173,6 +188,15 @@ export function ThemeOptionsSheet() {
             size="md"
           />
         </label>
+        <label className="flex items-center justify-between gap-2 select-none w-full">
+          <span>Themed headshot</span>
+          <MotionSwitch
+            checked={!disableThemeHeadshot}
+            onCheckedChange={v => setDisableThemeHeadshot(!v)}
+            aria-label="Themed headshot"
+            size="md"
+          />
+        </label>
         {(() => {
           const seasonalDefault = getDefaultThemeForNow()
           let visualTheme: Theme
@@ -188,22 +212,22 @@ export function ThemeOptionsSheet() {
             <>
               {visualTheme === 'christmas' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Disable snow</span>
+                  <span>Snow</span>
                   <MotionSwitch
-                    checked={disableSnow}
-                    onCheckedChange={setDisableSnow}
-                    aria-label="Disable snow"
+                    checked={!disableSnow}
+                    onCheckedChange={v => setDisableSnow(!v)}
+                    aria-label="Snow"
                     size="md"
                   />
                 </label>
               )}
               {visualTheme === 'matrix' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Disable code rain</span>
+                  <span>Code rain</span>
                   <MotionSwitch
-                    checked={disableCodeRain}
-                    onCheckedChange={setDisableCodeRain}
-                    aria-label="Disable code rain"
+                    checked={!disableCodeRain}
+                    onCheckedChange={v => setDisableCodeRain(!v)}
+                    aria-label="Code rain"
                     size="md"
                   />
                 </label>
@@ -214,11 +238,11 @@ export function ThemeOptionsSheet() {
                 return (
                   themeHasGrid && (
                     <label className="flex items-center justify-between gap-2 select-none w-full">
-                      <span>Disable grid lights</span>
+                      <span>Grid lights</span>
                       <MotionSwitch
-                        checked={disableGridLights}
-                        onCheckedChange={setDisableGridLights}
-                        aria-label="Disable grid lights"
+                        checked={!disableGridLights}
+                        onCheckedChange={v => setDisableGridLights(!v)}
+                        aria-label="Grid lights"
                         size="md"
                       />
                     </label>

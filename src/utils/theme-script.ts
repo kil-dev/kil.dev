@@ -126,6 +126,20 @@ function overlaysEnabledFromStorage(): boolean {
   return true
 }
 
+function headshotsDisabledFromStorage(): boolean {
+  try {
+    const match = /(?:^|;\s*)disableThemeHeadshot=([^;]+)/.exec(document.cookie)
+    if (match?.[1] === '1') return true
+    if (match?.[1] === '0') return false
+  } catch {}
+  try {
+    const stored = localStorage.getItem('disableThemeHeadshot')
+    if (stored === '1') return true
+    if (stored === '0') return false
+  } catch {}
+  return false
+}
+
 function detectHasThemeTapdance(root: HTMLElement): boolean {
   try {
     if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) return true
@@ -148,9 +162,13 @@ function applyThemeDomChanges(
   overlay: string | null,
   explicit: string | null,
   baseClass: string,
+  headshotsDisabled: boolean,
 ): void {
   try {
     root.dataset.seasonalOverlaysEnabled = overlaysEnabled ? '1' : '0'
+  } catch {}
+  try {
+    root.dataset.disableThemeHeadshot = headshotsDisabled ? '1' : '0'
   } catch {}
 
   for (const cls of knownClasses) {
@@ -185,6 +203,7 @@ export function initTheme(config: ThemeScriptConfig): void {
 
     const hasThemeTapdance = detectHasThemeTapdance(root)
     const overlaysEnabled = overlaysEnabledFromStorage()
+    const headshotsDisabled = headshotsDisabledFromStorage()
     const allowed = hasThemeTapdance
       ? uniqueStrings([...config.base, ...config.seasonal.filter(s => !s.hidden).map(s => s.theme)])
       : uniqueStrings([...config.base, ...active.filter(s => !s.hidden).map(s => s.theme)])
@@ -230,7 +249,17 @@ export function initTheme(config: ThemeScriptConfig): void {
     const known = uniqueStrings([...config.base, ...config.seasonal.map(s => s.theme), 'dark'])
 
     const applyDomChanges = () =>
-      applyThemeDomChanges(root, known, targetClasses, overlaysEnabled, pref, overlay, explicit, baseClass)
+      applyThemeDomChanges(
+        root,
+        known,
+        targetClasses,
+        overlaysEnabled,
+        pref,
+        overlay,
+        explicit,
+        baseClass,
+        headshotsDisabled,
+      )
 
     const overlayChanged = (overlay ?? '') !== oldOverlay
     const appliedAfter = explicit ?? baseClass ?? ''
