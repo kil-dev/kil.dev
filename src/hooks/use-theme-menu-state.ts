@@ -52,7 +52,7 @@ export function useThemeMenuState(): UseThemeMenuStateResult {
 
   // Prevent background scrolling when menu is open (all breakpoints)
   useEffect(() => {
-    if (typeof globalThis === 'undefined') return
+    if (globalThis.window === undefined || globalThis.document === undefined) return
     if (open) {
       const prev = document.documentElement.style.overflow
       document.documentElement.style.overflow = 'hidden'
