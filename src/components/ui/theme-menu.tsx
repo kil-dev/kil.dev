@@ -74,11 +74,10 @@ export function ThemeMenu({
               initial="hidden"
               animate={open ? 'show' : 'hidden'}
               variants={menuVariants}>
-              {options.map(opt => (
+              {options.map((opt, idx) => (
                 <motion.div key={opt.value} variants={{ hidden: { opacity: 0, y: -4 }, show: { opacity: 1, y: 0 } }}>
                   <Button
                     ref={el => {
-                      const idx = options.findIndex(o => o.value === opt.value)
                       optionRefs.current[idx] = el
                     }}
                     onClick={e => onOptionClick(opt.value, e)}
