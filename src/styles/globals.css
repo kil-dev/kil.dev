@@ -642,6 +642,29 @@ html[data-has-pet-gallery='true'][data-pet-gallery-just-unlocked='true'] .js-pet
   will-change: transform, filter;
 }
 
+/* Mobile nav particle animations (uses --tx/--ty CSS variables provided inline) */
+@keyframes kd-burst {
+  from {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes kd-implosion {
+  from {
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+}
+
 /* View Transition circle blur animation using CSS variables for origin */
 @supports (view-transition-name: root) {
   ::view-transition-old(root) {

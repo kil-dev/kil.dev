@@ -311,11 +311,6 @@ export function MobileNav() {
           />
         </Button>
 
-        <style>{`
-          @keyframes kd-burst { from { transform: translate(-50%, -50%) translate(0,0) scale(0.8); opacity: 1 } to { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1); opacity: 0 } }
-          @keyframes kd-implosion { from { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1); opacity: 0.9 } to { transform: translate(-50%, -50%) translate(0,0) scale(0.6); opacity: 0 } }
-        `}</style>
-
         <span
           aria-hidden
           className="pointer-events-none fixed z-[109]"
