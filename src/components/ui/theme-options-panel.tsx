@@ -71,7 +71,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
               <MotionSwitch
                 checked={!disableThemeHeadshot}
                 onCheckedChange={v => setDisableThemeHeadshot(!v)}
-                aria-label="Enable theme headshot"
+                aria-label="Themed headshot"
                 size="md"
               />
             </motion.label>
@@ -100,7 +100,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                       <MotionSwitch
                         checked={!disableSnow}
                         onCheckedChange={v => setDisableSnow(!v)}
-                        aria-label="Enable snow"
+                        aria-label="Snow"
                         size="md"
                       />
                     </motion.label>
@@ -117,7 +117,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                       <MotionSwitch
                         checked={!disableCodeRain}
                         onCheckedChange={v => setDisableCodeRain(!v)}
-                        aria-label="Enable code rain"
+                        aria-label="Code rain"
                         size="md"
                       />
                     </motion.label>
@@ -138,7 +138,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                           <MotionSwitch
                             checked={!disableGridLights}
                             onCheckedChange={v => setDisableGridLights(!v)}
-                            aria-label="Enable grid lights"
+                            aria-label="Grid lights"
                             size="md"
                           />
                         </motion.label>
@@ -189,11 +189,11 @@ export function ThemeOptionsSheet() {
           />
         </label>
         <label className="flex items-center justify-between gap-2 select-none w-full">
-          <span>Enable theme headshot</span>
+          <span>Themed headshot</span>
           <MotionSwitch
             checked={!disableThemeHeadshot}
             onCheckedChange={v => setDisableThemeHeadshot(!v)}
-            aria-label="Enable theme headshot"
+            aria-label="Themed headshot"
             size="md"
           />
         </label>
@@ -212,22 +212,22 @@ export function ThemeOptionsSheet() {
             <>
               {visualTheme === 'christmas' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Enable snow</span>
+                  <span>Snow</span>
                   <MotionSwitch
                     checked={!disableSnow}
                     onCheckedChange={v => setDisableSnow(!v)}
-                    aria-label="Enable snow"
+                    aria-label="Snow"
                     size="md"
                   />
                 </label>
               )}
               {visualTheme === 'matrix' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Enable code rain</span>
+                  <span>Code rain</span>
                   <MotionSwitch
                     checked={!disableCodeRain}
                     onCheckedChange={v => setDisableCodeRain(!v)}
-                    aria-label="Enable code rain"
+                    aria-label="Code rain"
                     size="md"
                   />
                 </label>
@@ -238,11 +238,11 @@ export function ThemeOptionsSheet() {
                 return (
                   themeHasGrid && (
                     <label className="flex items-center justify-between gap-2 select-none w-full">
-                      <span>Enable grid lights</span>
+                      <span>Grid lights</span>
                       <MotionSwitch
                         checked={!disableGridLights}
                         onCheckedChange={v => setDisableGridLights(!v)}
-                        aria-label="Enable grid lights"
+                        aria-label="Grid lights"
                         size="md"
                       />
                     </label>
