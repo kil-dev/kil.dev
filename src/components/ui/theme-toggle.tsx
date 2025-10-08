@@ -5,6 +5,7 @@ import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
+import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
@@ -15,7 +16,7 @@ import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays, Monitor, Settings } from 'lucide-react'
 import { motion } from 'motion/react'
 import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ComponentType } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
@@ -42,7 +43,17 @@ export function ThemeToggle() {
   const [toggleCount, setToggleCount] = useState(0)
   const [themeSelected, setThemeSelected] = useState(false)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const {
+    setOpen: setOverlayOpen,
+    containerRef,
+    overlayProps,
+  } = useOverlayDismiss({
+    enabled: true,
+    onRequestClose: () => {
+      setOpen(false)
+      setOpenedViaKeyboard(false)
+    },
+  })
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const optionsRef = useRef<HTMLDivElement | null>(null)
 
@@ -219,31 +230,10 @@ export function ThemeToggle() {
     return list
   }, [allOptions, currentPreference])
 
-  const onDocClick = useEffectEvent((e: MouseEvent) => {
-    const target = e.target as Node | null
-    if (containerRef.current && target && !containerRef.current.contains(target)) {
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-      triggerRef.current?.focus()
-    }
-  })
-  const onDocKey = useEffectEvent((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.stopPropagation()
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-      triggerRef.current?.focus()
-    }
-  })
+  // Keep overlay hook state in sync with local open state for correct tabIndex
   useEffect(() => {
-    if (!open) return
-    globalThis.addEventListener('mousedown', onDocClick)
-    globalThis.addEventListener('keydown', onDocKey)
-    return () => {
-      globalThis.removeEventListener('mousedown', onDocClick)
-      globalThis.removeEventListener('keydown', onDocKey)
-    }
-  }, [open, onDocClick, onDocKey])
+    setOverlayOpen(open)
+  }, [open, setOverlayOpen])
 
   // focus first option when opening
   useEffect(() => {
@@ -314,7 +304,7 @@ export function ThemeToggle() {
   )
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef as React.MutableRefObject<HTMLDivElement | null>} className="relative">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -401,24 +391,10 @@ export function ThemeToggle() {
       {/* Backdrop overlay (all breakpoints) */}
       <div
         aria-hidden={!open}
-        role="button"
-        tabIndex={open ? 0 : -1}
-        aria-label="Close theme menu"
-        onClick={() => {
-          setOpen(false)
-          setOpenedViaKeyboard(false)
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setOpen(false)
-            setOpenedViaKeyboard(false)
-          }
-        }}
+        {...overlayProps}
         className={cn(
           'fixed inset-0 z-[115] transition-opacity duration-200',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-          // Subtle flashy backdrop: tint + blur + vignette-ish gradient
           'backdrop-blur-sm bg-black/15 dark:bg-black/40',
         )}
       />
