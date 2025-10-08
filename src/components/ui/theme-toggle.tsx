@@ -314,95 +314,42 @@ export function ThemeToggle() {
         )}
       />
 
-      <div
-        id="theme-options"
-        ref={optionsRef}
-        suppressHydrationWarning
-        role="menu"
-        aria-label="Select theme"
-        aria-hidden={!open}
-        inert={!open}
-        tabIndex={-1}
-        onKeyDown={handleMenuKeyDown}
-        className={cn(
-          'absolute left-1/2 -translate-x-1/2 top-full mt-2 z-[120]',
-          'flex flex-col items-stretch gap-3',
-          open ? 'pointer-events-auto' : 'pointer-events-none',
-        )}>
-        {isClient && (
-          <fieldset
-            className={cn(
-              'p-3 pt-8 transition-all duration-200 ease-out relative',
-              open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
-            )}
-            style={{ width: `min(92vw, ${menuWidthCh}ch)` }}>
-            <legend className="sr-only">Theme controls</legend>
-            {/* Cog moved next to the first theme item, not occupying header space */}
-
-            {/* Options popover will render under the settings button */}
-
-            <div className="flex items-start gap-2">
-              <div className="shrink-0 pt-1 relative">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-controls="theme-options-panel"
-                  aria-expanded={showOptions}
-                  onClick={() => setShowOptions(v => !v)}
-                  aria-label={showOptions ? 'Hide options' : 'Show options'}
-                  className="h-7 w-7">
-                  <Settings className="size-4" />
-                </Button>
-                {/* Desktop: anchored popover under the cog */}
-                <div className="absolute right-0 top-full hidden sm:block">
-                  <ThemeOptionsPanel open={showOptions} align="right" />
-                </div>
+      {isClient && (
+        <ThemeMenu
+          open={open}
+          options={optionsToShow.map(o => ({ label: o.label, value: o.value, Icon: o.Icon }))}
+          optionsWidthCh={menuWidthCh}
+          optionRefs={optionRefs}
+          optionsRef={optionsRef}
+          onOptionClick={(value, e) => handleThemeChange(value as typeof currentPreference, e)}
+          onKeyDown={handleMenuKeyDown}
+          leftSlot={
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-controls="theme-options-panel"
+                aria-expanded={showOptions}
+                onClick={() => setShowOptions(v => !v)}
+                aria-label={showOptions ? 'Hide options' : 'Show options'}
+                className="h-7 w-7">
+                <Settings className="size-4" />
+              </Button>
+              <div className="absolute right-0 top-full hidden sm:block">
+                <ThemeOptionsPanel open={showOptions} align="right" />
               </div>
-              <div className="max-h-[48vh] overflow-hidden flex-1">
-                <motion.div
-                  className="overflow-y-auto overflow-x-hidden no-scrollbar pr-1 flex flex-col gap-1"
-                  initial="hidden"
-                  animate={open ? 'show' : 'hidden'}
-                  variants={{
-                    hidden: { opacity: 0, y: -4 },
-                    show: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
-                  }}>
-                  {optionsToShow.map(opt => (
-                    <motion.div
-                      key={opt.value}
-                      variants={{ hidden: { opacity: 0, y: -4 }, show: { opacity: 1, y: 0 } }}>
-                      <Button
-                        ref={el => {
-                          const idx = optionsToShow.findIndex(o => o.value === opt.value)
-                          optionRefs.current[idx] = el
-                        }}
-                        onClick={e => handleThemeChange(opt.value, e)}
-                        role="menuitem"
-                        aria-label={opt.label}
-                        title={opt.label}
-                        variant="ghost"
-                        size="sm"
-                        className={cn('flex w-full hover:bg-accent/70 justify-start gap-2 rounded-md')}>
-                        <span className="grid size-7 place-items-center shrink-0">
-                          <opt.Icon className="size-4" />
-                        </span>
-                        <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
-                      </Button>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-            </div>
-            {/* Mobile: inline options below the list to avoid overlay */}
-            {showOptions ? (
+            </>
+          }
+          bottomSlot={
+            showOptions ? (
               <div className="mt-2 sm:hidden">
                 <ThemeOptionsSheet />
               </div>
-            ) : null}
-          </fieldset>
-        )}
-      </div>
+            ) : null
+          }
+        />
+      )}
     </div>
   )
 }
