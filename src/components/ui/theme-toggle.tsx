@@ -26,7 +26,7 @@ import {
 } from 'react'
 import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
-function SystemIcon({ className }: { className?: string }) {
+function SystemIcon({ className }: Readonly<{ className?: string }>) {
   // Avoid hydration mismatch: default to Seasonal icon until mounted
   const { seasonalOverlaysEnabled } = useTheme()
   const isClient = useIsClient()
@@ -327,7 +327,7 @@ export function ThemeToggle() {
           optionsWidthCh={menuWidthCh}
           optionRefs={optionRefs}
           optionsRef={optionsRef}
-          onOptionClick={(value, e) => handleThemeChange(value as typeof currentPreference, e)}
+          onOptionClick={(value, e) => handleThemeChange(value, e)}
           onKeyDown={handleMenuKeyDown}
           leftSlot={
             <>

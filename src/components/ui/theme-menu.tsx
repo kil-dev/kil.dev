@@ -1,15 +1,15 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import type { Theme } from '@/lib/themes'
+import type { IconComponent } from '@/types/themes'
 import { cn } from '@/utils/utils'
-import { motion } from 'motion/react'
+import { motion, stagger } from 'motion/react'
 import { useMemo } from 'react'
-
-type IconComponent = React.ComponentType<{ className?: string }>
 
 type ThemeMenuOption = {
   label: string
-  value: string
+  value: Theme
   Icon: IconComponent
 }
 
@@ -29,7 +29,7 @@ export function ThemeMenu({
   optionsWidthCh: number
   optionRefs: React.RefObject<Array<HTMLButtonElement | null>>
   optionsRef: React.RefObject<HTMLDivElement | null>
-  onOptionClick: (value: string, e: React.MouseEvent<HTMLButtonElement>) => void
+  onOptionClick: (value: Theme, e: React.MouseEvent<HTMLButtonElement>) => void
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
   leftSlot?: React.ReactNode
   bottomSlot?: React.ReactNode
@@ -37,7 +37,7 @@ export function ThemeMenu({
   const menuVariants = useMemo(
     () => ({
       hidden: { opacity: 0, y: -4 },
-      show: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
+      show: { opacity: 1, y: 0, transition: { delayChildren: stagger(0.05) } },
     }),
     [],
   )
