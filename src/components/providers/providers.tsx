@@ -1,7 +1,6 @@
-'use client'
-
 import type { ThemeName } from '@/lib/themes'
 import type { UnlockedMap } from '@/utils/achievements'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { AchievementsProvider } from './achievements-provider'
 import { ConfettiProvider } from './confetti-provider'
 import { PostHogProvider } from './posthog-provider'
