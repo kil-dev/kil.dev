@@ -188,22 +188,22 @@ export function ThemeOptionsSheet() {
             <>
               {visualTheme === 'christmas' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Disable snow</span>
+                  <span>Enable snow</span>
                   <MotionSwitch
-                    checked={disableSnow}
-                    onCheckedChange={setDisableSnow}
-                    aria-label="Disable snow"
+                    checked={!disableSnow}
+                    onCheckedChange={v => setDisableSnow(!v)}
+                    aria-label="Enable snow"
                     size="md"
                   />
                 </label>
               )}
               {visualTheme === 'matrix' && (
                 <label className="flex items-center justify-between gap-2 select-none w-full">
-                  <span>Disable code rain</span>
+                  <span>Enable code rain</span>
                   <MotionSwitch
-                    checked={disableCodeRain}
-                    onCheckedChange={setDisableCodeRain}
-                    aria-label="Disable code rain"
+                    checked={!disableCodeRain}
+                    onCheckedChange={v => setDisableCodeRain(!v)}
+                    aria-label="Enable code rain"
                     size="md"
                   />
                 </label>
@@ -214,11 +214,11 @@ export function ThemeOptionsSheet() {
                 return (
                   themeHasGrid && (
                     <label className="flex items-center justify-between gap-2 select-none w-full">
-                      <span>Disable grid lights</span>
+                      <span>Enable grid lights</span>
                       <MotionSwitch
-                        checked={disableGridLights}
-                        onCheckedChange={setDisableGridLights}
-                        aria-label="Disable grid lights"
+                        checked={!disableGridLights}
+                        onCheckedChange={v => setDisableGridLights(!v)}
+                        aria-label="Enable grid lights"
                         size="md"
                       />
                     </label>
