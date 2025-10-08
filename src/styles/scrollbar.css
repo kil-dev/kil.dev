@@ -1,0 +1,38 @@
+/* Scrollbar */
+
+/* Firefox */
+html {
+  --scrollbar-size: 12px;
+  --separator-thickness: 0.5px;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  background-color: var(--background);
+  color-scheme: light;
+  scrollbar-color: color-mix(in oklch, var(--primary) 65%, transparent) var(--background);
+}
+
+/* Ensure dark mode updates the UA color-scheme to restyle scrollbars/gutter */
+html.dark {
+  color-scheme: dark;
+}
+
+/* WebKit/Chromium */
+html::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--primary) 65%, transparent);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklch, var(--primary) 85%, transparent);
+}
