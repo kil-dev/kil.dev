@@ -6,6 +6,44 @@ import { getSkillIconUrl } from '@/utils/skillicons'
 import Image from 'next/image'
 import Link from 'next/link'
 
+function SkillIconInner({ name, icon }: Pick<SkillEntry, 'name' | 'icon'>) {
+  return (
+    <span
+      role="img"
+      aria-label={name}
+      className="inline-flex items-center justify-center size-[28px] rounded-md ring-1 ring-border overflow-hidden">
+      <span className="relative size-full">
+        <Image src={getSkillIconUrl(icon)} alt={name} fill sizes="28px" className="object-contain" loading="lazy" />
+      </span>
+    </span>
+  )
+}
+
+function SkillIcon({ name, icon, url }: Pick<SkillEntry, 'name' | 'icon' | 'url'>) {
+  const content = <SkillIconInner name={name} icon={icon} />
+
+  if (!url) return content
+
+  return (
+    <Link
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Open ${name} homepage`}
+      onClick={e => {
+        e.stopPropagation()
+      }}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.stopPropagation()
+        }
+      }}
+      className="inline-flex items-center justify-center focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary rounded-md">
+      {content}
+    </Link>
+  )
+}
+
 interface SkillIconsProps {
   skills: SkillEntry[]
   staggerOnOpen?: boolean
@@ -42,47 +80,7 @@ export function SkillIcons({
           <span key={name} className={wrapperClass} style={wrapperStyle}>
             <Tooltip>
               <TooltipTrigger asChild>
-                {(() => {
-                  const homepage = url
-                  const content = (
-                    <span
-                      role="img"
-                      aria-label={name}
-                      className="inline-flex items-center justify-center size-[28px] rounded-md ring-1 ring-border overflow-hidden">
-                      <span className="relative size-full">
-                        <Image
-                          src={getSkillIconUrl(icon)}
-                          alt={name}
-                          fill
-                          sizes="28px"
-                          className="object-contain"
-                          loading="lazy"
-                        />
-                      </span>
-                    </span>
-                  )
-
-                  if (!homepage) return content
-
-                  return (
-                    <Link
-                      href={homepage}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open ${name} homepage`}
-                      onClick={e => {
-                        e.stopPropagation()
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.stopPropagation()
-                        }
-                      }}
-                      className="inline-flex items-center justify-center focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary rounded-md">
-                      {content}
-                    </Link>
-                  )
-                })()}
+                <SkillIcon name={name} icon={icon} url={url} />
               </TooltipTrigger>
               <TooltipContent>{name}</TooltipContent>
             </Tooltip>
