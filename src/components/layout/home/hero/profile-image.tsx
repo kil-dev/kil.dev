@@ -4,6 +4,7 @@ import { useAchievements } from '@/components/providers/achievements-provider'
 import { useKonamiAnimation } from '@/components/providers/konami-animation-provider'
 import { captureLadybirdDetected, captureProfileImageClicked } from '@/hooks/posthog'
 import { useHash } from '@/hooks/use-hash'
+import { useIsClient } from '@/hooks/use-is-client'
 import * as Headshots from '@/images/headshot'
 import { type AchievementId } from '@/lib/achievements'
 import { HOME_CONTENT } from '@/lib/content'
@@ -27,7 +28,7 @@ export function ProfileImage() {
   const { isAnimating, hasAnimated, isReturning } = useKonamiAnimation()
   const { unlock, has } = useAchievements()
   const hash = useHash()
-  const [mounted, setMounted] = useState(false)
+  const mounted = useIsClient()
   const [isImageLoaded, setIsImageLoaded] = useState(true)
   const useConfused = mounted && hash === '#YouWereAlreadyHere'
   const [isGrumpy, setIsGrumpy] = useState(false)
@@ -83,9 +84,7 @@ export function ProfileImage() {
     }
   }, [isLadybird, useConfused, has, unlock])
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // mounted now provided by useIsClient
 
   const handleClick = useCallback(() => {
     if (isGrumpy) return

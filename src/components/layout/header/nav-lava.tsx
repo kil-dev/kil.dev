@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import { useAchievements } from '@/components/providers/achievements-provider'
+import { useIsClient } from '@/hooks/use-is-client'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
 
@@ -30,8 +31,7 @@ export function NavLava() {
   const didInitRef = React.useRef(false)
   const baseItems = React.useMemo(() => NAVIGATION, [])
   const { has } = useAchievements()
-  const [isMounted, setIsMounted] = React.useState(false)
-  React.useEffect(() => setIsMounted(true), [])
+  const isMounted = useIsClient()
 
   // Read initial DOM data attributes (set pre-hydration) to avoid first-render mismatch
   const [initialDomFlags] = React.useState(() => {

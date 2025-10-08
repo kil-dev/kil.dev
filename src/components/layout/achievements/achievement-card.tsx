@@ -4,19 +4,15 @@ import { AchievementCardBack } from '@/components/layout/achievements/achievemen
 import { AchievementCardFront } from '@/components/layout/achievements/achievement-card-front'
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { FlippingCard } from '@/components/ui/flipping-card'
+import { useIsClient } from '@/hooks/use-is-client'
 import unknownAchievementImage from '@/images/achievements/unknown.webp'
 import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
 import { isLadybirdUA } from '@/utils/ladybird'
 import { format, isValid as isValidDate, parseISO } from 'date-fns'
-import { useEffect, useState } from 'react'
 
 export function AchievementCard({ id, initialUnlockedAt }: { id: AchievementId; initialUnlockedAt?: string }) {
   const { unlocked } = useAchievements()
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const isMounted = useIsClient()
 
   // After mount, prefer client state. During SSR/first paint, fall back to server-sent value
   const unlockedAt = isMounted ? unlocked[id] : initialUnlockedAt

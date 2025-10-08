@@ -5,6 +5,7 @@ import { useTheme } from '@/components/providers/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { captureThemeChanged } from '@/hooks/posthog'
+import { useIsClient } from '@/hooks/use-is-client'
 import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
@@ -22,9 +23,8 @@ import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 function SystemIcon({ className }: { className?: string }) {
   // Avoid hydration mismatch: default to Seasonal icon until mounted
   const { seasonalOverlaysEnabled } = useTheme()
-  const [hydrated, setHydrated] = useState(false)
-  useEffect(() => setHydrated(true), [])
-  if (!hydrated) {
+  const isClient = useIsClient()
+  if (!isClient) {
     return <CalendarDays className={cn(className)} />
   }
   return seasonalOverlaysEnabled ? <CalendarDays className={cn(className)} /> : <Monitor className={cn(className)} />
@@ -57,12 +57,9 @@ export function ThemeToggle() {
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const optionsRef = useRef<HTMLDivElement | null>(null)
 
-  const [hydrated, setHydrated] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(0)
   const [showOptions, setShowOptions] = useState(false)
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
+  const isClient = useIsClient()
 
   // Force re-render after achievement state changes to ensure localStorage sync
   useEffect(() => {
@@ -91,7 +88,7 @@ export function ThemeToggle() {
     })
   }, [])
 
-  const showSystemOverlay = hydrated && open && currentPreference === 'system'
+  const showSystemOverlay = isClient && open && currentPreference === 'system'
   const spinCss = `@keyframes kd-spin-trail{0%{transform:rotate(0deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}70%{transform:rotate(320deg) scale(1.1);filter:drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 0 6px color-mix(in oklch,var(--primary) 70%,transparent)) drop-shadow(0 0 12px color-mix(in oklch,var(--accent,var(--primary)) 50%,transparent))}100%{transform:rotate(360deg) scale(1);filter:drop-shadow(0 0 0 rgba(0,0,0,0))}}.theme-system-overlay-anim{animation:kd-spin-trail 260ms ease-out;will-change:transform,filter}`
 
   // Prevent background scrolling when menu is open (all breakpoints)
@@ -347,7 +344,7 @@ export function ThemeToggle() {
             onKeyDown={handleTriggerKeyDown}
             className={cn(
               'relative hover:ring-accent hover:ring-1 hover:ring-offset-2 ring-offset-background',
-              hydrated ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
+              isClient ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
               open ? 'z-[120] ring-1 ring-accent ring-offset-2 scale-95 rotate-3' : 'z-[70]',
             )}>
             <span className="relative inline-block align-middle">
@@ -414,7 +411,7 @@ export function ThemeToggle() {
           'flex flex-col items-stretch gap-3',
           open ? 'pointer-events-auto' : 'pointer-events-none',
         )}>
-        {hydrated && (
+        {isClient && (
           <fieldset
             className={cn(
               'p-3 pt-8 transition-all duration-200 ease-out relative',

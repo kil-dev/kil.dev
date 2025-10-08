@@ -4,6 +4,7 @@ import { MobileNavButton } from '@/components/layout/header/mobile-nav-button'
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
+import { useIsClient } from '@/hooks/use-is-client'
 import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
 import { NAVIGATION } from '@/lib/navmenu'
 import { cn } from '@/utils/utils'
@@ -20,8 +21,7 @@ export function MobileNav() {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
   const [openedViaKeyboard, setOpenedViaKeyboard] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  useEffect(() => setIsMounted(true), [])
+  const isMounted = useIsClient()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([])
   type Particle = {
