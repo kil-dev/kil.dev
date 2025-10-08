@@ -23,17 +23,17 @@ export function ThemeMenu({
   onKeyDown,
   leftSlot,
   bottomSlot,
-}: {
+}: Readonly<{
   open: boolean
   options: ThemeMenuOption[]
   optionsWidthCh: number
-  optionRefs: React.MutableRefObject<Array<HTMLButtonElement | null>>
-  optionsRef: React.MutableRefObject<HTMLDivElement | null>
+  optionRefs: React.RefObject<Array<HTMLButtonElement | null>>
+  optionsRef: React.RefObject<HTMLDivElement | null>
   onOptionClick: (value: string, e: React.MouseEvent<HTMLButtonElement>) => void
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
   leftSlot?: React.ReactNode
   bottomSlot?: React.ReactNode
-}) {
+}>) {
   const menuVariants = useMemo(
     () => ({
       hidden: { opacity: 0, y: -4 },

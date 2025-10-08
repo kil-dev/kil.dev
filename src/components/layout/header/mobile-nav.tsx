@@ -271,7 +271,7 @@ export function MobileNav() {
   }, [open])
 
   return (
-    <div ref={containerRef as React.MutableRefObject<HTMLDivElement | null>} className="relative">
+    <div ref={containerRef as React.RefObject<HTMLDivElement | null>} className="relative">
       <div className="relative inline-block nav:hidden">
         <Button
           ref={triggerRef}

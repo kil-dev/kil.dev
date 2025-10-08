@@ -9,10 +9,10 @@ type UseThemeMenuStateResult = {
   setOpen: (next: boolean | ((prev: boolean) => boolean)) => void
   openedViaKeyboard: boolean
   setOpenedViaKeyboard: (v: boolean) => void
-  containerRef: React.MutableRefObject<HTMLDivElement | null>
-  triggerRef: React.MutableRefObject<HTMLButtonElement | null>
-  optionsRef: React.MutableRefObject<HTMLDivElement | null>
-  optionRefs: React.MutableRefObject<Array<HTMLButtonElement | null>>
+  containerRef: React.RefObject<HTMLDivElement | null>
+  triggerRef: React.RefObject<HTMLButtonElement | null>
+  optionsRef: React.RefObject<HTMLDivElement | null>
+  optionRefs: React.RefObject<Array<HTMLButtonElement | null>>
   overlayProps: {
     role: 'button'
     tabIndex: number
@@ -145,7 +145,7 @@ export function useThemeMenuState(): UseThemeMenuStateResult {
     setOpen,
     openedViaKeyboard,
     setOpenedViaKeyboard,
-    containerRef: containerRef as React.MutableRefObject<HTMLDivElement | null>,
+    containerRef: containerRef as React.RefObject<HTMLDivElement | null>,
     triggerRef,
     optionsRef,
     optionRefs,

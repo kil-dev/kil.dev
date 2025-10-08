@@ -10,7 +10,7 @@ type OverlayDismissOptions = {
 type OverlayDismissResult = {
   open: boolean
   setOpen: (next: boolean | ((prev: boolean) => boolean)) => void
-  containerRef: React.MutableRefObject<HTMLElement | null>
+  containerRef: React.RefObject<HTMLElement | null>
   overlayProps: {
     role: 'button'
     tabIndex: number
