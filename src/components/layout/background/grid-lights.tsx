@@ -197,22 +197,17 @@ export function GridLights() {
   const near = LIGHT_GRID.GLOW_NEAR_PX
   const far = LIGHT_GRID.GLOW_FAR_PX
 
-  const lightIds = useMemo(() => {
-    const makeId = (): string => {
-      const maybe = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto?.randomUUID?.()
-      return maybe ?? `gl-${Math.random().toString(36).slice(2)}`
-    }
-    return Array.from({ length: numLights }, () => makeId())
-  }, [numLights])
+  // Use stable indices for keys to avoid hydration mismatches; lights are never reordered
+  const lightIndices = useMemo(() => Array.from({ length: numLights }, (_, i) => i), [numLights])
 
   if (prefersReducedMotion || disableGridLights) return null
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden" aria-hidden>
       {styleText ? <style>{styleText}</style> : null}
-      {lightIds.map((id, i) => (
+      {lightIndices.map(i => (
         <div
-          key={id}
+          key={i}
           className={`${dotClass} gl-${i}`}
           style={{
             width: `${LIGHT_GRID.DOT_SIZE_PX}px`,
