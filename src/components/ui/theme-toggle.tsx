@@ -16,8 +16,14 @@ import { getThemeIcon, getThemeLabel } from '@/utils/themes'
 import { cn, isSafari } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { CalendarDays, Monitor, Settings } from 'lucide-react'
-import type { MouseEvent as ReactMouseEvent } from 'react'
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentType,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
 import { ThemeOptionsPanel, ThemeOptionsSheet } from './theme-options-panel'
 
 function SystemIcon({ className }: { className?: string }) {
