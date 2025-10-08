@@ -619,6 +619,51 @@ html[data-has-pet-gallery='true'][data-pet-gallery-just-unlocked='true'] .js-pet
   }
 }
 
+/* Theme Toggle overlay spin animation */
+@keyframes kd-spin-trail {
+  0% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+  70% {
+    transform: rotate(320deg) scale(1.1);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0))
+      drop-shadow(0 0 6px color-mix(in oklch, var(--primary) 70%, transparent))
+      drop-shadow(0 0 12px color-mix(in oklch, var(--accent, var(--primary)) 50%, transparent));
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+}
+
+.theme-system-overlay-anim {
+  animation: kd-spin-trail 260ms ease-out;
+  will-change: transform, filter;
+}
+
+/* View Transition circle blur animation using CSS variables for origin */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: none;
+  }
+  ::view-transition-new(root) {
+    animation: kd-circle-blur-expand 0.5s ease-out;
+    transform-origin: var(--vt-ox, 50%) var(--vt-oy, 50%);
+    filter: blur(0);
+  }
+  @keyframes kd-circle-blur-expand {
+    from {
+      clip-path: circle(0% at var(--vt-ox, 50%) var(--vt-oy, 50%));
+      filter: blur(4px);
+    }
+    to {
+      clip-path: circle(150% at var(--vt-ox, 50%) var(--vt-oy, 50%));
+      filter: blur(0);
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html[data-has-achievements='true'] .js-achievements-nav {
     animation: none;
