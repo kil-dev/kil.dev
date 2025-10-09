@@ -1,5 +1,9 @@
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
+export function formatTailNoSuchFile(path: string): string {
+  return `tail: ${path}: No such file`
+}
+
 function parseCountFlag(args: string[]): { count: number; pathStart: number } | undefined {
   let count = 10
   let i = 0
@@ -18,12 +22,12 @@ function executeTail(args: string[], env: SecretConsoleEnv) {
   const n = parsed ? parsed.count : 10
   const target = args.slice(i).join(' ')
   if (!target) {
-    env.appendOutput('usage: tail [-n N] <path>')
+    env.appendOutput(`usage: ${tail.usage}`)
     return
   }
   const content = env.read(target)
   if (content === undefined) {
-    env.appendOutput(`tail: ${target}: No such file`)
+    env.appendOutput(formatTailNoSuchFile(target))
     return
   }
   const parts = content.split('\n')

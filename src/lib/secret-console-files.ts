@@ -1,4 +1,4 @@
-import type { VfsNode } from '@/utils/secret-console-vfs'
+import type { VfsNode } from '@/types/secret-console'
 
 export const SECRET_CONSOLE_VFS: VfsNode = {
   type: 'dir',

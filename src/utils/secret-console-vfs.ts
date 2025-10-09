@@ -1,4 +1,4 @@
-export type VfsNode = { type: 'dir'; children: Record<string, VfsNode> } | { type: 'file'; content: string }
+import type { VfsNode } from '@/types/secret-console'
 
 export function normalizePath(path: string): string {
   if (!path) return '/'

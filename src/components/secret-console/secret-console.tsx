@@ -149,7 +149,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       const resolved = resolveSecretConsoleCommand(cmd)
       if (resolved) {
         const command = SECRET_CONSOLE_COMMANDS[resolved]
-        command.execute(args, env)
+        command?.execute(args, env)
       } else {
         appendOutput(`command not found: ${cmd}`)
       }

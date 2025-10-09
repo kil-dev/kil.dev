@@ -19,3 +19,5 @@ export type SecretConsoleCommand = {
     flags?: readonly string[]
   }
 }
+
+export type VfsNode = { type: 'dir'; children: Record<string, VfsNode> } | { type: 'file'; content: string }

@@ -1,5 +1,9 @@
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
+export function formatHeadNoSuchFile(path: string): string {
+  return `head: ${path}: No such file`
+}
+
 function parseCountFlag(args: string[]): { count: number; pathStart: number } | undefined {
   let count = 10
   let i = 0
@@ -18,12 +22,12 @@ function executeHead(args: string[], env: SecretConsoleEnv) {
   const n = parsed ? parsed.count : 10
   const target = args.slice(i).join(' ')
   if (!target) {
-    env.appendOutput('usage: head [-n N] <path>')
+    env.appendOutput(`usage: ${head.usage}`)
     return
   }
   const content = env.read(target)
   if (content === undefined) {
-    env.appendOutput(`head: ${target}: No such file`)
+    env.appendOutput(formatHeadNoSuchFile(target))
     return
   }
   const lines = content.split('\n').slice(0, n).join('\n')

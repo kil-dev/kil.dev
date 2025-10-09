@@ -1,4 +1,3 @@
-import type { SecretConsoleCommand } from '@/types/secret-console'
 import { Commands } from '@/utils/console'
 
 export const SECRET_CONSOLE_COMMANDS = Commands
@@ -11,8 +10,7 @@ function isSecretConsoleCommandName(name: string): name is SecretConsoleCommandN
 
 export function resolveSecretConsoleCommand(name: string): SecretConsoleCommandName | undefined {
   if (isSecretConsoleCommandName(name)) return name
-  const entries = Object.entries(SECRET_CONSOLE_COMMANDS) as Array<[SecretConsoleCommandName, SecretConsoleCommand]>
-  for (const [cmd, def] of entries) {
+  for (const [cmd, def] of Object.entries(SECRET_CONSOLE_COMMANDS)) {
     if (def.aliases?.includes(name)) return cmd
   }
   return undefined
