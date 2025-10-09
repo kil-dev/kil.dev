@@ -35,7 +35,7 @@
     "@radix-ui/react-tooltip": "1.2.8",
     "@t3-oss/env-nextjs": "0.13.8",
     "@upstash/ratelimit": "2.0.6",
-    "@upstash/redis": "1.35.4",
+    "@upstash/redis": "1.35.5",
     "@vercel/blob": "2.0.0",
     "canvas-confetti": "1.9.3",
     "class-variance-authority": "0.7.1",
