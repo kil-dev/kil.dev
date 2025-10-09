@@ -1,5 +1,6 @@
 import { themes, type Theme } from '@/lib/themes'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
+import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { maybeStartViewTransition } from '@/utils/view-transition'
 
 // Get all themes available through the secret console
@@ -35,6 +36,77 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
     env.appendOutput(`Invalid or unavailable theme: ${requestedTheme}`)
     env.appendOutput(`Available themes: ${availableThemes.join(', ')}`)
     return
+  }
+
+  // Check if theme is already set or visually the same
+  try {
+    const currentTheme = localStorage.getItem('theme') ?? 'system'
+    if (currentTheme === requestedTheme) {
+      env.appendOutput(`Theme is already set to: ${requestedTheme}`)
+      return
+    }
+
+    const root = document.documentElement
+    const seasonalDefault = root.dataset.seasonalDefault // The active seasonal theme (if any)
+    const appliedTheme = root.dataset.appliedTheme // The base theme (light/dark) or explicit theme
+
+    // Check if switching FROM system TO explicit theme with same visual
+    if (currentTheme === 'system') {
+      // If there's a seasonal overlay active, always play the transition when switching to explicit theme
+      // because we're going from seasonal (e.g., halloween) to explicit (e.g., dark)
+      if (seasonalDefault && seasonalDefault.length > 0) {
+        // Seasonal theme is active, so switching to any explicit theme is a visual change
+        // Continue to play transition
+      } else {
+        // No seasonal theme, check if base theme matches
+        if (appliedTheme === requestedTheme) {
+          env.appendOutput(`Theme is already visually ${requestedTheme} (setting explicitly to ${requestedTheme})`)
+          // Still allow the change to happen (it changes the preference), but skip the transition
+          localStorage.setItem('theme', requestedTheme)
+          localStorage.setItem('theme_updatedAt', String(Date.now()))
+          globalThis.dispatchEvent(
+            new StorageEvent('storage', {
+              key: 'theme',
+              newValue: requestedTheme,
+              storageArea: localStorage,
+            }),
+          )
+          return
+        }
+      }
+    }
+
+    // Check if switching FROM explicit theme TO system with same visual
+    if (requestedTheme === 'system' && (currentTheme === 'light' || currentTheme === 'dark')) {
+      // Check if there's a seasonal theme that WOULD activate when switching to system
+      const activeSeasonalThemes = getActiveSeasonalThemes()
+      const seasonalOverlaysEnabled = root.dataset.seasonalOverlaysEnabled !== '0'
+      const wouldHaveSeasonal = activeSeasonalThemes.length > 0 && seasonalOverlaysEnabled
+
+      if (wouldHaveSeasonal) {
+        // Seasonal would activate, so it's a visual change - play transition
+      } else {
+        // No seasonal would activate, check if system preference matches current explicit theme
+        const systemPrefersDark = globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false
+        const systemTheme = systemPrefersDark ? 'dark' : 'light'
+        if (systemTheme === currentTheme) {
+          env.appendOutput(`Theme is already visually ${currentTheme} (switching to system preference)`)
+          // Still allow the change to happen (it changes the preference), but skip the transition
+          localStorage.setItem('theme', requestedTheme)
+          localStorage.setItem('theme_updatedAt', String(Date.now()))
+          globalThis.dispatchEvent(
+            new StorageEvent('storage', {
+              key: 'theme',
+              newValue: requestedTheme,
+              storageArea: localStorage,
+            }),
+          )
+          return
+        }
+      }
+    }
+  } catch {
+    // Continue if we can't read current theme
   }
 
   try {
