@@ -1,7 +1,7 @@
+import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
-import { getConsoleAvailableThemes } from './theme'
 
-export type CompletionContext = {
+type CompletionContext = {
   commands: Readonly<Record<string, SecretConsoleCommand>>
   resolveCommand: (name: string) => string | undefined
   cwd: string
@@ -9,14 +9,14 @@ export type CompletionContext = {
   normalizePath: (path: string) => string
 }
 
-export type CompletionResult = {
+type CompletionResult = {
   value: string
   caret: number
   suggestions?: string[]
 }
 
 // helpers
-export function longestCommonPrefix(arr: string[]): string {
+function longestCommonPrefix(arr: string[]): string {
   if (arr.length === 0) return ''
   let p = arr[0]!
   for (let i = 1; i < arr.length; i++) {
@@ -29,7 +29,7 @@ export function longestCommonPrefix(arr: string[]): string {
   return p
 }
 
-export function completeFirstTokenCommands(
+function completeFirstTokenCommands(
   token: string,
   before: string,
   after: string,
@@ -63,7 +63,7 @@ export function completeFirstTokenCommands(
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
-export function completeFlags(
+function completeFlags(
   token: string,
   before: string,
   after: string,
@@ -91,7 +91,7 @@ export function completeFlags(
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
-export function completeArgCommands(
+function completeArgCommands(
   token: string,
   before: string,
   after: string,
@@ -124,7 +124,7 @@ export function completeArgCommands(
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: matches }
 }
 
-export function completeVfs(
+function completeVfs(
   token: string,
   before: string,
   after: string,
@@ -178,10 +178,12 @@ export function completeVfs(
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
-export function completeThemes(token: string, before: string, after: string): CompletionResult | null {
+function completeThemes(token: string, before: string, after: string): CompletionResult | null {
   // Get available themes including alwaysHidden ones for secret console
-  const allThemes = getConsoleAvailableThemes()
-  const filtered = allThemes.filter(t => t.startsWith(token))
+  // Filter out only truly hidden themes (alwaysHidden), but include hiddenFromMenu themes
+  const availableThemeNames: string[] = themes.filter(t => !('alwaysHidden' in t && t.alwaysHidden)).map(t => t.name)
+  const allThemes: string[] = ['system', ...availableThemeNames]
+  const filtered: string[] = allThemes.filter(t => t.startsWith(token))
 
   if (filtered.length === 0) return { value: `${before}${token}${after}`, caret: (before + token).length }
   if (filtered.length === 1) {

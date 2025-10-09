@@ -4,10 +4,10 @@ import { maybeStartViewTransition } from '@/utils/view-transition'
 
 // Get all themes available through the secret console
 // Includes themes with hiddenFromMenu but excludes alwaysHidden themes
-export function getConsoleAvailableThemes(): Theme[] {
+function getConsoleAvailableThemes(): string[] {
   // Filter out only truly hidden themes (alwaysHidden), but include hiddenFromMenu themes
   const availableThemeNames = themes.filter(t => !('alwaysHidden' in t && t.alwaysHidden)).map(t => t.name)
-  return ['system', ...availableThemeNames] as Theme[]
+  return ['system', ...availableThemeNames]
 }
 
 function executeTheme(args: string[], env: SecretConsoleEnv) {
