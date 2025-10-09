@@ -1,4 +1,5 @@
 import { ACHIEVEMENTS } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   achievements,
@@ -92,7 +93,7 @@ describe('achievements command', () => {
     it('should show unlocked achievements when some are unlocked', () => {
       // Mock some unlocked achievements
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
           KONAMI_KILLER: '2024-01-16T12:00:00.000Z',
@@ -118,7 +119,7 @@ describe('achievements command', () => {
       for (const id of Object.keys(ACHIEVEMENTS)) {
         allUnlocked[id] = '2024-01-15T10:00:00.000Z'
       }
-      localStorage.setItem('kil.dev/achievements/v1', JSON.stringify(allUnlocked))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(allUnlocked))
 
       const { env, output } = createMockEnv()
       achievements.execute([], env)
@@ -134,7 +135,7 @@ describe('achievements command', () => {
   describe('list subcommand', () => {
     it('should list achievements with compact format', () => {
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
         }),
@@ -170,7 +171,7 @@ describe('achievements command', () => {
 
     it('should show error when trying to get hint for unlocked achievement', () => {
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
         }),
@@ -221,7 +222,7 @@ describe('achievements command', () => {
     it('should show full details for unlocked achievement', () => {
       const timestamp = '2024-01-15T10:30:00.000Z'
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: timestamp,
         }),
@@ -266,7 +267,7 @@ describe('achievements command', () => {
 
     it('should handle achievements with invalid timestamps gracefully', () => {
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: 'invalid-date',
         }),
@@ -296,7 +297,7 @@ describe('achievements command', () => {
   describe('getHintableAchievementNumbers', () => {
     it('should return numbers for locked achievements', () => {
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
           EXPERIENCE_EXPLORER: '2024-01-16T10:00:00.000Z',
@@ -322,7 +323,7 @@ describe('achievements command', () => {
       for (const id of Object.keys(ACHIEVEMENTS)) {
         allUnlocked[id] = '2024-01-15T10:00:00.000Z'
       }
-      localStorage.setItem('kil.dev/achievements/v1', JSON.stringify(allUnlocked))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(allUnlocked))
 
       const hintable = getHintableAchievementNumbers()
       expect(hintable.length).toBe(0)
@@ -332,7 +333,7 @@ describe('achievements command', () => {
   describe('getShowableAchievementNumbers', () => {
     it('should return numbers for unlocked achievements', () => {
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
           EXPERIENCE_EXPLORER: '2024-01-16T10:00:00.000Z',
@@ -355,7 +356,7 @@ describe('achievements command', () => {
       for (const id of Object.keys(ACHIEVEMENTS)) {
         allUnlocked[id] = '2024-01-15T10:00:00.000Z'
       }
-      localStorage.setItem('kil.dev/achievements/v1', JSON.stringify(allUnlocked))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(allUnlocked))
 
       const showable = getShowableAchievementNumbers()
       const totalAchievements = Object.keys(ACHIEVEMENTS).length

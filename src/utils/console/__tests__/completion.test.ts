@@ -1,3 +1,4 @@
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { normalizePath } from '../../secret-console-vfs'
 import { computeTabCompletion } from '../completion'
@@ -425,7 +426,7 @@ describe('tab completion', () => {
     it('shows gated pages when achievements are unlocked', () => {
       // Mock unlocked achievements
       globalThis.localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({ RECURSIVE_REWARD: '2024-01-01', PET_PARADE: '2024-01-01' }),
       )
 
@@ -560,7 +561,7 @@ describe('tab completion', () => {
     it('completes unlocked achievement numbers for show subcommand', () => {
       // Mock some unlocked achievements
       localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({
           ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
           KONAMI_KILLER: '2024-01-16T12:00:00.000Z',

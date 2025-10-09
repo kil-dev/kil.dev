@@ -1,3 +1,4 @@
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getAvailablePageNames, nav } from '../nav'
 import { createMockEnv } from './test-utils'
@@ -110,7 +111,7 @@ describe('nav command', () => {
     it('should list achievements page when RECURSIVE_REWARD is unlocked', () => {
       // Mock unlocked achievement
       globalThis.window.localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({ RECURSIVE_REWARD: '2024-01-01' }),
       )
 
@@ -124,7 +125,10 @@ describe('nav command', () => {
 
     it('should list pet-gallery page when PET_PARADE is unlocked', () => {
       // Mock unlocked achievement
-      globalThis.window.localStorage.setItem('kil.dev/achievements/v1', JSON.stringify({ PET_PARADE: '2024-01-01' }))
+      globalThis.window.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
+        JSON.stringify({ PET_PARADE: '2024-01-01' }),
+      )
 
       const { env, output } = createMockEnv()
       nav.execute([], env)
@@ -137,7 +141,7 @@ describe('nav command', () => {
     it('should list all pages when all achievements are unlocked', () => {
       // Mock unlocked achievements
       globalThis.window.localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({ RECURSIVE_REWARD: '2024-01-01', PET_PARADE: '2024-01-01' }),
       )
 
@@ -208,7 +212,7 @@ describe('nav command', () => {
 
     it('should dispatch navigation event for achievements when RECURSIVE_REWARD is unlocked', () => {
       globalThis.window.localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({ RECURSIVE_REWARD: '2024-01-01' }),
       )
 
@@ -237,7 +241,10 @@ describe('nav command', () => {
     })
 
     it('should dispatch navigation event for pet-gallery when PET_PARADE is unlocked', () => {
-      globalThis.window.localStorage.setItem('kil.dev/achievements/v1', JSON.stringify({ PET_PARADE: '2024-01-01' }))
+      globalThis.window.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
+        JSON.stringify({ PET_PARADE: '2024-01-01' }),
+      )
 
       const { env } = createMockEnv()
       vi.clearAllMocks()
@@ -281,7 +288,7 @@ describe('nav command', () => {
 
     it('should include achievements when RECURSIVE_REWARD is unlocked', () => {
       globalThis.window.localStorage.setItem(
-        'kil.dev/achievements/v1',
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
         JSON.stringify({ RECURSIVE_REWARD: '2024-01-01' }),
       )
 
@@ -292,7 +299,10 @@ describe('nav command', () => {
     })
 
     it('should include pet-gallery when PET_PARADE is unlocked', () => {
-      globalThis.window.localStorage.setItem('kil.dev/achievements/v1', JSON.stringify({ PET_PARADE: '2024-01-01' }))
+      globalThis.window.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
+        JSON.stringify({ PET_PARADE: '2024-01-01' }),
+      )
 
       const pages = getAvailablePageNames()
 
