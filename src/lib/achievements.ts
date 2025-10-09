@@ -119,7 +119,7 @@ export const ACHIEVEMENTS = {
     imageAlt: 'Console Commander',
     cardDescription:
       'You found the hidden developer console and unlocked a whole new way to interact with this site. Power user detected!',
-    unlockHint: 'There might be a secret console hidden somewhere. Try looking at the page more carefully...',
+    unlockHint: "What is that key next to the '1' on your keyboard? Tilde? Backtick? Grave? Hm, suspicious...",
     confetti: true,
   },
   MATRIX_MAESTRO: {
