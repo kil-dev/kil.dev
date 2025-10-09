@@ -1,5 +1,6 @@
 'use client'
 
+import { COOKIE_KEYS, LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme, type ThemeName } from '@/lib/themes'
 import {
   getActiveSeasonalThemes,
@@ -68,7 +69,7 @@ const VALID_THEMES: ReadonlySet<Theme> = new Set(['system', ...themes.map(t => t
 
 function readCookieTheme(): Theme | undefined {
   try {
-    const re = new RegExp(`(?:^|; )${cookieKey('theme')}=([^;]+)`)
+    const re = new RegExp(`(?:^|; )${cookieKey(COOKIE_KEYS.THEME)}=([^;]+)`)
     const match = re.exec(document.cookie)
     if (match?.[1]) {
       const raw = match[1]
@@ -81,7 +82,7 @@ function readCookieTheme(): Theme | undefined {
 
 function readStorageTheme(): Theme | undefined {
   try {
-    const v = localStorage.getItem(storageKey('theme'))
+    const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.THEME))
     if (!v) return undefined
     return VALID_THEMES.has(v as Theme) ? (v as Theme) : undefined
   } catch {}
@@ -90,8 +91,8 @@ function readStorageTheme(): Theme | undefined {
 
 function readCookieThemeMeta(): { theme: Theme | undefined; updatedAt: number | undefined } {
   try {
-    const reTheme = new RegExp(`(?:^|; )${cookieKey('theme')}=([^;]+)`)
-    const reTs = new RegExp(`(?:^|; )${cookieKey('themeUpdatedAt')}=([^;]+)`)
+    const reTheme = new RegExp(`(?:^|; )${cookieKey(COOKIE_KEYS.THEME)}=([^;]+)`)
+    const reTs = new RegExp(`(?:^|; )${cookieKey(COOKIE_KEYS.THEME_UPDATED_AT)}=([^;]+)`)
     const mTheme = reTheme.exec(document.cookie)
     const mTs = reTs.exec(document.cookie)
     const themeRaw = mTheme?.[1] ? decodeURIComponent(mTheme[1]) : undefined
@@ -104,8 +105,8 @@ function readCookieThemeMeta(): { theme: Theme | undefined; updatedAt: number | 
 
 function readStorageThemeMeta(): { theme: Theme | undefined; updatedAt: number | undefined } {
   try {
-    const themeStr = localStorage.getItem(storageKey('theme')) ?? undefined
-    const tsStr = localStorage.getItem(storageKey('theme_updatedAt')) ?? undefined
+    const themeStr = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.THEME)) ?? undefined
+    const tsStr = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.THEME_UPDATED_AT)) ?? undefined
     const theme: Theme | undefined = themeStr && VALID_THEMES.has(themeStr as Theme) ? (themeStr as Theme) : undefined
     const updatedAt = tsStr ? Number(tsStr) : undefined
     return { theme, updatedAt: Number.isFinite(updatedAt) ? updatedAt : undefined }
@@ -119,13 +120,13 @@ function writeCookieTheme(value: Theme, updatedAt?: number) {
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
     const v = coerceToValidTheme(value)
     const ts = typeof updatedAt === 'number' && Number.isFinite(updatedAt) ? updatedAt : Date.now()
-    Cookies.set(cookieKey('theme'), v, {
+    Cookies.set(cookieKey(COOKIE_KEYS.THEME), v, {
       path: '/',
       maxAge: 31536000,
       samesite: 'lax',
       secure: isSecure === '; secure',
     })
-    Cookies.set(cookieKey('themeUpdatedAt'), String(ts), {
+    Cookies.set(cookieKey(COOKIE_KEYS.THEME_UPDATED_AT), String(ts), {
       path: '/',
       maxAge: 31536000,
       samesite: 'lax',
@@ -138,8 +139,8 @@ function writeStorageTheme(value: Theme, updatedAt?: number) {
   try {
     const v = coerceToValidTheme(value)
     const ts = typeof updatedAt === 'number' && Number.isFinite(updatedAt) ? updatedAt : Date.now()
-    localStorage.setItem(storageKey('theme'), v)
-    localStorage.setItem(storageKey('theme_updatedAt'), String(ts))
+    localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.THEME), v)
+    localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.THEME_UPDATED_AT), String(ts))
   } catch {}
 }
 
@@ -148,7 +149,7 @@ function writeCookieSystemTheme(value: SystemTheme | undefined) {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
-    Cookies.set(cookieKey('systemTheme'), value, {
+    Cookies.set(cookieKey(COOKIE_KEYS.SYSTEM_THEME), value, {
       path: '/',
       maxAge: 31536000,
       samesite: 'lax',
@@ -161,12 +162,12 @@ function readSeasonalOverlaysEnabled(): boolean {
   // default true (enabled)
   try {
     // cookie wins
-    const re = new RegExp(`(?:^|; )${cookieKey('seasonalOverlaysEnabled')}=([^;]+)`)
+    const re = new RegExp(`(?:^|; )${cookieKey(COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED)}=([^;]+)`)
     const m = re.exec(document.cookie)
     if (m?.[1]) return m[1] === '1'
   } catch {}
   try {
-    const v = localStorage.getItem(storageKey('seasonalOverlaysEnabled'))
+    const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.SEASONAL_OVERLAYS_ENABLED))
     if (v === '0') return false
     if (v === '1') return true
   } catch {}
@@ -177,7 +178,7 @@ function writeSeasonalOverlaysEnabled(value: boolean) {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
     const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
-    Cookies.set(cookieKey('seasonalOverlaysEnabled'), value ? '1' : '0', {
+    Cookies.set(cookieKey(COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED), value ? '1' : '0', {
       path: '/',
       maxAge: 31536000,
       samesite: 'lax',
@@ -185,7 +186,7 @@ function writeSeasonalOverlaysEnabled(value: boolean) {
     })
   } catch {}
   try {
-    localStorage.setItem(storageKey('seasonalOverlaysEnabled'), value ? '1' : '0')
+    localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.SEASONAL_OVERLAYS_ENABLED), value ? '1' : '0')
   } catch {}
   try {
     document.documentElement.dataset.seasonalOverlaysEnabled = value ? '1' : '0'
@@ -298,7 +299,7 @@ export function ThemeProvider({
   const [disableSnow, setDisableSnowState] = React.useState<boolean>(() => {
     if (typeof document === 'undefined') return false
     try {
-      const v = localStorage.getItem(storageKey('disableSnow'))
+      const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_SNOW))
       const val = v === '1'
       document.documentElement.dataset.disableSnow = val ? '1' : '0'
       return val
@@ -310,7 +311,7 @@ export function ThemeProvider({
   const [disableCodeRain, setDisableCodeRainState] = React.useState<boolean>(() => {
     if (typeof document === 'undefined') return false
     try {
-      const v = localStorage.getItem(storageKey('disableCodeRain'))
+      const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_CODE_RAIN))
       const val = v === '1'
       document.documentElement.dataset.disableCodeRain = val ? '1' : '0'
       return val
@@ -322,7 +323,7 @@ export function ThemeProvider({
   const [disableGridLights, setDisableGridLightsState] = React.useState<boolean>(() => {
     if (typeof document === 'undefined') return false
     try {
-      const v = localStorage.getItem(storageKey('disableGridLights'))
+      const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_GRID_LIGHTS))
       const val = v === '1'
       document.documentElement.dataset.disableGridLights = val ? '1' : '0'
       return val
@@ -334,7 +335,7 @@ export function ThemeProvider({
   const [disableThemeHeadshot, setDisableThemeHeadshotState] = React.useState<boolean>(() => {
     if (typeof document === 'undefined') return false
     try {
-      const v = localStorage.getItem(storageKey('disableThemeHeadshot'))
+      const v = localStorage.getItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_THEME_HEADSHOT))
       const val = v === '1'
       document.documentElement.dataset.disableThemeHeadshot = val ? '1' : '0'
       return val
@@ -390,7 +391,7 @@ export function ThemeProvider({
   })
 
   const onStorageChange = useEffectEvent((e: StorageEvent) => {
-    if (e.key !== storageKey('theme')) return
+    if (e.key !== storageKey(LOCAL_STORAGE_KEYS.THEME)) return
     const { theme: lsTheme, updatedAt } = readStorageThemeMeta()
     const next = coerceToValidTheme(lsTheme)
     setThemeState(next)
@@ -447,7 +448,7 @@ export function ThemeProvider({
   const setDisableSnow = React.useCallback((disabled: boolean) => {
     setDisableSnowState(disabled)
     try {
-      localStorage.setItem(storageKey('disableSnow'), disabled ? '1' : '0')
+      localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_SNOW), disabled ? '1' : '0')
     } catch {}
     try {
       document.documentElement.dataset.disableSnow = disabled ? '1' : '0'
@@ -457,7 +458,7 @@ export function ThemeProvider({
   const setDisableCodeRain = React.useCallback((disabled: boolean) => {
     setDisableCodeRainState(disabled)
     try {
-      localStorage.setItem(storageKey('disableCodeRain'), disabled ? '1' : '0')
+      localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_CODE_RAIN), disabled ? '1' : '0')
     } catch {}
     try {
       document.documentElement.dataset.disableCodeRain = disabled ? '1' : '0'
@@ -467,7 +468,7 @@ export function ThemeProvider({
   const setDisableGridLights = React.useCallback((disabled: boolean) => {
     setDisableGridLightsState(disabled)
     try {
-      localStorage.setItem(storageKey('disableGridLights'), disabled ? '1' : '0')
+      localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_GRID_LIGHTS), disabled ? '1' : '0')
     } catch {}
     try {
       document.documentElement.dataset.disableGridLights = disabled ? '1' : '0'
@@ -477,12 +478,12 @@ export function ThemeProvider({
   const setDisableThemeHeadshot = React.useCallback((disabled: boolean) => {
     setDisableThemeHeadshotState(disabled)
     try {
-      localStorage.setItem(storageKey('disableThemeHeadshot'), disabled ? '1' : '0')
+      localStorage.setItem(storageKey(LOCAL_STORAGE_KEYS.DISABLE_THEME_HEADSHOT), disabled ? '1' : '0')
     } catch {}
     try {
       const isProduction = process.env.NODE_ENV === 'production'
       const isSecure = globalThis.location.protocol === 'https:' || isProduction ? '; secure' : ''
-      Cookies.set(cookieKey('disableThemeHeadshot'), disabled ? '1' : '0', {
+      Cookies.set(cookieKey(COOKIE_KEYS.DISABLE_THEME_HEADSHOT), disabled ? '1' : '0', {
         path: '/',
         maxAge: 31536000,
         samesite: 'lax',

@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Build Scripts
+        run: bun run build:runtimes
+
       - name: Run Vitest (with JUnit + GA reporters)
         id: vitest
         continue-on-error: true
@@ -33,11 +36,14 @@ jobs:
           bun run test -- --reporter=github-actions --reporter=junit --outputFile=./reports/junit.xml
           echo "exit_code=$?" >> $GITHUB_OUTPUT
 
-      - name: Publish Vitest results as sticky PR comment
+      - name: Publish Vitest results
         if: github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: reports/junit.xml
+          check_name: Vitest
+          comment_mode: off
+          job_summary: true
 
       - name: Fail if tests failed
         if: steps.vitest.outputs.exit_code != '0'

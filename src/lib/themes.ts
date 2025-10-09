@@ -31,7 +31,7 @@ export const themes = [
     baseColor: 'dark',
     darkModeNote: '',
     disableGridLights: true,
-    requiresAchievement: true,
+    hiddenFromMenu: true,
   },
   {
     name: 'st-patricks',

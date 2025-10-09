@@ -110,6 +110,30 @@ export const ACHIEVEMENTS = {
       "That theme menu is a lot of fun to play with, really cool animation when it opens. I'd probably get sick of it after 5 or 6 times.",
     confetti: true,
   },
+  CONSOLE_COMMANDER: {
+    id: 'CONSOLE_COMMANDER',
+    title: 'Console Commander',
+    description: 'You discovered the secret console, I wonder what other secrets it holds?',
+    icon: '⌨️',
+    imageSrc: Images.ConsoleCommanderAchievement,
+    imageAlt: 'Console Commander',
+    cardDescription:
+      'You found the hidden developer console and unlocked a whole new way to interact with this site. Power user detected!',
+    unlockHint: "What is that key next to the '1' on your keyboard? Tilde? Backtick? Grave? Hm, suspicious...",
+    confetti: true,
+  },
+  MATRIX_MAESTRO: {
+    id: 'MATRIX_MAESTRO',
+    title: 'Enter The Matrix',
+    description: 'You took the red pill. Now you see the real world.',
+    icon: '💊',
+    imageSrc: Images.MatrixMaestroAchievement,
+    imageAlt: 'Enter The Matrix',
+    cardDescription:
+      'You followed the green code deeper than most dare to go. The Matrix theme was hidden, but you found it. Welcome to the real world.',
+    unlockHint: 'There is a hidden theme waiting for you. You just need to find it. Follow the white rabbit.',
+    confetti: true,
+  },
   KONAMI_KILLER: {
     id: 'KONAMI_KILLER',
     title: 'Konami Killer',

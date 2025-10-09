@@ -1,3 +1,4 @@
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme, type ThemeEntry, type ThemeName } from '@/lib/themes'
 import type { MonthDay } from '@/types/themes'
 import { THEME_RUNTIME_BUNDLE } from './theme-bundle'
@@ -15,7 +16,7 @@ function hasThemeTapdanceAchievement(): boolean {
 
   if (globalThis.window === undefined) return false
   try {
-    const stored = localStorage.getItem('kil.dev/achievements/v1')
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     if (!stored) return false
     const unlocked = JSON.parse(stored) as Record<string, unknown>
     return Boolean(unlocked.THEME_TAPDANCE)
@@ -31,7 +32,7 @@ type SeasonalThemeConfig = {
 }
 
 function hasTimeRange(entry: ThemeEntry): entry is ThemeEntry & { timeRange: { start: MonthDay; end: MonthDay } } {
-  return Object.prototype.hasOwnProperty.call(entry, 'timeRange')
+  return Object.hasOwn(entry, 'timeRange')
 }
 
 export const SEASONAL_THEMES: SeasonalThemeConfig[] = themes
@@ -41,6 +42,7 @@ export const SEASONAL_THEMES: SeasonalThemeConfig[] = themes
 const BASE_CSS_THEMES: ThemeName[] = themes
   .filter(t => !('timeRange' in t))
   .filter(t => !('alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden))
+  // Note: hiddenFromMenu themes (like matrix) are included in CSS but filtered from UI
   .map(t => t.name)
 
 function compareMonthDay(a: MonthDay, b: MonthDay): number {
@@ -80,13 +82,20 @@ export function getActiveSeasonalThemes(date: Date = new Date()): SeasonalThemeC
 }
 
 export function getAvailableThemes(date: Date = new Date(), overrideDateRestrictions = false): Theme[] {
+  // Exclude both alwaysHidden and hiddenFromMenu themes from the UI menu
   const hiddenNames = new Set(
     themes
-      .filter(t => 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden)
+      .filter(t => {
+        const isAlwaysHidden =
+          ('alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden) === true
+        const isHiddenFromMenu =
+          ('hiddenFromMenu' in t && (t as ThemeEntry & { hiddenFromMenu?: boolean }).hiddenFromMenu) === true
+        return isAlwaysHidden || isHiddenFromMenu
+      })
       .map(t => t.name),
   )
 
-  // Check if we should bypass date restrictions (but still exclude alwaysHidden)
+  // Check if we should bypass date restrictions (but still exclude hidden themes)
   if (overrideDateRestrictions || hasThemeTapdanceAchievement()) {
     const seasonalAll = SEASONAL_THEMES.map(st => st.theme).filter(name => !hiddenNames.has(name))
     return ['system', ...BASE_CSS_THEMES, ...seasonalAll]
@@ -107,7 +116,13 @@ export function getDefaultThemeForNow(date: Date = new Date()): Theme {
 export function buildThemeScript(): string {
   const hiddenNames = new Set(
     themes
-      .filter(t => 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden)
+      .filter(t => {
+        const isAlwaysHidden =
+          ('alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden) === true
+        const isHiddenFromMenu =
+          ('hiddenFromMenu' in t && (t as ThemeEntry & { hiddenFromMenu?: boolean }).hiddenFromMenu) === true
+        return isAlwaysHidden || isHiddenFromMenu
+      })
       .map(t => t.name),
   )
 

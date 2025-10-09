@@ -16,4 +16,5 @@ export type ThemeConfig = {
   enableSnow?: boolean
   requiresAchievement?: boolean
   alwaysHidden?: boolean
+  hiddenFromMenu?: boolean // Hidden from theme menu but accessible via console
 }

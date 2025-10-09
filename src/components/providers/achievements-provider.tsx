@@ -2,6 +2,7 @@
 
 import { captureAchievementUnlocked } from '@/hooks/posthog'
 import { ACHIEVEMENTS, ACHIEVEMENTS_COOKIE_NAME, type AchievementId } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { ThemeName } from '@/lib/themes'
 import {
   createEmptyUnlocked,
@@ -26,8 +27,6 @@ type AchievementsContextValue = {
 
 const AchievementsContext = createContext<AchievementsContextValue | null>(null)
 
-const STORAGE_KEY = 'kil.dev/achievements/v1'
-
 function areUnlockedEqual(a: UnlockedMap, b: UnlockedMap): boolean {
   const aKeys = Object.keys(a)
   const bKeys = Object.keys(b)
@@ -41,7 +40,7 @@ function areUnlockedEqual(a: UnlockedMap, b: UnlockedMap): boolean {
 function readFromStorage(): UnlockedMap {
   if (globalThis.window === undefined) return createEmptyUnlocked()
   try {
-    const raw = globalThis.window.localStorage.getItem(STORAGE_KEY)
+    const raw = globalThis.window.localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     return parseUnlockedStorage(raw)
   } catch {
     return createEmptyUnlocked()
@@ -51,7 +50,7 @@ function readFromStorage(): UnlockedMap {
 function writeToStorage(map: UnlockedMap) {
   if (globalThis.window === undefined) return
   try {
-    globalThis.window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map))
+    globalThis.window.localStorage.setItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(map))
   } catch {}
 }
 
@@ -73,7 +72,7 @@ export function AchievementsProvider({
   useEffect(() => {
     if (globalThis.window === undefined) return
     const onStorage = (e: StorageEvent) => {
-      if (e.key !== STORAGE_KEY) return
+      if (e.key !== LOCAL_STORAGE_KEYS.ACHIEVEMENTS) return
       const next = parseUnlockedStorage(e.newValue)
       setUnlocked(prev => (areUnlockedEqual(prev, next) ? prev : next))
     }
@@ -157,12 +156,35 @@ export function AchievementsProvider({
     try {
       resetReviewState()
     } catch {}
+    try {
+      // Clear achievement-specific localStorage flags
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED)
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED)
+    } catch {}
     toast.success('Achievements Reset', {
       description: 'All achievements have been reset.',
       position: 'bottom-right',
       duration: 3000,
     })
   }, [])
+
+  // Listen for custom achievement unlock events (e.g., from console commands)
+  useEffect(() => {
+    if (globalThis.window === undefined) return
+    const onUnlockAchievement = (e: Event) => {
+      const customEvent = e as CustomEvent<{ achievementId?: AchievementId } | undefined>
+      const achievementId = customEvent.detail?.achievementId
+      if (achievementId && Object.hasOwn(ACHIEVEMENTS, achievementId)) {
+        unlock(achievementId)
+      }
+    }
+    try {
+      globalThis.window.addEventListener('kd:unlock-achievement', onUnlockAchievement)
+      return () => globalThis.window.removeEventListener('kd:unlock-achievement', onUnlockAchievement)
+    } catch {
+      return
+    }
+  }, [unlock])
 
   const value = useMemo<AchievementsContextValue>(
     () => ({ unlocked, has, unlock, reset }),
@@ -190,9 +212,9 @@ export function AchievementsProvider({
     if (!prev && hasRecursiveReward) {
       try {
         const w = globalThis.window as unknown as { sessionStorage?: Storage }
-        const already = w.sessionStorage?.getItem('kd_achievements_nav_sparkled')
+        const already = w.sessionStorage?.getItem(SESSION_STORAGE_KEYS.ACHIEVEMENTS_NAV_SPARKLED)
         if (!already) {
-          w.sessionStorage?.setItem('kd_achievements_nav_sparkled', '1')
+          w.sessionStorage?.setItem(SESSION_STORAGE_KEYS.ACHIEVEMENTS_NAV_SPARKLED, '1')
           document.documentElement.dataset.achievementsJustUnlocked = 'true'
           globalThis.window.setTimeout(() => {
             delete document.documentElement.dataset.achievementsJustUnlocked
@@ -235,9 +257,9 @@ export function AchievementsProvider({
     if (!prev && hasPetParade) {
       try {
         const w = globalThis.window as unknown as { sessionStorage?: Storage }
-        const already = w.sessionStorage?.getItem('kd_pet_gallery_nav_sparkled')
+        const already = w.sessionStorage?.getItem(SESSION_STORAGE_KEYS.PET_GALLERY_NAV_SPARKLED)
         if (!already) {
-          w.sessionStorage?.setItem('kd_pet_gallery_nav_sparkled', '1')
+          w.sessionStorage?.setItem(SESSION_STORAGE_KEYS.PET_GALLERY_NAV_SPARKLED, '1')
           document.documentElement.dataset.petGalleryJustUnlocked = 'true'
           globalThis.window.setTimeout(() => {
             delete document.documentElement.dataset.petGalleryJustUnlocked
