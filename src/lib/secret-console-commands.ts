@@ -19,50 +19,62 @@ export const SECRET_CONSOLE_COMMANDS = {
   ls: {
     usage: 'list files in a path (default: current directory)',
     execute: Command.ls,
+    aliases: [],
   },
   cd: {
     usage: 'change directory (cd [path])',
     execute: Command.cd,
+    aliases: [],
   },
   echo: {
     usage: 'echo [args…] — print arguments',
     execute: Command.echo,
+    aliases: [],
   },
   pwd: {
     usage: 'print working directory',
     execute: Command.pwd,
+    aliases: [],
   },
   cat: {
     usage: 'cat <path>',
     execute: Command.cat,
+    aliases: [],
   },
   head: {
     usage: 'head [-n N] <path> — first N lines (default 10)',
     execute: Command.head,
+    aliases: [],
   },
   tail: {
     usage: 'tail [-n N] <path> — last N lines (default 10)',
     execute: Command.tail,
+    aliases: [],
   },
   wc: {
     usage: 'wc <path> — line, word, byte counts',
     execute: Command.wc,
+    aliases: [],
   },
   date: {
     usage: 'date — current date/time',
     execute: Command.date,
+    aliases: [],
   },
   uname: {
     usage: 'uname — system name',
     execute: Command.uname,
+    aliases: [],
   },
   exit: {
     usage: 'exit',
     execute: executeExit,
+    aliases: [],
   },
   commands: {
     usage: 'commands',
     execute: executeCommands,
+    aliases: [],
   },
   help: {
     usage: 'help [command]',
