@@ -298,6 +298,55 @@ function completeFromList(token: string, before: string, after: string, items: s
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
+function completeAchievementArgs(token: string, before: string, after: string): CompletionResult | null {
+  // Parse tokens before the current position to determine what subcommand was used
+  const tokensBefore = before.trim().split(/\s+/).filter(Boolean)
+  const numArgsSupplied = Math.max(0, tokensBefore.length - 1) // exclude the command itself
+
+  // If we're on the second argument and first arg is 'hint' or 'show', complete numbers
+  if (numArgsSupplied >= 1) {
+    const subcommand = tokensBefore[1] // First argument after 'achievements'
+    if (subcommand === 'hint') {
+      const numbers = getHintableAchievementNumbers()
+      return completeFromList(token, before, after, numbers)
+    } else if (subcommand === 'show') {
+      const numbers = getShowableAchievementNumbers()
+      return completeFromList(token, before, after, numbers)
+    }
+  }
+
+  // Otherwise complete subcommands
+  return completeAchievementSubcommands(token, before, after)
+}
+
+function handleMaxPositionalArgs(
+  token: string,
+  before: string,
+  after: string,
+  value: string,
+  caret: number,
+  maxPositionalArgs: number | undefined,
+  flags: readonly string[],
+): CompletionResult | null {
+  // If no max is specified, don't stop completion
+  if (typeof maxPositionalArgs !== 'number') return null
+
+  // Check how many positional arguments have been supplied
+  const tokensBefore = before.trim().split(/\s+/).filter(Boolean)
+  const numArgsSupplied = Math.max(0, tokensBefore.length - 1) // exclude the command itself
+
+  // If we've reached the max, only allow flag completion
+  if (numArgsSupplied >= maxPositionalArgs) {
+    // Try flag completion first; if not applicable, return unchanged
+    const flagRes = completeFlags(token, before, after, flags)
+    if (flagRes) return flagRes
+    return { value, caret }
+  }
+
+  // Haven't reached max yet, continue with normal positional completion
+  return null
+}
+
 export function computeTabCompletion(value: string, caret: number, ctx: CompletionContext): CompletionResult {
   // Identify token under caret
   let start = caret
@@ -321,45 +370,17 @@ export function computeTabCompletion(value: string, caret: number, ctx: Completi
   const flags = resolved ? (ctx.commands[resolved]?.completion?.flags ?? []) : []
   const maxPositionalArgs = resolved ? ctx.commands[resolved]?.completion?.maxPositionalArgs : undefined
 
-  // General rule: if a command specifies a maximum number of positional arguments
-  // and we have already supplied that many arguments (based on tokens BEFORE caret),
-  // then do not perform any further positional completion. Still allow flag completion.
-  if (typeof maxPositionalArgs === 'number') {
-    const tokensBefore = before.trim().split(/\s+/).filter(Boolean)
-    const numArgsSupplied = Math.max(0, tokensBefore.length - 1) // exclude the command itself
-    if (numArgsSupplied >= maxPositionalArgs) {
-      // Try flag completion first; if not applicable, return unchanged
-      const flagRes = completeFlags(token, before, after, flags)
-      if (flagRes) return flagRes
-      return { value, caret }
-    }
-  }
+  // Check if we've reached max positional args; if so, only complete flags or return unchanged
+  const maxPosResult = handleMaxPositionalArgs(token, before, after, value, caret, maxPositionalArgs, flags)
+  if (maxPosResult) return maxPosResult
 
+  // Try flag completion
   const flagRes = completeFlags(token, before, after, flags)
   if (flagRes) return flagRes
   if (mode === 'commands') return completeArgCommands(token, before, after, ctx.commands) ?? { value, caret }
   if (mode === 'themes') return completeThemes(token, before, after) ?? { value, caret }
   if (mode === 'pages') return completePages(token, before, after) ?? { value, caret }
-  if (mode === 'achievement-subcommands') {
-    // Special handling for achievements command - check if we need to complete numbers
-    const tokensBefore = before.trim().split(/\s+/).filter(Boolean)
-    const numArgsSupplied = Math.max(0, tokensBefore.length - 1) // exclude the command itself
-
-    // If we're on the second argument and first arg is 'hint' or 'show', complete numbers
-    if (numArgsSupplied >= 1) {
-      const subcommand = tokensBefore[1] // First argument after 'achievements'
-      if (subcommand === 'hint') {
-        const numbers = getHintableAchievementNumbers()
-        return completeFromList(token, before, after, numbers) ?? { value, caret }
-      } else if (subcommand === 'show') {
-        const numbers = getShowableAchievementNumbers()
-        return completeFromList(token, before, after, numbers) ?? { value, caret }
-      }
-    }
-
-    // Otherwise complete subcommands
-    return completeAchievementSubcommands(token, before, after) ?? { value, caret }
-  }
+  if (mode === 'achievement-subcommands') return completeAchievementArgs(token, before, after) ?? { value, caret }
   const vfsMode = mode === 'none' ? 'paths' : mode
   return completeVfs(token, before, after, ctx, vfsMode) ?? { value, caret }
 }
