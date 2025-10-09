@@ -3,11 +3,43 @@ import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-cons
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { maybeStartViewTransition } from '@/utils/view-transition'
 
+// Helper to check if user has unlocked the THEME_TAPDANCE achievement
+function hasThemeTapdanceAchievement(): boolean {
+  if (globalThis.window === undefined) return false
+  try {
+    const stored = localStorage.getItem('kil.dev/achievements/v1')
+    if (!stored) return false
+    const unlocked = JSON.parse(stored) as Record<string, unknown>
+    return Boolean(unlocked.THEME_TAPDANCE)
+  } catch {
+    return false
+  }
+}
+
 // Get all themes available through the secret console
-// Includes themes with hiddenFromMenu but excludes alwaysHidden themes
+// Respects THEME_TAPDANCE achievement for seasonal theme access
 function getConsoleAvailableThemes(): string[] {
-  // Filter out only truly hidden themes (alwaysHidden), but include hiddenFromMenu themes
-  const availableThemeNames = themes.filter(t => !('alwaysHidden' in t && t.alwaysHidden)).map(t => t.name)
+  const hasAchievement = hasThemeTapdanceAchievement()
+
+  // Get currently active seasonal themes (based on current date)
+  const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
+
+  // Filter themes based on achievement status
+  const availableThemeNames = themes
+    .filter(t => {
+      // Always exclude alwaysHidden themes
+      if ('alwaysHidden' in t && t.alwaysHidden) return false
+
+      // If theme is seasonal (has timeRange)
+      if ('timeRange' in t) {
+        // Show if currently active OR user has achievement
+        return activeSeasonalThemes.has(t.name) || hasAchievement
+      }
+
+      return true
+    })
+    .map(t => t.name)
+
   return ['system', ...availableThemeNames]
 }
 
@@ -33,7 +65,7 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   // Validate theme against console-available themes (includes alwaysHidden)
   const availableThemes = getConsoleAvailableThemes()
   if (!availableThemes.includes(requestedTheme)) {
-    env.appendOutput(`Invalid or unavailable theme: ${requestedTheme}`)
+    env.appendOutput(`Invalid theme: ${requestedTheme}`)
     env.appendOutput(`Available themes: ${availableThemes.join(', ')}`)
     return
   }
