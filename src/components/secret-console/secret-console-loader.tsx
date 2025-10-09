@@ -27,9 +27,10 @@ export function SecretConsoleLoader() {
       e.stopPropagation()
 
       // Check if this is the first time opening the console
-      const hasOpenedBefore = localStorage.getItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED) === '1'
-      if (!hasOpenedBefore) {
-        try {
+      let hasOpenedBefore = false
+      try {
+        hasOpenedBefore = localStorage.getItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED) === '1'
+        if (!hasOpenedBefore) {
           localStorage.setItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED, '1')
           // Unlock the Console Commander achievement
           globalThis.dispatchEvent(
@@ -37,9 +38,9 @@ export function SecretConsoleLoader() {
               detail: { achievementId: ACHIEVEMENTS.CONSOLE_COMMANDER.id },
             }),
           )
-        } catch {
-          // Ignore localStorage errors
         }
+      } catch {
+        // Ignore localStorage errors (e.g., Safari private mode)
       }
 
       if (!ConsoleComp && !isLoadingRef.current) {
