@@ -88,67 +88,90 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     [appendOutput, cwd, rootVfs, handleClose],
   )
 
-  const handleInputKeyDown = useCallback(
+  const handleTabKey = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Tab') {
-        e.preventDefault()
-        const el = inputRef.current
-        if (!el) return
-        const res = computeTabCompletion(input, el.selectionStart ?? input.length, {
-          commands: SECRET_CONSOLE_COMMANDS,
-          resolveCommand: resolveSecretConsoleCommand,
-          cwd,
-          list: (path: string) => vfsList(rootVfs, path),
-          normalizePath,
+      e.preventDefault()
+      const el = inputRef.current
+      if (!el) return
+
+      const res = computeTabCompletion(input, el.selectionStart ?? input.length, {
+        commands: SECRET_CONSOLE_COMMANDS,
+        resolveCommand: resolveSecretConsoleCommand,
+        cwd,
+        list: (path: string) => vfsList(rootVfs, path),
+        normalizePath,
+      })
+
+      if (res.suggestions && res.suggestions.length > 0) {
+        appendOutput(res.suggestions.join('  '))
+        return
+      }
+
+      if (res.value !== input) {
+        setInput(res.value)
+        requestAnimationFrame(() => {
+          inputRef.current?.setSelectionRange(res.caret, res.caret)
         })
-        if (res.suggestions && res.suggestions.length > 0) {
-          appendOutput(res.suggestions.join('  '))
-          return
-        }
-        if (res.value !== input) {
-          setInput(res.value)
-          requestAnimationFrame(() => {
-            inputRef.current?.setSelectionRange(res.caret, res.caret)
-          })
-        }
-        return
-      }
-      if (e.key === 'ArrowUp') {
-        if (history.length === 0) return
-        e.preventDefault()
-        if (historyIndex === null) {
-          setSavedDraft(input)
-          const idx = history.length - 1
-          setHistoryIndex(idx)
-          setInput(history[idx] ?? '')
-          return
-        }
-        if (historyIndex > 0) {
-          const idx = historyIndex - 1
-          setHistoryIndex(idx)
-          setInput(history[idx] ?? '')
-        } else {
-          setHistoryIndex(0)
-          setInput(history[0] ?? '')
-        }
-        return
-      }
-      if (e.key === 'ArrowDown') {
-        if (historyIndex === null) return
-        e.preventDefault()
-        const last = history.length - 1
-        if (historyIndex < last) {
-          const idx = historyIndex + 1
-          setHistoryIndex(idx)
-          setInput(history[idx] ?? '')
-        } else {
-          setHistoryIndex(null)
-          setInput(savedDraft ?? '')
-          setSavedDraft('')
-        }
       }
     },
-    [appendOutput, cwd, history, historyIndex, input, rootVfs, savedDraft],
+    [appendOutput, cwd, input, rootVfs],
+  )
+
+  const handleArrowUpKey = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (history.length === 0) return
+      e.preventDefault()
+
+      if (historyIndex === null) {
+        setSavedDraft(input)
+        const idx = history.length - 1
+        setHistoryIndex(idx)
+        setInput(history[idx] ?? '')
+        return
+      }
+
+      const idx = Math.max(0, historyIndex - 1)
+      setHistoryIndex(idx)
+      setInput(history[idx] ?? '')
+    },
+    [history, historyIndex, input],
+  )
+
+  const handleArrowDownKey = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (historyIndex === null) return
+      e.preventDefault()
+
+      const last = history.length - 1
+      if (historyIndex < last) {
+        const idx = historyIndex + 1
+        setHistoryIndex(idx)
+        setInput(history[idx] ?? '')
+        return
+      }
+
+      setHistoryIndex(null)
+      setInput(savedDraft ?? '')
+      setSavedDraft('')
+    },
+    [history, historyIndex, savedDraft],
+  )
+
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      switch (e.key) {
+        case 'Tab':
+          handleTabKey(e)
+          break
+        case 'ArrowUp':
+          handleArrowUpKey(e)
+          break
+        case 'ArrowDown':
+          handleArrowDownKey(e)
+          break
+      }
+    },
+    [handleTabKey, handleArrowUpKey, handleArrowDownKey],
   )
 
   const handleSubmit = useCallback(
