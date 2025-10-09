@@ -1,7 +1,7 @@
 import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
 import { vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
 
-export const mockVfs: VfsNode = {
+const mockVfs: VfsNode = {
   type: 'dir',
   children: {
     home: {

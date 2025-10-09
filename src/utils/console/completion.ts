@@ -1,6 +1,7 @@
 import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
+import { getAvailablePageNames } from './nav'
 
 type CompletionContext = {
   commands: Readonly<Record<string, SecretConsoleCommand>>
@@ -236,6 +237,30 @@ function completeThemes(token: string, before: string, after: string): Completio
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
+function completePages(token: string, before: string, after: string): CompletionResult | null {
+  const availablePages = getAvailablePageNames()
+  const filtered = availablePages.filter(p => p.startsWith(token))
+
+  if (filtered.length === 0) return { value: `${before}${token}${after}`, caret: (before + token).length }
+  if (filtered.length === 1) {
+    const completed = filtered[0]!
+    const nextToken = `${completed} `
+    const nextValue = `${before}${nextToken}${after}`
+    const nextCaret = (before + nextToken).length
+    return { value: nextValue, caret: nextCaret }
+  }
+  if (token.length === 0)
+    return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
+  const common = longestCommonPrefix(filtered)
+  if (common && common.length > token.length) {
+    const nextToken = common
+    const nextValue = `${before}${nextToken}${after}`
+    const nextCaret = (before + nextToken).length
+    return { value: nextValue, caret: nextCaret }
+  }
+  return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
+}
+
 export function computeTabCompletion(value: string, caret: number, ctx: CompletionContext): CompletionResult {
   // Identify token under caret
   let start = caret
@@ -277,6 +302,7 @@ export function computeTabCompletion(value: string, caret: number, ctx: Completi
   if (flagRes) return flagRes
   if (mode === 'commands') return completeArgCommands(token, before, after, ctx.commands) ?? { value, caret }
   if (mode === 'themes') return completeThemes(token, before, after) ?? { value, caret }
+  if (mode === 'pages') return completePages(token, before, after) ?? { value, caret }
   const vfsMode = mode === 'none' ? 'paths' : mode
   return completeVfs(token, before, after, ctx, vfsMode) ?? { value, caret }
 }

@@ -2,14 +2,16 @@
 
 import { SECRET_CONSOLE_COMMANDS, resolveSecretConsoleCommand } from '@/lib/secret-console-commands'
 import { SECRET_CONSOLE_VFS } from '@/lib/secret-console-files'
-import type { SecretConsoleEnv } from '@/types/secret-console'
+import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
 import { computeTabCompletion } from '@/utils/console/completion'
-import { type VfsNode, normalizePath, vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
+import { normalizePath, vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Entry = { type: 'in' | 'out'; text: string }
 
 export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }) {
+  const router = useRouter()
   const [entries, setEntries] = useState<Entry[]>([])
   const [input, setInput] = useState('')
   const [history, setHistory] = useState<string[]>([])
@@ -47,6 +49,18 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [entries])
+
+  // Listen for navigation events from the nav command
+  useEffect(() => {
+    function handleConsoleNavigate(event: Event) {
+      const customEvent = event as CustomEvent<{ route: string }>
+      const { route } = customEvent.detail
+      router.push(route)
+    }
+
+    globalThis.addEventListener('kd:console-navigate', handleConsoleNavigate)
+    return () => globalThis.removeEventListener('kd:console-navigate', handleConsoleNavigate)
+  }, [router])
 
   const rootVfs = useMemo<VfsNode>(() => SECRET_CONSOLE_VFS, [])
   const [cwd, setCwd] = useState<string>('/home')

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { normalizePath } from '../../secret-console-vfs'
 import { computeTabCompletion } from '../completion'
 import { Commands } from '../index'
@@ -317,5 +317,130 @@ describe('tab completion', () => {
     // Should not change since theme accepts only one argument
     expect(res.value).toBe(value)
     expect(res.caret).toBe(caret)
+  })
+
+  describe('pages completion for nav command', () => {
+    let originalLocalStorage: Storage
+
+    beforeEach(() => {
+      // Setup window if it doesn't exist
+      if (globalThis.window === undefined) {
+        Object.defineProperty(globalThis, 'window', {
+          value: {},
+          writable: true,
+          configurable: true,
+        })
+      }
+
+      // Mock localStorage for achievement checks
+      originalLocalStorage = globalThis.localStorage
+      const storage: Record<string, string> = {}
+      const mockLocalStorage = {
+        getItem: vi.fn((key: string) => storage[key] ?? null),
+        setItem: vi.fn((key: string, value: string) => {
+          storage[key] = value
+        }),
+        removeItem: vi.fn((key: string) => {
+          delete storage[key]
+        }),
+        clear: vi.fn(() => {
+          for (const key of Object.keys(storage)) delete storage[key]
+        }),
+        key: vi.fn((index: number) => Object.keys(storage)[index] ?? null),
+        get length() {
+          return Object.keys(storage).length
+        },
+      } as unknown as Storage
+      // Set localStorage on both window and globalThis to ensure they're the same reference
+      Object.defineProperty(globalThis, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true,
+      })
+      Object.defineProperty(globalThis.window, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true,
+      })
+    })
+
+    afterEach(() => {
+      // Restore localStorage
+      Object.defineProperty(globalThis, 'localStorage', {
+        value: originalLocalStorage,
+        writable: true,
+        configurable: true,
+      })
+    })
+
+    it('completes page names for nav command', () => {
+      const { env } = createMockEnv()
+      const value = 'nav ho'
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+      expect(res.value).toBe('nav home ')
+      expect(res.caret).toBe(9)
+    })
+
+    it('shows page suggestions when no completion match', () => {
+      const { env } = createMockEnv()
+      const value = 'nav '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+      expect(res.suggestions).toBeDefined()
+      expect(res.suggestions).toContain('home')
+      expect(res.suggestions).toContain('about')
+      expect(res.suggestions).toContain('experience')
+      expect(res.suggestions).toContain('projects')
+      expect(res.suggestions).toContain('418')
+    })
+
+    it('does not show gated pages without achievements', () => {
+      const { env } = createMockEnv()
+      const value = 'nav '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+      expect(res.suggestions).not.toContain('achievements')
+      expect(res.suggestions).not.toContain('pet-gallery')
+    })
+
+    it('shows gated pages when achievements are unlocked', () => {
+      // Mock unlocked achievements
+      globalThis.localStorage.setItem(
+        'kil.dev/achievements/v1',
+        JSON.stringify({ RECURSIVE_REWARD: '2024-01-01', PET_PARADE: '2024-01-01' }),
+      )
+
+      const { env } = createMockEnv()
+      const value = 'nav '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+      expect(res.suggestions).toContain('achievements')
+      expect(res.suggestions).toContain('pet-gallery')
+    })
   })
 })

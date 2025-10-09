@@ -8,6 +8,7 @@ import { exit } from './exit'
 import { head } from './head'
 import { createHelpCommand } from './help'
 import { ls } from './ls'
+import { nav } from './nav'
 import { pwd } from './pwd'
 import { tail } from './tail'
 import { theme } from './theme'
@@ -28,6 +29,7 @@ export const Commands = (() => {
     date,
     uname,
     exit,
+    nav,
     // Placeholder - will be replaced below
     commands: {} as SecretConsoleCommand,
     help: {} as SecretConsoleCommand,
