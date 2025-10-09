@@ -90,9 +90,26 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
         // Seasonal theme is active, so switching to any explicit theme is a visual change
         // Continue to play transition
       } else {
-        // No seasonal theme, check if base theme matches
-        if (appliedTheme === requestedTheme) {
+        // No seasonal theme, check if the requested theme is actually visually active
+        // We need to check the classList to see if the theme is actually applied
+        const isThemeVisuallyActive = root.classList.contains(requestedTheme)
+        if (isThemeVisuallyActive && appliedTheme === requestedTheme) {
           env.appendOutput(`Theme is already visually ${requestedTheme} (setting explicitly to ${requestedTheme})`)
+
+          // Check if this is matrix theme and unlock achievement if needed
+          const isMatrixTheme = requestedTheme === 'matrix'
+          const hasSelectedMatrixBefore = isMatrixTheme
+            ? localStorage.getItem('kd_matrix_theme_selected') === '1'
+            : false
+          if (isMatrixTheme && !hasSelectedMatrixBefore) {
+            localStorage.setItem('kd_matrix_theme_selected', '1')
+            globalThis.dispatchEvent(
+              new CustomEvent('kd:unlock-achievement', {
+                detail: { achievementId: 'MATRIX_MAESTRO' },
+              }),
+            )
+          }
+
           // Still allow the change to happen (it changes the preference), but skip the transition
           localStorage.setItem('theme', requestedTheme)
           localStorage.setItem('theme_updatedAt', String(Date.now()))
