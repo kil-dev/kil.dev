@@ -103,11 +103,12 @@ function executeHelp(args: string[], env: SecretConsoleEnv) {
     env.appendOutput('usage: help [command]')
     return
   }
-  if (!isSecretConsoleCommandName(name)) {
+  const resolved = resolveSecretConsoleCommand(name)
+  if (!resolved) {
     env.appendOutput(`help: ${name}: No such command`)
     return
   }
-  env.appendOutput(`${name}: ${SECRET_CONSOLE_COMMANDS[name].usage}`)
+  env.appendOutput(`${resolved}: ${SECRET_CONSOLE_COMMANDS[resolved].usage}`)
 }
 
 function executeCommands(_args: string[], env: SecretConsoleEnv) {

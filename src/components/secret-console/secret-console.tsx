@@ -3,7 +3,7 @@
 import {
   type SecretConsoleEnv,
   SECRET_CONSOLE_COMMANDS,
-  isSecretConsoleCommandName,
+  resolveSecretConsoleCommand,
 } from '@/lib/secret-console-commands'
 import { SECRET_CONSOLE_VFS } from '@/lib/secret-console-files'
 import { type VfsNode, normalizePath, vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
@@ -82,8 +82,9 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       const tokens = trimmed.split(/\s+/)
       const cmd = tokens[0] ?? ''
       const args = tokens.slice(1)
-      if (isSecretConsoleCommandName(cmd)) {
-        const command = SECRET_CONSOLE_COMMANDS[cmd]
+      const resolved = resolveSecretConsoleCommand(cmd)
+      if (resolved) {
+        const command = SECRET_CONSOLE_COMMANDS[resolved]
         command.execute(args, env)
       } else {
         appendOutput(`command not found: ${cmd}`)
