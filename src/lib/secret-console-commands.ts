@@ -7,6 +7,8 @@ export type SecretConsoleEnv = {
   requestClose: () => void
 }
 
+import { Command } from '@/utils/console'
+
 type SecretConsoleCommand = {
   usage: string
   execute: (args: string[], env: SecretConsoleEnv) => void
