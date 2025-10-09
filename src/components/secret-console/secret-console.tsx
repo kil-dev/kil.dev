@@ -134,6 +134,12 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       }
 
       setInput('')
+      setHistory(prev => {
+        const next = [...prev, trimmed]
+        return next.length > 50 ? next.slice(-50) : next
+      })
+      setHistoryIndex(null)
+      setSavedDraft('')
     },
     [input, env, appendOutput],
   )
