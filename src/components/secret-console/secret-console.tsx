@@ -77,6 +77,124 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        const el = inputRef.current
+        const value = input
+        if (!el) return
+        const caret = el.selectionStart ?? value.length
+        // find token under caret
+        let start = caret
+        while (start > 0 && value[start - 1] !== ' ') start--
+        let end = caret
+        while (end < value.length && value[end] !== ' ') end++
+        const token = value.slice(start, end)
+        const before = value.slice(0, start)
+        const after = value.slice(end)
+        const isFirstToken = before.trim().length === 0
+
+        // Build candidates
+        let candidates: string[] = []
+        if (isFirstToken) {
+          const entries = Object.entries(SECRET_CONSOLE_COMMANDS) as Array<
+            [
+              string,
+              { usage: string; execute: (args: string[], env: SecretConsoleEnv) => void; aliases?: readonly string[] },
+            ]
+          >
+          const names = new Set<string>()
+          for (const [name, def] of entries) {
+            names.add(name)
+            if (def.aliases) for (const a of def.aliases) names.add(a)
+          }
+          candidates = [...names].toSorted()
+        } else {
+          const pathLike = token
+          const base = pathLike.startsWith('/') ? pathLike : `${cwd}/${pathLike}`
+          const normalized = normalizePath(base)
+          const lastSlash = normalized.lastIndexOf('/')
+          let dirPath = '/'
+          if (lastSlash > 0) dirPath = normalized.slice(0, lastSlash)
+          const prefix = normalized.slice(lastSlash + 1)
+          const entries = vfsList(rootVfs, dirPath)
+          candidates = entries.map(e => e.name)
+          // For completion, we match against prefix
+          const filtered = candidates.filter(name => name.startsWith(prefix))
+          if (filtered.length === 0) return
+          const lcp = (arr: string[]) => {
+            if (arr.length === 0) return ''
+            let p = arr[0]!
+            for (let i = 1; i < arr.length; i++) {
+              const s = arr[i]!
+              let j = 0
+              while (j < p.length && j < s.length && p[j] === s[j]) j++
+              p = p.slice(0, j)
+              if (p.length === 0) break
+            }
+            return p
+          }
+          const common = lcp(filtered)
+          if (filtered.length === 1) {
+            const completed = filtered[0]!
+            const nextToken = completed
+            const nextValue = `${before}${nextToken}${after}`
+            setInput(nextValue)
+            requestAnimationFrame(() => {
+              const pos = (before + nextToken).length
+              inputRef.current?.setSelectionRange(pos, pos)
+            })
+          } else if (common && common.length > prefix.length) {
+            const nextToken = common
+            const nextValue = `${before}${nextToken}${after}`
+            setInput(nextValue)
+            requestAnimationFrame(() => {
+              const pos = (before + nextToken).length
+              inputRef.current?.setSelectionRange(pos, pos)
+            })
+          } else {
+            appendOutput(filtered.join('  '))
+          }
+          return
+        }
+
+        // Command completion branch
+        const filtered = candidates.filter(name => name.startsWith(token))
+        if (filtered.length === 0) return
+        const lcp = (arr: string[]) => {
+          if (arr.length === 0) return ''
+          let p = arr[0]!
+          for (let i = 1; i < arr.length; i++) {
+            const s = arr[i]!
+            let j = 0
+            while (j < p.length && j < s.length && p[j] === s[j]) j++
+            p = p.slice(0, j)
+            if (p.length === 0) break
+          }
+          return p
+        }
+        const common = lcp(filtered)
+        if (filtered.length === 1) {
+          const completed = filtered[0]!
+          const nextToken = `${completed} `
+          const nextValue = `${before}${nextToken}${after}`
+          setInput(nextValue)
+          requestAnimationFrame(() => {
+            const pos = (before + nextToken).length
+            inputRef.current?.setSelectionRange(pos, pos)
+          })
+        } else if (common && common.length > token.length) {
+          const nextToken = common
+          const nextValue = `${before}${nextToken}${after}`
+          setInput(nextValue)
+          requestAnimationFrame(() => {
+            const pos = (before + nextToken).length
+            inputRef.current?.setSelectionRange(pos, pos)
+          })
+        } else {
+          appendOutput(filtered.join('  '))
+        }
+        return
+      }
       if (e.key === 'ArrowUp') {
         if (history.length === 0) return
         e.preventDefault()
@@ -112,7 +230,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
         }
       }
     },
-    [history, historyIndex, input, savedDraft],
+    [appendOutput, cwd, history, historyIndex, input, rootVfs, savedDraft],
   )
 
   const handleSubmit = useCallback(
