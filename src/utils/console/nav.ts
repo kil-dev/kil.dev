@@ -75,7 +75,7 @@ function executeNav(args: string[], env: SecretConsoleEnv) {
 
   // Dispatch custom event for client-side navigation
   // This allows the console to stay mounted and preserve history
-  if (globalThis.window !== undefined) {
+  if (globalThis.window !== undefined && typeof globalThis.CustomEvent === 'function') {
     globalThis.window.dispatchEvent(
       new CustomEvent('kd:console-navigate', {
         detail: { route: page.route },

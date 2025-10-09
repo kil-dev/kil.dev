@@ -120,7 +120,8 @@ export function buildThemeScript(): string {
         const isAlwaysHidden = 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden
         const isHiddenFromMenu =
           'hiddenFromMenu' in t && (t as ThemeEntry & { hiddenFromMenu?: boolean }).hiddenFromMenu
-        return isAlwaysHidden ?? isHiddenFromMenu
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        return isAlwaysHidden || isHiddenFromMenu
       })
       .map(t => t.name),
   )
