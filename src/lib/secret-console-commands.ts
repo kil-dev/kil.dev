@@ -18,19 +18,43 @@ type SecretConsoleCommand = {
 export const SECRET_CONSOLE_COMMANDS = {
   ls: {
     usage: 'list files in a path (default: current directory)',
-    execute: executeLs,
+    execute: Command.ls,
   },
   cd: {
     usage: 'change directory (cd [path])',
-    execute: executeCd,
+    execute: Command.cd,
+  },
+  echo: {
+    usage: 'echo [args…] — print arguments',
+    execute: Command.echo,
   },
   pwd: {
     usage: 'print working directory',
-    execute: executePwd,
+    execute: Command.pwd,
   },
   cat: {
     usage: 'cat <path>',
-    execute: executeCat,
+    execute: Command.cat,
+  },
+  head: {
+    usage: 'head [-n N] <path> — first N lines (default 10)',
+    execute: Command.head,
+  },
+  tail: {
+    usage: 'tail [-n N] <path> — last N lines (default 10)',
+    execute: Command.tail,
+  },
+  wc: {
+    usage: 'wc <path> — line, word, byte counts',
+    execute: Command.wc,
+  },
+  date: {
+    usage: 'date — current date/time',
+    execute: Command.date,
+  },
+  uname: {
+    usage: 'uname — system name',
+    execute: Command.uname,
   },
   exit: {
     usage: 'exit',
