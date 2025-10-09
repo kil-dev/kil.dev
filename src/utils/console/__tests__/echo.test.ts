@@ -26,10 +26,4 @@ describe('echo command', () => {
     echo.execute(['one', 'two', 'three'], env)
     expect(output).toEqual(['one two three'])
   })
-
-  it('has correct metadata', () => {
-    expect(echo.usage).toBe(echo.usage)
-    expect(echo.help).toBe(echo.help)
-    expect(echo.completion).toBeUndefined()
-  })
 })

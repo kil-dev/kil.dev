@@ -37,6 +37,6 @@ function executeUname(args: string[], env: SecretConsoleEnv) {
 export const uname: SecretConsoleCommand = {
   usage: 'uname [-a]',
   help: 'uname [-a] — show system information',
-  completion: { args: 'none', flags: ['-a'] },
+  completion: { args: 'none', flags: ['-a'], maxPositionalArgs: 0 },
   execute: executeUname,
 }

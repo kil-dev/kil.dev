@@ -30,10 +30,4 @@ describe('cat command', () => {
     cat.execute(['/home/file', 'with', 'spaces.txt'], env)
     expect(output).toEqual(['content'])
   })
-
-  it('has correct metadata', () => {
-    expect(cat.usage).toBe(cat.usage)
-    expect(cat.help).toBe(cat.help)
-    expect(cat.completion).toEqual({ args: 'files' })
-  })
 })

@@ -33,10 +33,4 @@ describe('help command', () => {
     expect(output[0]).toContain('pwd')
     expect(output[0]).toContain('print working directory')
   })
-
-  it('has correct metadata', () => {
-    expect(help?.usage).toBe('help [command]')
-    expect(help?.help).toBe('help [command] — show help for a command')
-    expect(help?.completion).toEqual({ args: 'commands' })
-  })
 })

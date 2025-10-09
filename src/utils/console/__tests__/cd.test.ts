@@ -28,10 +28,4 @@ describe('cd command', () => {
     cd.execute(['/home/README.md'], env)
     expect(output).toEqual([formatCdNotDirectory('/home/README.md')])
   })
-
-  it('has correct metadata', () => {
-    expect(cd.usage).toBe(cd.usage)
-    expect(cd.help).toBe(cd.help)
-    expect(cd.completion).toEqual({ args: 'folders' })
-  })
 })

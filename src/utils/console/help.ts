@@ -44,7 +44,7 @@ export function createHelpCommand(
   const helpCommand: SecretConsoleCommand = {
     usage: 'help [command]',
     help: 'help [command] — show help for a command',
-    completion: { args: 'commands' },
+    completion: { args: 'commands', maxPositionalArgs: 1 },
     execute: executeHelp,
   }
 

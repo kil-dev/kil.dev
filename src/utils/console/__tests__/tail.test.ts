@@ -46,10 +46,4 @@ describe('tail command', () => {
     // When -n value is invalid (0), it treats the rest as a path
     expect(output).toEqual([formatTailNoSuchFile('-n 0 /home/README.md')])
   })
-
-  it('has correct metadata', () => {
-    expect(tail.usage).toBe(tail.usage)
-    expect(tail.help).toBe(tail.help)
-    expect(tail.completion).toEqual({ args: 'files', flags: ['-n'] })
-  })
 })

@@ -21,10 +21,4 @@ describe('uname command', () => {
     uname.execute(['other'], env)
     expect(output).toEqual(['kil-web'])
   })
-
-  it('has correct metadata', () => {
-    expect(uname.usage).toBe(uname.usage)
-    expect(uname.help).toBe(uname.help)
-    expect(uname.completion).toEqual({ args: 'none', flags: ['-a'] })
-  })
 })

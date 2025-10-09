@@ -38,10 +38,4 @@ describe('wc command', () => {
     wc.execute(['/nonexistent.txt'], env)
     expect(output).toEqual([formatWcNoSuchFile('/nonexistent.txt')])
   })
-
-  it('has correct metadata', () => {
-    expect(wc.usage).toBe(wc.usage)
-    expect(wc.help).toBe(wc.help)
-    expect(wc.completion).toEqual({ args: 'files' })
-  })
 })

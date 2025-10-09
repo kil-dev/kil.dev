@@ -17,6 +17,9 @@ export type SecretConsoleCommand = {
     args: 'none' | 'commands' | 'files' | 'folders' | 'paths' | 'themes'
     // Supported flags for this command (e.g. ['-a','-n'])
     flags?: readonly string[]
+    // Maximum number of positional arguments this command accepts.
+    // If omitted, positional arguments are considered unlimited.
+    maxPositionalArgs?: number
   }
 }
 

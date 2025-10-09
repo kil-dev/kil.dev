@@ -8,4 +8,5 @@ export const pwd: SecretConsoleCommand = {
   usage: 'pwd',
   help: 'pwd — print working directory',
   execute: executePwd,
+  completion: { args: 'none', maxPositionalArgs: 0 },
 }

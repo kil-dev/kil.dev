@@ -200,5 +200,6 @@ export const theme: SecretConsoleCommand = {
   execute: executeTheme,
   completion: {
     args: 'themes',
+    maxPositionalArgs: 1,
   },
 }

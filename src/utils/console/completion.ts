@@ -257,6 +257,21 @@ export function computeTabCompletion(value: string, caret: number, ctx: Completi
   const resolved = ctx.resolveCommand(firstToken)
   const mode = resolved ? (ctx.commands[resolved]?.completion?.args ?? 'paths') : 'paths'
   const flags = resolved ? (ctx.commands[resolved]?.completion?.flags ?? []) : []
+  const maxPositionalArgs = resolved ? ctx.commands[resolved]?.completion?.maxPositionalArgs : undefined
+
+  // General rule: if a command specifies a maximum number of positional arguments
+  // and we have already supplied that many arguments (based on tokens BEFORE caret),
+  // then do not perform any further positional completion. Still allow flag completion.
+  if (typeof maxPositionalArgs === 'number') {
+    const tokensBefore = before.trim().split(/\s+/).filter(Boolean)
+    const numArgsSupplied = Math.max(0, tokensBefore.length - 1) // exclude the command itself
+    if (numArgsSupplied >= maxPositionalArgs) {
+      // Try flag completion first; if not applicable, return unchanged
+      const flagRes = completeFlags(token, before, after, flags)
+      if (flagRes) return flagRes
+      return { value, caret }
+    }
+  }
 
   const flagRes = completeFlags(token, before, after, flags)
   if (flagRes) return flagRes

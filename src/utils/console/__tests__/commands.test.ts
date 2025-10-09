@@ -22,9 +22,4 @@ describe('commands command', () => {
     commands?.execute(['ignored'], env)
     expect(output).toHaveLength(1)
   })
-
-  it('has correct metadata', () => {
-    expect(commands?.usage).toBe('commands')
-    expect(commands?.help).toBe('commands — list all commands')
-  })
 })

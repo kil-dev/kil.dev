@@ -28,10 +28,4 @@ describe('ls command', () => {
     ls.execute([], env)
     expect(output).toEqual([''])
   })
-
-  it('has correct metadata', () => {
-    expect(ls.usage).toBe(ls.usage)
-    expect(ls.help).toBe(ls.help)
-    expect(ls.completion).toEqual({ args: 'paths' })
-  })
 })

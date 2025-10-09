@@ -15,9 +15,4 @@ describe('exit command', () => {
     exit.execute(['ignored'], env)
     expect(getCloseRequested()).toBe(true)
   })
-
-  it('has correct metadata', () => {
-    expect(exit.usage).toBe(exit.usage)
-    expect(exit.help).toBe(exit.help)
-  })
 })

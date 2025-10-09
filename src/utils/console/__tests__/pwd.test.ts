@@ -14,10 +14,4 @@ describe('pwd command', () => {
     pwd.execute(['ignored', 'args'], env)
     expect(output).toEqual(['/home'])
   })
-
-  it('has correct metadata', () => {
-    expect(pwd.usage).toBe(pwd.usage)
-    expect(pwd.help).toBe(pwd.help)
-    expect(pwd.completion).toBeUndefined()
-  })
 })

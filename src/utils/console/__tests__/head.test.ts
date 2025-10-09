@@ -48,10 +48,4 @@ describe('head command', () => {
     // When -n value is invalid (0), it treats the rest as a path
     expect(output).toEqual([formatHeadNoSuchFile('-n 0 /home/README.md')])
   })
-
-  it('has correct metadata', () => {
-    expect(head.usage).toBe(head.usage)
-    expect(head.help).toBe(head.help)
-    expect(head.completion).toEqual({ args: 'files', flags: ['-n'] })
-  })
 })

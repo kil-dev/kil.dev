@@ -12,6 +12,7 @@ export function createCommandsCommand(
   return {
     usage: 'commands',
     help: 'commands — list all commands',
+    completion: { args: 'none', maxPositionalArgs: 0 },
     execute: executeCommands,
   }
 }

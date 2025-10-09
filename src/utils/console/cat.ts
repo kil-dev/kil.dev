@@ -21,6 +21,6 @@ function executeCat(args: string[], env: SecretConsoleEnv) {
 export const cat: SecretConsoleCommand = {
   usage: 'cat <path>',
   help: 'cat <path> — print the contents of a file',
-  completion: { args: 'files' },
+  completion: { args: 'files', maxPositionalArgs: 1 },
   execute: executeCat,
 }

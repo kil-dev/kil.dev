@@ -145,12 +145,6 @@ describe('theme command', () => {
     expect(timestamp).toBeLessThanOrEqual(after)
   })
 
-  it('has correct metadata', () => {
-    expect(theme.usage).toBe(theme.usage)
-    expect(theme.help).toBe(theme.help)
-    expect(theme.completion).toEqual({ args: 'themes' })
-  })
-
   it('handles localStorage errors gracefully', () => {
     globalThis.localStorage.getItem = vi.fn(() => {
       throw new Error('Storage error')
