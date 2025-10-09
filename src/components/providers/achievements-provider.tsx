@@ -157,12 +157,35 @@ export function AchievementsProvider({
     try {
       resetReviewState()
     } catch {}
+    try {
+      // Clear achievement-specific localStorage flags
+      localStorage.removeItem('kd_matrix_theme_selected')
+      localStorage.removeItem('kd_console_opened')
+    } catch {}
     toast.success('Achievements Reset', {
       description: 'All achievements have been reset.',
       position: 'bottom-right',
       duration: 3000,
     })
   }, [])
+
+  // Listen for custom achievement unlock events (e.g., from console commands)
+  useEffect(() => {
+    if (globalThis.window === undefined) return
+    const onUnlockAchievement = (e: Event) => {
+      const customEvent = e as CustomEvent<{ achievementId: AchievementId }>
+      const { achievementId } = customEvent.detail
+      if (achievementId && Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId)) {
+        unlock(achievementId)
+      }
+    }
+    try {
+      globalThis.window.addEventListener('kd:unlock-achievement', onUnlockAchievement)
+      return () => globalThis.window.removeEventListener('kd:unlock-achievement', onUnlockAchievement)
+    } catch {
+      return
+    }
+  }, [unlock])
 
   const value = useMemo<AchievementsContextValue>(
     () => ({ unlocked, has, unlock, reset }),

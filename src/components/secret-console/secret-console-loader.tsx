@@ -23,6 +23,23 @@ export function SecretConsoleLoader() {
       // Prevent the backtick from being inserted into any focused field once we open
       e.preventDefault()
       e.stopPropagation()
+
+      // Check if this is the first time opening the console
+      const hasOpenedBefore = localStorage.getItem('kd_console_opened') === '1'
+      if (!hasOpenedBefore) {
+        try {
+          localStorage.setItem('kd_console_opened', '1')
+          // Unlock the Console Commander achievement
+          globalThis.dispatchEvent(
+            new CustomEvent('kd:unlock-achievement', {
+              detail: { achievementId: 'CONSOLE_COMMANDER' },
+            }),
+          )
+        } catch {
+          // Ignore localStorage errors
+        }
+      }
+
       if (!ConsoleComp && !isLoadingRef.current) {
         isLoadingRef.current = true
         void import('@/components/secret-console/secret-console')

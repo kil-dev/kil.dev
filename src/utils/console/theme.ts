@@ -38,12 +38,28 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   }
 
   try {
+    // Check if this is the first time selecting the matrix theme
+    const isMatrixTheme = requestedTheme === 'matrix'
+    const hasSelectedMatrixBefore = isMatrixTheme ? localStorage.getItem('kd_matrix_theme_selected') === '1' : false
+
     // Wrap theme change in a view transition for smooth animation
     const performThemeChange = () => {
       // Only write to localStorage - let the theme provider handle cookies
       // This ensures the theme provider remains the single source of truth
       localStorage.setItem('theme', requestedTheme)
       localStorage.setItem('theme_updatedAt', String(Date.now()))
+
+      // Mark matrix theme as selected (for achievement tracking)
+      if (isMatrixTheme && !hasSelectedMatrixBefore) {
+        localStorage.setItem('kd_matrix_theme_selected', '1')
+        // Unlock achievement using the global achievement unlock mechanism
+        // We'll trigger this via a custom event that the achievements provider can listen to
+        globalThis.dispatchEvent(
+          new CustomEvent('kd:unlock-achievement', {
+            detail: { achievementId: 'MATRIX_MAESTRO' },
+          }),
+        )
+      }
 
       // Manually dispatch storage event to trigger theme provider update
       // (storage events don't fire in the same window that made the change)
