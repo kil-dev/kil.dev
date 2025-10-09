@@ -10,6 +10,7 @@ export type SecretConsoleEnv = {
 type SecretConsoleCommand = {
   usage: string
   execute: (args: string[], env: SecretConsoleEnv) => void
+  aliases?: readonly string[]
 }
 
 export const SECRET_CONSOLE_COMMANDS = {
