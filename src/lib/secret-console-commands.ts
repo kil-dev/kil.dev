@@ -86,39 +86,6 @@ export function resolveSecretConsoleCommand(name: string): SecretConsoleCommandN
   return undefined
 }
 
-// Command implementations
-function executeLs(args: string[], env: SecretConsoleEnv) {
-  const path = args[0] ?? env.pwd()
-  const names = env.list(path).map(e => e.name)
-  env.appendOutput(names.join('  '))
-}
-
-function executeCat(args: string[], env: SecretConsoleEnv) {
-  const target = args.join(' ')
-  if (!target) {
-    env.appendOutput('usage: cat <path>')
-    return
-  }
-  const content = env.read(target)
-  if (content === undefined) {
-    env.appendOutput(`cat: ${target}: No such file`)
-    return
-  }
-  env.appendOutput(content)
-}
-
-function executeCd(args: string[], env: SecretConsoleEnv) {
-  const raw = args[0] ?? '/home'
-  const result = env.chdir(raw)
-  if (!result.ok) {
-    if (result.reason === 'not_dir') {
-      env.appendOutput(`cd: ${raw}: Not a directory`)
-    } else {
-      env.appendOutput(`cd: ${raw}: No such directory`)
-    }
-  }
-}
-
 function executeExit(_args: string[], env: SecretConsoleEnv) {
   env.requestClose()
 }
@@ -139,8 +106,4 @@ function executeHelp(args: string[], env: SecretConsoleEnv) {
 
 function executeCommands(_args: string[], env: SecretConsoleEnv) {
   env.appendOutput(Object.keys(SECRET_CONSOLE_COMMANDS).join('  '))
-}
-
-function executePwd(_args: string[], env: SecretConsoleEnv) {
-  env.appendOutput(env.pwd())
 }
