@@ -75,6 +75,46 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     [appendOutput, cwd, rootVfs, handleClose],
   )
 
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'ArrowUp') {
+        if (history.length === 0) return
+        e.preventDefault()
+        if (historyIndex === null) {
+          setSavedDraft(input)
+          const idx = history.length - 1
+          setHistoryIndex(idx)
+          setInput(history[idx] ?? '')
+          return
+        }
+        if (historyIndex > 0) {
+          const idx = historyIndex - 1
+          setHistoryIndex(idx)
+          setInput(history[idx] ?? '')
+        } else {
+          setHistoryIndex(0)
+          setInput(history[0] ?? '')
+        }
+        return
+      }
+      if (e.key === 'ArrowDown') {
+        if (historyIndex === null) return
+        e.preventDefault()
+        const last = history.length - 1
+        if (historyIndex < last) {
+          const idx = historyIndex + 1
+          setHistoryIndex(idx)
+          setInput(history[idx] ?? '')
+        } else {
+          setHistoryIndex(null)
+          setInput(savedDraft ?? '')
+          setSavedDraft('')
+        }
+      }
+    },
+    [history, historyIndex, input, savedDraft],
+  )
+
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
@@ -127,6 +167,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
+            onKeyDown={handleInputKeyDown}
             className="bg-transparent text-green-400 outline-hidden flex-1 placeholder:text-green-700"
             aria-label="Console input"
             autoCapitalize="off"
