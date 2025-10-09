@@ -27,6 +27,7 @@ function hasAchievement(achievementId: AchievementId): boolean {
     const stored = globalThis.localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     if (!stored) return false
     const unlocked = JSON.parse(stored) as Record<string, unknown>
+    if (typeof unlocked !== 'object' || unlocked === null) return false
     return Boolean(unlocked[achievementId])
   } catch {
     return false

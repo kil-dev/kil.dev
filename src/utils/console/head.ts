@@ -18,6 +18,11 @@ function parseCountFlag(args: string[]): { count: number; pathStart: number } | 
 
 function executeHead(args: string[], env: SecretConsoleEnv) {
   const parsed = parseCountFlag(args)
+  if (args[0] === '-n' && !parsed) {
+    env.appendOutput('head: invalid line count')
+    env.appendOutput(`usage: ${head.usage}`)
+    return
+  }
   const i = parsed ? parsed.pathStart : 0
   const n = parsed ? parsed.count : 10
   const target = args.slice(i).join(' ')

@@ -14,7 +14,7 @@ export function normalizePath(path: string): string {
     stack.push(part)
   }
   const joined = '/' + stack.join('/')
-  return isAbs ? joined : '/' + stack.join('/')
+  return joined
 }
 
 function splitPath(path: string): string[] {
