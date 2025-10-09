@@ -1,3 +1,4 @@
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme, type ThemeEntry, type ThemeName } from '@/lib/themes'
 import type { MonthDay } from '@/types/themes'
 import { THEME_RUNTIME_BUNDLE } from './theme-bundle'
@@ -15,7 +16,7 @@ function hasThemeTapdanceAchievement(): boolean {
 
   if (globalThis.window === undefined) return false
   try {
-    const stored = localStorage.getItem('kil.dev/achievements/v1')
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     if (!stored) return false
     const unlocked = JSON.parse(stored) as Record<string, unknown>
     return Boolean(unlocked.THEME_TAPDANCE)

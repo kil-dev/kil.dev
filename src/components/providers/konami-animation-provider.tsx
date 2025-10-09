@@ -1,5 +1,6 @@
 'use client'
 
+import { SESSION_STORAGE_KEYS } from '@/lib/storage-keys'
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -26,7 +27,7 @@ export function KonamiAnimationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Clear the animation state on page load to ensure content is visible
-    sessionStorage.removeItem('konami-animated')
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.KONAMI_ANIMATED)
     setHasAnimated(false)
     setShowSnake(false)
     setStartCrtAnimation(false)
@@ -54,7 +55,7 @@ export function KonamiAnimationProvider({ children }: { children: ReactNode }) {
     setIsAnimating(true)
     setHasAnimated(true)
     // Store in session storage so it persists until refresh
-    sessionStorage.setItem('konami-animated', 'true')
+    sessionStorage.setItem(SESSION_STORAGE_KEYS.KONAMI_ANIMATED, 'true')
 
     // Start CRT animation after a delay to let content start moving
     const crtId = setTimeout(() => {
@@ -90,7 +91,7 @@ export function KonamiAnimationProvider({ children }: { children: ReactNode }) {
     const returnId = setTimeout(() => {
       setIsReturning(false)
       try {
-        sessionStorage.removeItem('konami-animated')
+        sessionStorage.removeItem(SESSION_STORAGE_KEYS.KONAMI_ANIMATED)
       } catch {}
     }, 1600)
     timeoutIdsRef.current.push(returnId)

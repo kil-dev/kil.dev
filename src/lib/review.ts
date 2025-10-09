@@ -1,10 +1,11 @@
 import type { AchievementId } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { ReviewConfig } from '@/types/review'
 
 export const REVIEW_CONFIG: ReviewConfig = {
   enabled: true,
   achievementsThreshold: 7,
-  storageKey: 'kil.dev/review/v1',
+  storageKey: LOCAL_STORAGE_KEYS.REVIEW,
   achievementIdOnSubmit: 'FIVE_STAR_FAN' as AchievementId,
   copy: {
     title: 'Rate your experience',

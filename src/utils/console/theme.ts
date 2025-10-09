@@ -1,20 +1,10 @@
+import { ACHIEVEMENTS } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme } from '@/lib/themes'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
+import { hasThemeTapdanceAchievement } from '@/utils/achievements'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { maybeStartViewTransition } from '@/utils/view-transition'
-
-// Helper to check if user has unlocked the THEME_TAPDANCE achievement
-function hasThemeTapdanceAchievement(): boolean {
-  if (globalThis.window === undefined) return false
-  try {
-    const stored = localStorage.getItem('kil.dev/achievements/v1')
-    if (!stored) return false
-    const unlocked = JSON.parse(stored) as Record<string, unknown>
-    return Boolean(unlocked.THEME_TAPDANCE)
-  } catch {
-    return false
-  }
-}
 
 // Get all themes available through the secret console
 // Respects THEME_TAPDANCE achievement for seasonal theme access
@@ -47,7 +37,7 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   if (args.length === 0) {
     // Show current theme
     try {
-      const stored = localStorage.getItem('theme')
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.THEME)
       const current = stored ?? 'system'
       env.appendOutput(`Current theme: ${current}`)
 
@@ -72,7 +62,7 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
 
   // Check if theme is already set or visually the same
   try {
-    const currentTheme = localStorage.getItem('theme') ?? 'system'
+    const currentTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.THEME) ?? 'system'
     if (currentTheme === requestedTheme) {
       env.appendOutput(`Theme is already set to: ${requestedTheme}`)
       return
@@ -99,23 +89,23 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
           // Check if this is matrix theme and unlock achievement if needed
           const isMatrixTheme = requestedTheme === 'matrix'
           const hasSelectedMatrixBefore = isMatrixTheme
-            ? localStorage.getItem('kd_matrix_theme_selected') === '1'
+            ? localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
             : false
           if (isMatrixTheme && !hasSelectedMatrixBefore) {
-            localStorage.setItem('kd_matrix_theme_selected', '1')
+            localStorage.setItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED, '1')
             globalThis.dispatchEvent(
               new CustomEvent('kd:unlock-achievement', {
-                detail: { achievementId: 'MATRIX_MAESTRO' },
+                detail: { achievementId: ACHIEVEMENTS.MATRIX_MAESTRO.id },
               }),
             )
           }
 
           // Still allow the change to happen (it changes the preference), but skip the transition
-          localStorage.setItem('theme', requestedTheme)
-          localStorage.setItem('theme_updatedAt', String(Date.now()))
+          localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, requestedTheme)
+          localStorage.setItem(LOCAL_STORAGE_KEYS.THEME_UPDATED_AT, String(Date.now()))
           globalThis.dispatchEvent(
             new StorageEvent('storage', {
-              key: 'theme',
+              key: LOCAL_STORAGE_KEYS.THEME,
               newValue: requestedTheme,
               storageArea: localStorage,
             }),
@@ -141,11 +131,11 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
         if (systemTheme === currentTheme) {
           env.appendOutput(`Theme is already visually ${currentTheme} (switching to system preference)`)
           // Still allow the change to happen (it changes the preference), but skip the transition
-          localStorage.setItem('theme', requestedTheme)
-          localStorage.setItem('theme_updatedAt', String(Date.now()))
+          localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, requestedTheme)
+          localStorage.setItem(LOCAL_STORAGE_KEYS.THEME_UPDATED_AT, String(Date.now()))
           globalThis.dispatchEvent(
             new StorageEvent('storage', {
-              key: 'theme',
+              key: LOCAL_STORAGE_KEYS.THEME,
               newValue: requestedTheme,
               storageArea: localStorage,
             }),
@@ -161,23 +151,25 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   try {
     // Check if this is the first time selecting the matrix theme
     const isMatrixTheme = requestedTheme === 'matrix'
-    const hasSelectedMatrixBefore = isMatrixTheme ? localStorage.getItem('kd_matrix_theme_selected') === '1' : false
+    const hasSelectedMatrixBefore = isMatrixTheme
+      ? localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+      : false
 
     // Wrap theme change in a view transition for smooth animation
     const performThemeChange = () => {
       // Only write to localStorage - let the theme provider handle cookies
       // This ensures the theme provider remains the single source of truth
-      localStorage.setItem('theme', requestedTheme)
-      localStorage.setItem('theme_updatedAt', String(Date.now()))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, requestedTheme)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.THEME_UPDATED_AT, String(Date.now()))
 
       // Mark matrix theme as selected (for achievement tracking)
       if (isMatrixTheme && !hasSelectedMatrixBefore) {
-        localStorage.setItem('kd_matrix_theme_selected', '1')
+        localStorage.setItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED, '1')
         // Unlock achievement using the global achievement unlock mechanism
         // We'll trigger this via a custom event that the achievements provider can listen to
         globalThis.dispatchEvent(
           new CustomEvent('kd:unlock-achievement', {
-            detail: { achievementId: 'MATRIX_MAESTRO' },
+            detail: { achievementId: ACHIEVEMENTS.MATRIX_MAESTRO.id },
           }),
         )
       }
@@ -186,7 +178,7 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
       // (storage events don't fire in the same window that made the change)
       globalThis.dispatchEvent(
         new StorageEvent('storage', {
-          key: 'theme',
+          key: LOCAL_STORAGE_KEYS.THEME,
           newValue: requestedTheme,
           storageArea: localStorage,
         }),

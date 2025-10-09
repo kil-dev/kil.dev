@@ -1,6 +1,7 @@
 // Theme initialization runtime (browser)
 // This file is compiled and minified at build-time into an IIFE that exposes
 // a global object `ThemeRuntime` with a named export function `initTheme`.
+import { COOKIE_KEYS, LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { maybeStartViewTransition } from './view-transition'
 
 export type CompactDate = { m: number; d: number }
@@ -67,7 +68,7 @@ function inRange(dt: Date, s: CompactDate, e: CompactDate): boolean {
 
 function getCookieTheme(): string | null {
   try {
-    const re = /(?:^|;\s*)theme=([^;]+)/
+    const re = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.THEME}=([^;]+)`)
     const m = re.exec(document.cookie)
     return m ? decodeURIComponent(m[1]!) : null
   } catch {
@@ -77,7 +78,7 @@ function getCookieTheme(): string | null {
 
 function getLocalStorageTheme(): string | null {
   try {
-    return localStorage.getItem('theme')
+    return localStorage.getItem(LOCAL_STORAGE_KEYS.THEME)
   } catch {
     return null
   }
@@ -114,12 +115,12 @@ function removeElementSoon(el: HTMLElement | null): void {
 
 function overlaysEnabledFromStorage(): boolean {
   try {
-    const match = /(?:^|;\s*)seasonalOverlaysEnabled=([^;]+)/.exec(document.cookie)
+    const match = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED}=([^;]+)`).exec(document.cookie)
     if (match?.[1] === '0') return false
     if (match?.[1] === '1') return true
   } catch {}
   try {
-    const stored = localStorage.getItem('seasonalOverlaysEnabled')
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.SEASONAL_OVERLAYS_ENABLED)
     if (stored === '0') return false
     if (stored === '1') return true
   } catch {}
@@ -128,12 +129,12 @@ function overlaysEnabledFromStorage(): boolean {
 
 function headshotsDisabledFromStorage(): boolean {
   try {
-    const match = /(?:^|;\s*)disableThemeHeadshot=([^;]+)/.exec(document.cookie)
+    const match = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.DISABLE_THEME_HEADSHOT}=([^;]+)`).exec(document.cookie)
     if (match?.[1] === '1') return true
     if (match?.[1] === '0') return false
   } catch {}
   try {
-    const stored = localStorage.getItem('disableThemeHeadshot')
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.DISABLE_THEME_HEADSHOT)
     if (stored === '1') return true
     if (stored === '0') return false
   } catch {}
@@ -145,7 +146,7 @@ function detectHasThemeTapdance(root: HTMLElement): boolean {
     if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) return true
   } catch {}
   try {
-    const cookieRegex = /(?:^|;\s*)kil\.dev_achievements_v1=([^;]+)/
+    const cookieRegex = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.ACHIEVEMENTS.replaceAll('.', String.raw`\.`)}=([^;]+)`)
     const cookieMatch = cookieRegex.exec(document.cookie)
     const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
     return cookieValue.includes('THEME_TAPDANCE')

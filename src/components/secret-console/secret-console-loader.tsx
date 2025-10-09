@@ -1,5 +1,7 @@
 'use client'
 
+import { ACHIEVEMENTS } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { ComponentType } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -25,14 +27,14 @@ export function SecretConsoleLoader() {
       e.stopPropagation()
 
       // Check if this is the first time opening the console
-      const hasOpenedBefore = localStorage.getItem('kd_console_opened') === '1'
+      const hasOpenedBefore = localStorage.getItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED) === '1'
       if (!hasOpenedBefore) {
         try {
-          localStorage.setItem('kd_console_opened', '1')
+          localStorage.setItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED, '1')
           // Unlock the Console Commander achievement
           globalThis.dispatchEvent(
             new CustomEvent('kd:unlock-achievement', {
-              detail: { achievementId: 'CONSOLE_COMMANDER' },
+              detail: { achievementId: ACHIEVEMENTS.CONSOLE_COMMANDER.id },
             }),
           )
         } catch {

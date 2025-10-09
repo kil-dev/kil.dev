@@ -1,4 +1,5 @@
 import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
 type AchievementEntry = {
@@ -12,7 +13,7 @@ type AchievementEntry = {
 function getUnlockedAchievements(): Record<string, string> {
   if (globalThis.window === undefined) return {}
   try {
-    const stored = localStorage.getItem('kil.dev/achievements/v1')
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     if (!stored) return {}
     return JSON.parse(stored) as Record<string, string>
   } catch {

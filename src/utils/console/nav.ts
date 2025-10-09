@@ -1,4 +1,5 @@
 import type { AchievementId } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 import type { Route } from 'next'
 
@@ -23,7 +24,7 @@ const PAGES: PageDefinition[] = [
 function hasAchievement(achievementId: AchievementId): boolean {
   if (globalThis.window === undefined) return false
   try {
-    const stored = globalThis.localStorage.getItem('kil.dev/achievements/v1')
+    const stored = globalThis.localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
     if (!stored) return false
     const unlocked = JSON.parse(stored) as Record<string, unknown>
     return Boolean(unlocked[achievementId])

@@ -8,6 +8,7 @@ import { useIsClient } from '@/hooks/use-is-client'
 import * as Headshots from '@/images/headshot'
 import { type AchievementId } from '@/lib/achievements'
 import { HOME_CONTENT } from '@/lib/content'
+import { SESSION_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes } from '@/lib/themes'
 import { isLadybirdUA } from '@/utils/ladybird'
 import { PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE } from '@/utils/profile-image-variant-script'
@@ -49,10 +50,11 @@ export function ProfileImage() {
 
   function captureIfNotAlready() {
     try {
-      const alreadyCaptured = globalThis.window.sessionStorage.getItem('ladybird_detected_event') === '1'
+      const alreadyCaptured =
+        globalThis.window.sessionStorage.getItem(SESSION_STORAGE_KEYS.LADYBIRD_DETECTED_EVENT) === '1'
       if (!alreadyCaptured) {
         captureLadybirdDetected(navigator.userAgent || '')
-        globalThis.window.sessionStorage.setItem('ladybird_detected_event', '1')
+        globalThis.window.sessionStorage.setItem(SESSION_STORAGE_KEYS.LADYBIRD_DETECTED_EVENT, '1')
       }
     } catch {}
   }

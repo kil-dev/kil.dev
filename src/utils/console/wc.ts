@@ -17,7 +17,7 @@ function executeWc(args: string[], env: SecretConsoleEnv) {
   }
   const lineCount = content.length === 0 ? 0 : content.split('\n').length
   const wordCount = content.trim().length === 0 ? 0 : content.trim().split(/\s+/).length
-  const byteCount = content.length
+  const byteCount = new TextEncoder().encode(content).length
   env.appendOutput(`${lineCount} ${wordCount} ${byteCount} ${target}`)
 }
 

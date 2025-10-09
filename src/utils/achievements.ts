@@ -1,7 +1,24 @@
 import { type AchievementId, ACHIEVEMENTS, ACHIEVEMENTS_COOKIE_NAME } from '@/lib/achievements'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { PRESENCE_RUNTIME_BUNDLE } from '@/utils/presence-bundle'
 
 export type UnlockedMap = Partial<Record<AchievementId, string>>
+
+/**
+ * Check if user has unlocked the THEME_TAPDANCE achievement
+ * @returns true if the achievement is unlocked, false otherwise
+ */
+export function hasThemeTapdanceAchievement(): boolean {
+  if (globalThis.window === undefined) return false
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.ACHIEVEMENTS)
+    if (!stored) return false
+    const unlocked = JSON.parse(stored) as Record<string, unknown>
+    return Boolean(unlocked.THEME_TAPDANCE)
+  } catch {
+    return false
+  }
+}
 
 export function createEmptyUnlocked(): UnlockedMap {
   return {}

@@ -1,5 +1,6 @@
 import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
+import { hasThemeTapdanceAchievement } from '@/utils/achievements'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { getAchievementSubcommands, getHintableAchievementNumbers, getShowableAchievementNumbers } from './achievements'
 import { getAvailablePageNames } from './nav'
@@ -179,18 +180,6 @@ function completeVfs(
     return { value: nextValue, caret: nextCaret }
   }
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
-}
-
-function hasThemeTapdanceAchievement(): boolean {
-  if (globalThis.window === undefined) return false
-  try {
-    const stored = localStorage.getItem('kil.dev/achievements/v1')
-    if (!stored) return false
-    const unlocked = JSON.parse(stored) as Record<string, unknown>
-    return Boolean(unlocked.THEME_TAPDANCE)
-  } catch {
-    return false
-  }
 }
 
 function completeThemes(token: string, before: string, after: string): CompletionResult | null {
