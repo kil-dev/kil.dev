@@ -20,6 +20,10 @@ type CompletionResult = {
 }
 
 // helpers
+function alphabeticalCompare(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { sensitivity: 'base' })
+}
+
 function longestCommonPrefix(arr: string[]): string {
   if (arr.length === 0) return ''
   let p = arr[0]!
@@ -44,7 +48,7 @@ function completeFirstTokenCommands(
     names.add(name)
     if (def.aliases) for (const a of def.aliases) names.add(a)
   }
-  const candidates = [...names].toSorted()
+  const candidates = [...names].toSorted(alphabeticalCompare)
   const filtered = candidates.filter(name => name.startsWith(token))
   if (filtered.length === 0) return { value: `${before}${token}${after}`, caret: (before + token).length }
   if (filtered.length === 1) {
@@ -106,7 +110,7 @@ function completeArgCommands(
     names.add(name)
     if (def.aliases) for (const a of def.aliases) names.add(a)
   }
-  const candidates = [...names].toSorted()
+  const candidates = [...names].toSorted(alphabeticalCompare)
   const matches = candidates.filter(n => n.startsWith(token))
   if (matches.length === 0) return { value: `${before}${token}${after}`, caret: (before + token).length }
   if (matches.length === 1) {
