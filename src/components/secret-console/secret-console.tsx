@@ -276,7 +276,9 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
           if (isClosing && e.target === e.currentTarget) onRequestClose()
         }}
         className={`${isClosing ? 'translate-y-[-100%]' : 'translate-y-0'} bg-black/80 text-green-400 border-x border-b border-green-500/30 backdrop-blur-sm shadow-sm h-[45vh] starting:translate-y-[-100%] transition-transform duration-300 ease-out rounded-b-xl overflow-hidden mx-2 sm:mx-4`}>
-        <div ref={scrollRef} className="h-[calc(45vh-3rem)] overflow-y-auto no-scrollbar p-4 space-y-1">
+        <div
+          ref={scrollRef}
+          className="h-[calc(45vh-3rem)] overflow-y-auto no-scrollbar p-4 flex flex-col justify-end gap-1">
           {entries.map((e, i) => (
             <div key={i} className={e.type === 'in' ? 'text-green-300' : 'text-green-400 whitespace-pre-wrap'}>
               {e.type === 'in' ? `$ ${e.text}` : e.text}
