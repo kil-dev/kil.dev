@@ -9,7 +9,7 @@ export type SecretConsoleEnv = {
 
 import { Command } from '@/utils/console'
 
-type SecretConsoleCommand = {
+export type SecretConsoleCommand = {
   usage: string
   execute: (args: string[], env: SecretConsoleEnv) => void
   aliases?: readonly string[]
