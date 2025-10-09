@@ -23,6 +23,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     setIsClosing(true)
   }, [isClosing])
 
+  const focusInput = useCallback(() => {
+    inputRef.current?.focus()
+  }, [])
+
   useEffect(() => {
     inputRef.current?.focus()
     function onKeyDown(e: KeyboardEvent) {
@@ -98,6 +102,8 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       className="fixed inset-x-0 top-0 z-50"
       style={{ fontFamily: 'var(--font-vt323)' }}>
       <div
+        onMouseDown={focusInput}
+        onClick={focusInput}
         onTransitionEnd={e => {
           if (isClosing && e.target === e.currentTarget) onRequestClose()
         }}
