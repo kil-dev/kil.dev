@@ -167,6 +167,7 @@ export function ThemeToggle() {
       if (t === 'system') return true
       const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
       if (entry?.alwaysHidden) return false
+      if (entry?.hiddenFromMenu) return false
       const gated = Boolean(entry?.requiresAchievement)
       return achievementUnlocked || !gated
     })

@@ -14,7 +14,7 @@ export type SecretConsoleCommand = {
   aliases?: readonly string[]
   completion?: {
     // What to complete for positional args (non-flag tokens)
-    args: 'none' | 'commands' | 'files' | 'folders' | 'paths'
+    args: 'none' | 'commands' | 'files' | 'folders' | 'paths' | 'themes'
     // Supported flags for this command (e.g. ['-a','-n'])
     flags?: readonly string[]
   }

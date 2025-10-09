@@ -10,6 +10,7 @@ import { help } from './help'
 import { ls } from './ls'
 import { pwd } from './pwd'
 import { tail } from './tail'
+import { theme } from './theme'
 import { uname } from './uname'
 import { wc } from './wc'
 
@@ -27,4 +28,5 @@ export const Commands = {
   exit,
   commands,
   help,
+  theme,
 } as const satisfies Record<string, SecretConsoleCommand>
