@@ -4,6 +4,7 @@ import '@/styles/globals.css'
 import { Background } from '@/components/layout/background'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { SecretConsoleLoader } from '@/components/secret-console/secret-console-loader'
 import { PROFILE_IMAGE_ALT_DOMAINS } from '@/lib/alt-domains'
 import { buildPresenceScript } from '@/utils/achievements'
 import {
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               </div>
             </div>
           </div>
+          <SecretConsoleLoader />
         </Providers>
       </body>
     </html>
