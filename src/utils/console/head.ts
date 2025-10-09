@@ -1,4 +1,4 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
 function parseCountFlag(args: string[]): { count: number; pathStart: number } | undefined {
   let count = 10
@@ -12,7 +12,7 @@ function parseCountFlag(args: string[]): { count: number; pathStart: number } | 
   return { count, pathStart: i }
 }
 
-export function executeHead(args: string[], env: SecretConsoleEnv) {
+function executeHead(args: string[], env: SecretConsoleEnv) {
   const parsed = parseCountFlag(args)
   const i = parsed ? parsed.pathStart : 0
   const n = parsed ? parsed.count : 10
@@ -28,4 +28,9 @@ export function executeHead(args: string[], env: SecretConsoleEnv) {
   }
   const lines = content.split('\n').slice(0, n).join('\n')
   env.appendOutput(lines)
+}
+
+export const head: SecretConsoleCommand = {
+  usage: 'head [-n N] <path> — first N lines (default 10)',
+  execute: executeHead,
 }

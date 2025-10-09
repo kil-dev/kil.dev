@@ -1,6 +1,6 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
-export function executeWc(args: string[], env: SecretConsoleEnv) {
+function executeWc(args: string[], env: SecretConsoleEnv) {
   const target = args.join(' ')
   if (!target) {
     env.appendOutput('usage: wc <path>')
@@ -15,4 +15,9 @@ export function executeWc(args: string[], env: SecretConsoleEnv) {
   const wordCount = content.trim().length === 0 ? 0 : content.trim().split(/\s+/).length
   const byteCount = content.length
   env.appendOutput(`${lineCount} ${wordCount} ${byteCount} ${target}`)
+}
+
+export const wc: SecretConsoleCommand = {
+  usage: 'wc <path> — line, word, byte counts',
+  execute: executeWc,
 }

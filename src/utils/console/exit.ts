@@ -1,0 +1,10 @@
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+
+function executeExit(_args: string[], env: SecretConsoleEnv) {
+  env.requestClose()
+}
+
+export const exit: SecretConsoleCommand = {
+  usage: 'exit',
+  execute: executeExit,
+}

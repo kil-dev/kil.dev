@@ -1,5 +1,10 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
-export function executePwd(_args: string[], env: SecretConsoleEnv) {
+function executePwd(_args: string[], env: SecretConsoleEnv) {
   env.appendOutput(env.pwd())
+}
+
+export const pwd: SecretConsoleCommand = {
+  usage: 'print working directory',
+  execute: executePwd,
 }

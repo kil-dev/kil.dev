@@ -1,4 +1,4 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
 function parseCountFlag(args: string[]): { count: number; pathStart: number } | undefined {
   let count = 10
@@ -12,7 +12,7 @@ function parseCountFlag(args: string[]): { count: number; pathStart: number } | 
   return { count, pathStart: i }
 }
 
-export function executeTail(args: string[], env: SecretConsoleEnv) {
+function executeTail(args: string[], env: SecretConsoleEnv) {
   const parsed = parseCountFlag(args)
   const i = parsed ? parsed.pathStart : 0
   const n = parsed ? parsed.count : 10
@@ -29,4 +29,9 @@ export function executeTail(args: string[], env: SecretConsoleEnv) {
   const parts = content.split('\n')
   const lines = parts.slice(Math.max(0, parts.length - n)).join('\n')
   env.appendOutput(lines)
+}
+
+export const tail: SecretConsoleCommand = {
+  usage: 'tail [-n N] <path> — last N lines (default 10)',
+  execute: executeTail,
 }

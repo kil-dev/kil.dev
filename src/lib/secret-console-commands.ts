@@ -1,3 +1,4 @@
+import { Commands } from '@/utils/console'
 export type SecretConsoleEnv = {
   appendOutput: (text: string) => void
   pwd: () => string
@@ -7,81 +8,13 @@ export type SecretConsoleEnv = {
   requestClose: () => void
 }
 
-import { Command } from '@/utils/console'
-
 export type SecretConsoleCommand = {
   usage: string
   execute: (args: string[], env: SecretConsoleEnv) => void
   aliases?: readonly string[]
 }
 
-export const SECRET_CONSOLE_COMMANDS = {
-  ls: {
-    usage: 'list files in a path (default: current directory)',
-    execute: Command.ls,
-    aliases: [],
-  },
-  cd: {
-    usage: 'change directory (cd [path])',
-    execute: Command.cd,
-    aliases: [],
-  },
-  echo: {
-    usage: 'echo [args…] — print arguments',
-    execute: Command.echo,
-    aliases: [],
-  },
-  pwd: {
-    usage: 'print working directory',
-    execute: Command.pwd,
-    aliases: [],
-  },
-  cat: {
-    usage: 'cat <path>',
-    execute: Command.cat,
-    aliases: [],
-  },
-  head: {
-    usage: 'head [-n N] <path> — first N lines (default 10)',
-    execute: Command.head,
-    aliases: [],
-  },
-  tail: {
-    usage: 'tail [-n N] <path> — last N lines (default 10)',
-    execute: Command.tail,
-    aliases: [],
-  },
-  wc: {
-    usage: 'wc <path> — line, word, byte counts',
-    execute: Command.wc,
-    aliases: [],
-  },
-  date: {
-    usage: 'date — current date/time',
-    execute: Command.date,
-    aliases: [],
-  },
-  uname: {
-    usage: 'uname — system name',
-    execute: Command.uname,
-    aliases: [],
-  },
-  exit: {
-    usage: 'exit',
-    execute: executeExit,
-    aliases: [],
-  },
-  commands: {
-    usage: 'commands',
-    execute: executeCommands,
-    aliases: [],
-  },
-  help: {
-    usage: 'help [command]',
-    aliases: ['?'],
-    execute: executeHelp,
-  },
-} as const satisfies Record<string, SecretConsoleCommand>
+export const SECRET_CONSOLE_COMMANDS = Commands
 
 type SecretConsoleCommandName = keyof typeof SECRET_CONSOLE_COMMANDS
 
@@ -96,26 +29,4 @@ export function resolveSecretConsoleCommand(name: string): SecretConsoleCommandN
     if (def.aliases?.includes(name)) return cmd
   }
   return undefined
-}
-
-function executeExit(_args: string[], env: SecretConsoleEnv) {
-  env.requestClose()
-}
-
-function executeHelp(args: string[], env: SecretConsoleEnv) {
-  const name = args[0]
-  if (!name) {
-    env.appendOutput('usage: help [command]')
-    return
-  }
-  const resolved = resolveSecretConsoleCommand(name)
-  if (!resolved) {
-    env.appendOutput(`help: ${name}: No such command`)
-    return
-  }
-  env.appendOutput(`${resolved}: ${SECRET_CONSOLE_COMMANDS[resolved].usage}`)
-}
-
-function executeCommands(_args: string[], env: SecretConsoleEnv) {
-  env.appendOutput(Object.keys(SECRET_CONSOLE_COMMANDS).join('  '))
 }

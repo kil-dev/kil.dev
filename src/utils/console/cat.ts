@@ -1,6 +1,6 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
-export function executeCat(args: string[], env: SecretConsoleEnv) {
+function executeCat(args: string[], env: SecretConsoleEnv) {
   const target = args.join(' ')
   if (!target) {
     env.appendOutput('usage: cat <path>')
@@ -12,4 +12,9 @@ export function executeCat(args: string[], env: SecretConsoleEnv) {
     return
   }
   env.appendOutput(content)
+}
+
+export const cat: SecretConsoleCommand = {
+  usage: 'cat <path>',
+  execute: executeCat,
 }

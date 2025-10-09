@@ -1,6 +1,6 @@
-import type { SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 
-export function executeUname(args: string[], env: SecretConsoleEnv) {
+function executeUname(args: string[], env: SecretConsoleEnv) {
   const showAll = args.includes('-a')
 
   const sysname = 'kil-web' // a playful system name
@@ -33,4 +33,8 @@ export function executeUname(args: string[], env: SecretConsoleEnv) {
   }
 
   env.appendOutput(sysname)
+}
+export const uname: SecretConsoleCommand = {
+  usage: 'uname — system name',
+  execute: executeUname,
 }
