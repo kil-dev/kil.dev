@@ -174,7 +174,7 @@ export function AchievementsProvider({
     const onUnlockAchievement = (e: Event) => {
       const customEvent = e as CustomEvent<{ achievementId: AchievementId }>
       const { achievementId } = customEvent.detail
-      if (achievementId && Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId)) {
+      if (achievementId && Object.hasOwn(ACHIEVEMENTS, achievementId)) {
         unlock(achievementId)
       }
     }

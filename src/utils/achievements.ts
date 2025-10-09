@@ -25,7 +25,7 @@ export function createEmptyUnlocked(): UnlockedMap {
 }
 
 function isValidAchievementId(id: string): id is AchievementId {
-  return Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, id)
+  return Object.hasOwn(ACHIEVEMENTS, id)
 }
 
 export function parseUnlockedCookie(raw: string | undefined): UnlockedMap {

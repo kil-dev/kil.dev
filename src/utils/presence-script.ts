@@ -44,11 +44,7 @@ function cookieContainsKey(rawCookie: string, key: string): boolean {
   const text = safeDecodeURIComponent(rawCookie)
   try {
     const parsed = JSON.parse(text) as unknown
-    if (
-      parsed &&
-      typeof parsed === 'object' &&
-      Object.prototype.hasOwnProperty.call(parsed as Record<string, unknown>, key)
-    ) {
+    if (parsed && typeof parsed === 'object' && Object.hasOwn(parsed as Record<string, unknown>, key)) {
       return true
     }
   } catch {}
