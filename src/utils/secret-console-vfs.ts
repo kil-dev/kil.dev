@@ -2,7 +2,6 @@ import type { VfsNode } from '@/types/secret-console'
 
 export function normalizePath(path: string): string {
   if (!path) return '/'
-  const isAbs = path.startsWith('/')
   const parts = path.split('/').filter(Boolean)
   const stack: string[] = []
   for (const part of parts) {
