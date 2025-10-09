@@ -45,6 +45,7 @@ export function createHelpCommand(
     usage: 'help [command]',
     help: 'help [command] — show help for a command',
     completion: { args: 'commands', maxPositionalArgs: 1 },
+    aliases: ['?'],
     execute: executeHelp,
   }
 
