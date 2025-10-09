@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
 function executeUname(args: string[], env: SecretConsoleEnv) {
   const showAll = args.includes('-a')

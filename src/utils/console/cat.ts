@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
 function executeCat(args: string[], env: SecretConsoleEnv) {
   const target = args.join(' ')

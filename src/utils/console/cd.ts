@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
 function executeCd(args: string[], env: SecretConsoleEnv) {
   const raw = args[0] ?? '/home'

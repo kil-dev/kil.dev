@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand } from '@/types/secret-console'
 import { cat } from './cat'
 import { cd } from './cd'
 import { commands } from './commands'

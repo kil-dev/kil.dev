@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 
 function parseCountFlag(args: string[]): { count: number; pathStart: number } | undefined {
   let count = 10

@@ -1,4 +1,4 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 import { Commands } from '@/utils/console'
 
 function executeCommands(_args: string[], env: SecretConsoleEnv) {

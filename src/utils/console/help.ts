@@ -1,5 +1,5 @@
-import type { SecretConsoleCommand, SecretConsoleEnv } from '@/lib/secret-console-commands'
 import { resolveSecretConsoleCommand } from '@/lib/secret-console-commands'
+import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 import { Commands } from '@/utils/console'
 
 function executeHelp(args: string[], env: SecretConsoleEnv) {
