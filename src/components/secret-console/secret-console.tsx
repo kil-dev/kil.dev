@@ -181,11 +181,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   )
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      open
       aria-label="Developer console"
-      className="fixed inset-x-0 top-0 z-50"
+      className="fixed left-0 right-0 top-0 z-50 bg-transparent border-0 p-0 m-0 outline-hidden w-full max-w-none"
       style={{ fontFamily: 'var(--font-vt323)' }}>
       <div
         onMouseDown={focusInput}
@@ -220,6 +219,6 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
           />
         </form>
       </div>
-    </div>
+    </dialog>
   )
 }
