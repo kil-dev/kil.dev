@@ -5,6 +5,7 @@ import { SECRET_CONSOLE_VFS } from '@/lib/secret-console-files'
 import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
 import { computeTabCompletion } from '@/utils/console/completion'
 import { normalizePath, vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
+import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -53,7 +54,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   // Listen for navigation events from the nav command
   useEffect(() => {
     function handleConsoleNavigate(event: Event) {
-      const customEvent = event as CustomEvent<{ route: string }>
+      const customEvent = event as CustomEvent<{ route: Route }>
       const { route } = customEvent.detail
       router.push(route)
     }

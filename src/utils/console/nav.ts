@@ -1,8 +1,9 @@
 import type { AchievementId } from '@/lib/achievements'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
+import type { Route } from 'next'
 
 type PageDefinition = {
-  route: string
+  route: Route
   name: string
   requiresAchievement?: AchievementId
 }
