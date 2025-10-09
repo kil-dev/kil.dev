@@ -1,5 +1,6 @@
 import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
+import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 
 type CompletionContext = {
   commands: Readonly<Record<string, SecretConsoleCommand>>
@@ -178,10 +179,40 @@ function completeVfs(
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
+function hasThemeTapdanceAchievement(): boolean {
+  if (globalThis.window === undefined) return false
+  try {
+    const stored = localStorage.getItem('kil.dev/achievements/v1')
+    if (!stored) return false
+    const unlocked = JSON.parse(stored) as Record<string, unknown>
+    return Boolean(unlocked.THEME_TAPDANCE)
+  } catch {
+    return false
+  }
+}
+
 function completeThemes(token: string, before: string, after: string): CompletionResult | null {
-  // Get available themes including alwaysHidden ones for secret console
-  // Filter out only truly hidden themes (alwaysHidden), but include hiddenFromMenu themes
-  const availableThemeNames: string[] = themes.filter(t => !('alwaysHidden' in t && t.alwaysHidden)).map(t => t.name)
+  const hasAchievement = hasThemeTapdanceAchievement()
+
+  // Get currently active seasonal themes (based on current date)
+  const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
+
+  // Get available themes based on achievement status
+  const availableThemeNames: string[] = themes
+    .filter(t => {
+      // Always exclude alwaysHidden themes
+      if ('alwaysHidden' in t && t.alwaysHidden) return false
+
+      // If theme is seasonal (has timeRange)
+      if ('timeRange' in t) {
+        // Show if currently active OR user has achievement
+        return activeSeasonalThemes.has(t.name) || hasAchievement
+      }
+
+      return true
+    })
+    .map(t => t.name)
+
   const allThemes: string[] = ['system', ...availableThemeNames]
   const filtered: string[] = allThemes.filter(t => t.startsWith(token))
 
