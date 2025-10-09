@@ -166,4 +166,126 @@ describe('theme command', () => {
 
     expect(output[0]).toContain('Failed to change theme:')
   })
+
+  it('does not incorrectly report theme as visually active when classList does not contain it', () => {
+    // Setup: user is on system theme, appliedTheme data says 'matrix' but classList doesn't contain it
+    mockLocalStorage.theme = 'system'
+    const mockClassList = {
+      contains: vi.fn(() => false), // matrix is NOT in classList
+      add: vi.fn(),
+      remove: vi.fn(),
+    }
+    globalThis.document = {
+      documentElement: {
+        dataset: {
+          seasonalDefault: '', // No seasonal theme active
+          appliedTheme: 'matrix', // Stale data attribute from previous session
+          seasonalOverlaysEnabled: '1',
+        },
+        classList: mockClassList,
+      },
+    } as unknown as Document
+
+    const { env, output } = createMockEnv()
+    theme.execute(['matrix'], env)
+
+    // Should NOT say "Theme is already visually matrix" because classList doesn't contain it
+    expect(output.some(line => line.includes('already visually matrix'))).toBe(false)
+    expect(output).toContain('Theme changed to: matrix')
+  })
+
+  it('unlocks matrix achievement when switching to matrix for first time', () => {
+    mockLocalStorage.theme = 'system'
+    const mockClassList = {
+      contains: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+    }
+    globalThis.document = {
+      documentElement: {
+        dataset: {
+          seasonalDefault: '',
+          appliedTheme: 'light',
+          seasonalOverlaysEnabled: '1',
+        },
+        classList: mockClassList,
+      },
+    } as unknown as Document
+
+    const { env } = createMockEnv()
+    theme.execute(['matrix'], env)
+
+    // Check that achievement unlock event was dispatched
+    const achievementEvent = mockEvents.find(e => e.type === 'kd:unlock-achievement')
+    expect(achievementEvent).toBeDefined()
+    if (achievementEvent instanceof CustomEvent) {
+      expect(achievementEvent.detail).toBeDefined()
+      expect(achievementEvent.detail).toHaveProperty('achievementId', 'MATRIX_MAESTRO')
+    }
+    // Check that localStorage flag was set
+    expect(mockLocalStorage.kd_matrix_theme_selected).toBe('1')
+  })
+
+  it('unlocks matrix achievement even when theme is already visually matrix', () => {
+    // Scenario: user reset achievements but theme is already visually matrix
+    mockLocalStorage.theme = 'system'
+    // Note: kd_matrix_theme_selected is NOT set (was cleared by reset)
+    const mockClassList = {
+      contains: vi.fn((cls: string) => cls === 'matrix'), // matrix IS in classList
+      add: vi.fn(),
+      remove: vi.fn(),
+    }
+    globalThis.document = {
+      documentElement: {
+        dataset: {
+          seasonalDefault: '',
+          appliedTheme: 'matrix',
+          seasonalOverlaysEnabled: '1',
+        },
+        classList: mockClassList,
+      },
+    } as unknown as Document
+
+    const { env, output } = createMockEnv()
+    theme.execute(['matrix'], env)
+
+    // Should report theme is already visual (early return path)
+    expect(output.some(line => line.includes('already visually matrix'))).toBe(true)
+
+    // But should STILL unlock achievement
+    const achievementEvent = mockEvents.find(e => e.type === 'kd:unlock-achievement')
+    expect(achievementEvent).toBeDefined()
+    if (achievementEvent instanceof CustomEvent) {
+      expect(achievementEvent.detail).toBeDefined()
+      expect(achievementEvent.detail).toHaveProperty('achievementId', 'MATRIX_MAESTRO')
+    }
+    expect(mockLocalStorage.kd_matrix_theme_selected).toBe('1')
+  })
+
+  it('does not unlock matrix achievement if already selected before', () => {
+    mockLocalStorage.theme = 'system'
+    mockLocalStorage.kd_matrix_theme_selected = '1' // Already selected before
+    const mockClassList = {
+      contains: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+    }
+    globalThis.document = {
+      documentElement: {
+        dataset: {
+          seasonalDefault: '',
+          appliedTheme: 'light',
+          seasonalOverlaysEnabled: '1',
+        },
+        classList: mockClassList,
+      },
+    } as unknown as Document
+
+    const { env } = createMockEnv()
+    theme.execute(['matrix'], env)
+
+    // Should NOT dispatch achievement event
+    const achievementEvent = mockEvents.find(e => e.type === 'kd:unlock-achievement')
+    expect(achievementEvent).toBeUndefined()
+  })
 })
