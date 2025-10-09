@@ -172,8 +172,8 @@ export function AchievementsProvider({
   useEffect(() => {
     if (globalThis.window === undefined) return
     const onUnlockAchievement = (e: Event) => {
-      const customEvent = e as CustomEvent<{ achievementId: AchievementId }>
-      const { achievementId } = customEvent.detail
+      const customEvent = e as CustomEvent<{ achievementId?: AchievementId } | undefined>
+      const achievementId = customEvent.detail?.achievementId
       if (achievementId && Object.hasOwn(ACHIEVEMENTS, achievementId)) {
         unlock(achievementId)
       }

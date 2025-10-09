@@ -117,10 +117,10 @@ export function buildThemeScript(): string {
   const hiddenNames = new Set(
     themes
       .filter(t => {
-        const isAlwaysHidden = 'alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden
+        const isAlwaysHidden =
+          ('alwaysHidden' in t && (t as ThemeEntry & { alwaysHidden?: boolean }).alwaysHidden) === true
         const isHiddenFromMenu =
-          'hiddenFromMenu' in t && (t as ThemeEntry & { hiddenFromMenu?: boolean }).hiddenFromMenu
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          ('hiddenFromMenu' in t && (t as ThemeEntry & { hiddenFromMenu?: boolean }).hiddenFromMenu) === true
         return isAlwaysHidden || isHiddenFromMenu
       })
       .map(t => t.name),
