@@ -43,14 +43,14 @@ export const SESSION_STORAGE_KEYS = {
 // ===== Cookie Keys =====
 export const COOKIE_KEYS = {
   // Theme (mirrored from localStorage)
-  THEME: 'theme',
-  THEME_UPDATED_AT: 'themeUpdatedAt',
+  THEME: LOCAL_STORAGE_KEYS.THEME,
+  THEME_UPDATED_AT: LOCAL_STORAGE_KEYS.THEME_UPDATED_AT,
   SYSTEM_THEME: 'systemTheme',
 
   // Theme Preferences (mirrored from localStorage)
-  SEASONAL_OVERLAYS_ENABLED: 'seasonalOverlaysEnabled',
-  DISABLE_THEME_HEADSHOT: 'disableThemeHeadshot',
+  SEASONAL_OVERLAYS_ENABLED: LOCAL_STORAGE_KEYS.SEASONAL_OVERLAYS_ENABLED,
+  DISABLE_THEME_HEADSHOT: LOCAL_STORAGE_KEYS.DISABLE_THEME_HEADSHOT,
 
   // Achievements (mirrored from localStorage for SSR)
-  ACHIEVEMENTS: 'kil.dev_achievements_v1',
+  ACHIEVEMENTS: LOCAL_STORAGE_KEYS.ACHIEVEMENTS,
 } as const
