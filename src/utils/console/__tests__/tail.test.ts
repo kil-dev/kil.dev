@@ -37,13 +37,19 @@ describe('tail command', () => {
     const { env, output } = createMockEnv()
     tail.execute(['-n', 'invalid', '/home/README.md'], env)
     // When -n value is invalid, it treats the rest as a path
-    expect(output).toEqual([formatTailNoSuchFile('-n invalid /home/README.md')])
+    expect(output).toEqual([
+      'tail: invalid line count',
+      `usage: ${tail.usage}`,
+    ])
   })
 
   it('handles -n with zero or negative value', () => {
     const { env, output } = createMockEnv()
     tail.execute(['-n', '0', '/home/README.md'], env)
     // When -n value is invalid (0), it treats the rest as a path
-    expect(output).toEqual([formatTailNoSuchFile('-n 0 /home/README.md')])
+    expect(output).toEqual([
+      'tail: invalid line count',
+      `usage: ${tail.usage}`,
+    ])
   })
 })
