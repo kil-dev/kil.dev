@@ -443,4 +443,185 @@ describe('tab completion', () => {
       expect(res.suggestions).toContain('pet-gallery')
     })
   })
+
+  describe('achievements command completion', () => {
+    let originalLocalStorage: Storage | undefined
+
+    beforeEach(() => {
+      // Setup window if it doesn't exist
+      if (globalThis.window === undefined) {
+        Object.defineProperty(globalThis, 'window', {
+          value: {},
+          writable: true,
+          configurable: true,
+        })
+      }
+
+      // Save and mock localStorage
+      originalLocalStorage = globalThis.window?.localStorage
+      const storage: Record<string, string> = {}
+      const mockLocalStorage = {
+        getItem: vi.fn((key: string) => storage[key] ?? null),
+        setItem: vi.fn((key: string, value: string) => {
+          storage[key] = value
+        }),
+        removeItem: vi.fn((key: string) => {
+          delete storage[key]
+        }),
+        clear: vi.fn(() => {
+          for (const key of Object.keys(storage)) delete storage[key]
+        }),
+        key: vi.fn((index: number) => Object.keys(storage)[index] ?? null),
+        get length() {
+          return Object.keys(storage).length
+        },
+      } as unknown as Storage
+      Object.defineProperty(globalThis.window, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true,
+      })
+      Object.defineProperty(globalThis, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true,
+      })
+    })
+
+    afterEach(() => {
+      // Restore localStorage
+      if (originalLocalStorage && globalThis.window) {
+        Object.defineProperty(globalThis.window, 'localStorage', {
+          value: originalLocalStorage,
+          writable: true,
+          configurable: true,
+        })
+        Object.defineProperty(globalThis, 'localStorage', {
+          value: originalLocalStorage,
+          writable: true,
+          configurable: true,
+        })
+      }
+    })
+
+    it('completes achievements subcommands', () => {
+      const { env } = createMockEnv()
+      const value = 'achievements '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      expect(res.suggestions).toBeDefined()
+      expect(res.suggestions).toContain('list')
+      expect(res.suggestions).toContain('hint')
+      expect(res.suggestions).toContain('show')
+    })
+
+    it('completes partial subcommand', () => {
+      const { env } = createMockEnv()
+      const value = 'achievements h'
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      expect(res.value).toBe('achievements hint ')
+      expect(res.caret).toBe('achievements hint '.length)
+    })
+
+    it('completes locked achievement numbers for hint subcommand', () => {
+      // Don't unlock any achievements
+      const { env } = createMockEnv()
+      const value = 'achievements hint '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      expect(res.suggestions).toBeDefined()
+      expect(res.suggestions!.length).toBeGreaterThan(0)
+      expect(res.suggestions).toContain('1')
+      expect(res.suggestions).toContain('2')
+    })
+
+    it('completes unlocked achievement numbers for show subcommand', () => {
+      // Mock some unlocked achievements
+      localStorage.setItem(
+        'kil.dev/achievements/v1',
+        JSON.stringify({
+          ABOUT_AMBLER: '2024-01-15T10:00:00.000Z',
+          KONAMI_KILLER: '2024-01-16T12:00:00.000Z',
+        }),
+      )
+
+      const { env } = createMockEnv()
+      const value = 'achievements show '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      expect(res.suggestions).toBeDefined()
+      expect(res.suggestions!.length).toBeGreaterThan(0)
+      // Should contain numbers of unlocked achievements
+      expect(res.suggestions).toContain('1')
+    })
+
+    it('completes with ach alias', () => {
+      const { env } = createMockEnv()
+      const value = 'ach h'
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => {
+          if (name in commands) return name
+          // Check aliases
+          for (const [cmd, def] of Object.entries(commands)) {
+            if (def.aliases?.includes(name)) return cmd
+          }
+          return
+        },
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      expect(res.value).toBe('ach hint ')
+      expect(res.caret).toBe('ach hint '.length)
+    })
+
+    it('does not complete after achievement number is provided', () => {
+      const { env } = createMockEnv()
+      const value = 'achievements hint 1 '
+      const caret = value.length
+      const res = computeTabCompletion(value, caret, {
+        commands,
+        resolveCommand: name => (name in commands ? name : undefined),
+        cwd: env.pwd(),
+        list: path => env.list(path),
+        normalizePath,
+      })
+
+      // Should not suggest anything after the number
+      expect(res.value).toBe(value)
+      expect(res.caret).toBe(caret)
+    })
+  })
 })

@@ -1,4 +1,5 @@
 import type { SecretConsoleCommand } from '@/types/secret-console'
+import { achievements } from './achievements'
 import { cat } from './cat'
 import { cd } from './cd'
 import { createCommandsCommand } from './commands'
@@ -33,6 +34,7 @@ export const Commands = (() => {
     // Placeholder - will be replaced below
     commands: {} as SecretConsoleCommand,
     help: {} as SecretConsoleCommand,
+    achievements,
     theme,
   }
 
