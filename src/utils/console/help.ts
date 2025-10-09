@@ -19,5 +19,6 @@ function executeHelp(args: string[], env: SecretConsoleEnv) {
 export const help: SecretConsoleCommand = {
   usage: 'help [command]',
   help: 'help [command] — show help for a command',
+  completion: { args: 'commands' },
   execute: executeHelp,
 }

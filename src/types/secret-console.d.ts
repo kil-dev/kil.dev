@@ -12,4 +12,10 @@ export type SecretConsoleCommand = {
   help: string
   execute: (args: string[], env: SecretConsoleEnv) => void
   aliases?: readonly string[]
+  completion?: {
+    // What to complete for positional args (non-flag tokens)
+    args: 'none' | 'commands' | 'files' | 'folders' | 'paths'
+    // Supported flags for this command (e.g. ['-a','-n'])
+    flags?: readonly string[]
+  }
 }

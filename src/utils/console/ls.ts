@@ -9,5 +9,6 @@ function executeLs(args: string[], env: SecretConsoleEnv) {
 export const ls: SecretConsoleCommand = {
   usage: 'ls [path]',
   help: 'ls [path] — list files in a path (default: current directory)',
+  completion: { args: 'paths' },
   execute: executeLs,
 }

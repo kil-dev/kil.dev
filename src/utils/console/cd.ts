@@ -12,5 +12,6 @@ function executeCd(args: string[], env: SecretConsoleEnv) {
 export const cd: SecretConsoleCommand = {
   usage: 'cd [path]',
   help: 'cd [path] — change directory',
+  completion: { args: 'folders' },
   execute: executeCd,
 }

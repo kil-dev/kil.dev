@@ -7,5 +7,6 @@ function executeDate(_args: string[], env: SecretConsoleEnv) {
 export const date: SecretConsoleCommand = {
   usage: 'date',
   help: 'date — current date/time',
+  completion: { args: 'none' },
   execute: executeDate,
 }
