@@ -31,6 +31,7 @@ function executeHead(args: string[], env: SecretConsoleEnv) {
 }
 
 export const head: SecretConsoleCommand = {
-  usage: 'head [-n N] <path> — first N lines (default 10)',
+  usage: 'head [-n N] <path>',
+  help: 'head [-n N] <path> — first N lines (default 10)',
   execute: executeHead,
 }

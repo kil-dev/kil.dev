@@ -10,6 +10,7 @@ function executeCd(args: string[], env: SecretConsoleEnv) {
 }
 
 export const cd: SecretConsoleCommand = {
-  usage: 'change directory (cd [path])',
+  usage: 'cd [path]',
+  help: 'cd [path] — change directory',
   execute: executeCd,
 }

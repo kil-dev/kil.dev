@@ -6,5 +6,6 @@ function executeExit(_args: string[], env: SecretConsoleEnv) {
 
 export const exit: SecretConsoleCommand = {
   usage: 'exit',
+  help: 'exit — exit the shell',
   execute: executeExit,
 }

@@ -5,6 +5,7 @@ function executeEcho(args: string[], env: SecretConsoleEnv) {
 }
 
 export const echo: SecretConsoleCommand = {
-  usage: 'echo [args…] — print arguments',
+  usage: 'echo [args…]',
+  help: 'echo [args…] — print arguments',
   execute: executeEcho,
 }

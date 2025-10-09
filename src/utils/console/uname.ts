@@ -35,6 +35,7 @@ function executeUname(args: string[], env: SecretConsoleEnv) {
   env.appendOutput(sysname)
 }
 export const uname: SecretConsoleCommand = {
-  usage: 'uname — system name',
+  usage: 'uname [-a]',
+  help: 'uname [-a] — show system information',
   execute: executeUname,
 }

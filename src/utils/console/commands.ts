@@ -7,5 +7,6 @@ function executeCommands(_args: string[], env: SecretConsoleEnv) {
 
 export const commands: SecretConsoleCommand = {
   usage: 'commands',
+  help: 'commands — list all commands',
   execute: executeCommands,
 }

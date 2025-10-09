@@ -9,6 +9,7 @@ export type SecretConsoleEnv = {
 
 export type SecretConsoleCommand = {
   usage: string
+  help: string
   execute: (args: string[], env: SecretConsoleEnv) => void
   aliases?: readonly string[]
 }

@@ -5,6 +5,7 @@ function executePwd(_args: string[], env: SecretConsoleEnv) {
 }
 
 export const pwd: SecretConsoleCommand = {
-  usage: 'print working directory',
+  usage: 'pwd',
+  help: 'pwd — print working directory',
   execute: executePwd,
 }

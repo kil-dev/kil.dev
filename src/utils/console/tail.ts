@@ -32,6 +32,7 @@ function executeTail(args: string[], env: SecretConsoleEnv) {
 }
 
 export const tail: SecretConsoleCommand = {
-  usage: 'tail [-n N] <path> — last N lines (default 10)',
+  usage: 'tail [-n N] <path>',
+  help: 'tail [-n N] <path> — last N lines (default 10)',
   execute: executeTail,
 }

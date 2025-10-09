@@ -18,6 +18,7 @@ function executeWc(args: string[], env: SecretConsoleEnv) {
 }
 
 export const wc: SecretConsoleCommand = {
-  usage: 'wc <path> — line, word, byte counts',
+  usage: 'wc <path>',
+  help: 'wc <path> — line, word, byte counts',
   execute: executeWc,
 }
