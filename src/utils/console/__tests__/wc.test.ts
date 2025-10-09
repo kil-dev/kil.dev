@@ -7,16 +7,16 @@ describe('wc command', () => {
     const { env, output } = createMockEnv()
     wc.execute(['/home/README.md'], env)
     // "Welcome to kil.dev\nThis is a test file.\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12"
-    // 12 lines, 28 words, 112 bytes
-    expect(output).toEqual(['12 28 112 /home/README.md'])
+    // 11 new lines, 28 words, 112 bytes
+    expect(output).toEqual(['11 28 112 /home/README.md'])
   })
 
   it('handles single line file', () => {
     const { env, output } = createMockEnv()
     wc.execute(['/home/about/bio.txt'], env)
     // "Software engineer and web developer."
-    // 1 line, 5 words, 36 bytes
-    expect(output).toEqual(['1 5 36 /home/about/bio.txt'])
+    // 0 new lines, 5 words, 36 bytes
+    expect(output).toEqual(['0 5 36 /home/about/bio.txt'])
   })
 
   it('handles empty file', () => {
