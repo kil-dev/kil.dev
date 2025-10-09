@@ -38,7 +38,15 @@ export function createHelpCommand(
       env.appendOutput(formatNoSuchCommand(name))
       return
     }
-    env.appendOutput(`${resolved}: ${command.help}`)
+
+    // Build output with aliases if present
+    let output = `${resolved}: ${command.help}`
+    if (command.aliases && command.aliases.length > 0) {
+      const aliasesText = command.aliases.join(', ')
+      output += `\nAliases: ${aliasesText}`
+    }
+
+    env.appendOutput(output)
   }
 
   const helpCommand: SecretConsoleCommand = {
