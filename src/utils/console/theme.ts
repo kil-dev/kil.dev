@@ -3,6 +3,7 @@ import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme } from '@/lib/themes'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 import { hasThemeTapdanceAchievement } from '@/utils/achievements'
+import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { maybeStartViewTransition } from '@/utils/view-transition'
 
@@ -15,8 +16,7 @@ function getConsoleAvailableThemes(): string[] {
   const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
 
   // Filter themes based on achievement status
-  const hasUnlockedMatrix =
-    typeof localStorage !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+  const hasUnlockedMatrix = isMatrixThemeUnlocked()
 
   const availableThemeNames = themes
     .filter(t => {
@@ -122,7 +122,7 @@ function isExplicitToSystemWithSameVisual(state: ThemeState, requestedTheme: The
 function unlockMatrixAchievementIfNeeded(requestedTheme: Theme): boolean {
   if (requestedTheme !== 'matrix') return false
 
-  const hasSelectedMatrixBefore = localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+  const hasSelectedMatrixBefore = isMatrixThemeUnlocked()
   if (hasSelectedMatrixBefore) return false
 
   localStorage.setItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED, '1')

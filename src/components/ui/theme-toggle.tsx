@@ -8,9 +8,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { captureThemeChanged } from '@/hooks/posthog'
 import { useIsClient } from '@/hooks/use-is-client'
 import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
-import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
+import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
@@ -164,8 +164,7 @@ export function ThemeToggle() {
   const allOptions: ThemeOption[] = useMemo(() => {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
     const achievementUnlocked = has('THEME_TAPDANCE')
-    const hasUnlockedMatrix =
-      globalThis.window !== undefined && localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+    const hasUnlockedMatrix = isMatrixThemeUnlocked()
     const filteredList = themeList.filter(t => {
       if (t === 'system') return true
       const entry = themes.find(e => e.name === t) as ThemeConfig | undefined

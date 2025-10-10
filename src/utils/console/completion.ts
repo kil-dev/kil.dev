@@ -1,7 +1,7 @@
-import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
 import { hasThemeTapdanceAchievement } from '@/utils/achievements'
+import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { getAchievementSubcommands, getHintableAchievementNumbers, getShowableAchievementNumbers } from './achievements'
 import { getConfettiSubcommands } from './confetti'
@@ -195,8 +195,7 @@ function completeThemes(token: string, before: string, after: string): Completio
   const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
 
   // Get available themes based on achievement status
-  const hasUnlockedMatrix =
-    typeof localStorage !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+  const hasUnlockedMatrix = isMatrixThemeUnlocked()
 
   const availableThemeNames: string[] = themes
     .filter(t => {
