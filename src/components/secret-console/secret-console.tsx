@@ -124,7 +124,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       if (!isDragging) return
 
       const deltaY = e.clientY - dragStartY.current
-      const viewportHeight = window.innerHeight
+      const viewportHeight = globalThis.window.innerHeight
       const deltaVh = (deltaY / viewportHeight) * 100
       const newHeight = Math.max(30, Math.min(95, dragStartHeight.current + deltaVh))
 
@@ -138,12 +138,13 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   }, [])
 
   useEffect(() => {
+    if (globalThis.window === undefined) return
     if (isDragging) {
-      globalThis.window.addEventListener('mousemove', handleDragMove)
-      globalThis.window.addEventListener('mouseup', handleDragEnd)
+      globalThis.addEventListener('mousemove', handleDragMove)
+      globalThis.addEventListener('mouseup', handleDragEnd)
       return () => {
-        globalThis.window.removeEventListener('mousemove', handleDragMove)
-        globalThis.window.removeEventListener('mouseup', handleDragEnd)
+        globalThis.removeEventListener('mousemove', handleDragMove)
+        globalThis.removeEventListener('mouseup', handleDragEnd)
       }
     }
   }, [isDragging, handleDragMove, handleDragEnd])
