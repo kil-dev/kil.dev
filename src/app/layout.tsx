@@ -46,6 +46,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`${spaceGrotesk.variable} ${notoSans.variable} ${vt323.variable}`}
       suppressHydrationWarning>
       <head>
+        <script
+          id="pre-theme-tapdance"
+          dangerouslySetInnerHTML={{
+            __html: buildPresenceScript({
+              key: 'THEME_TAPDANCE',
+              attribute: 'data-has-theme-tapdance',
+            }),
+          }}
+        />
         <script id="pre-theme" dangerouslySetInnerHTML={{ __html: buildThemeScript() }} />
         <script
           id="pre-profile-image-variant"
@@ -68,15 +77,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             __html: buildPresenceScript({
               key: 'PET_PARADE',
               attribute: 'data-has-pet-gallery',
-            }),
-          }}
-        />
-        <script
-          id="pre-theme-tapdance"
-          dangerouslySetInnerHTML={{
-            __html: buildPresenceScript({
-              key: 'THEME_TAPDANCE',
-              attribute: 'data-has-theme-tapdance',
             }),
           }}
         />
