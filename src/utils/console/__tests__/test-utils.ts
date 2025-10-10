@@ -1,5 +1,5 @@
 import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
-import { vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
+import { vfsList, vfsRead, vfsResolve, vfsStat } from '@/utils/secret-console-vfs'
 
 const mockVfs: VfsNode = {
   type: 'dir',
@@ -60,6 +60,10 @@ export function createMockEnv(overrides?: Partial<SecretConsoleEnv>): {
     read: (path: string) => {
       const absolutePath = path.startsWith('/') ? path : `${currentDir}/${path}`
       return vfsRead(mockVfs, absolutePath)
+    },
+    stat: (path: string) => {
+      const absolutePath = path.startsWith('/') ? path : `${currentDir}/${path}`
+      return vfsStat(mockVfs, absolutePath)
     },
     chdir: (path: string) => {
       const absolutePath = path.startsWith('/') ? path : `${currentDir}/${path}`
