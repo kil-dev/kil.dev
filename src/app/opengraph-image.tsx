@@ -1,5 +1,6 @@
 import { HOME_CONTENT } from '@/lib/content'
 import { LIGHT_GRID } from '@/lib/light-grid'
+import { headers } from 'next/headers'
 import { ImageResponse } from 'next/og'
 
 // Image metadata
@@ -35,15 +36,13 @@ export default async function OpengraphImage() {
     foreground: 'rgb(250, 250, 250)',
   }
 
-  // Get the base URL for fetching assets
-  // In production, use the deployment URL; in development, use localhost
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NODE_ENV === 'production'
-      ? 'https://kil.dev'
-      : 'http://localhost:3000'
+  // Get the base URL from request headers
+  const headersList = await headers()
+  const host = headersList.get('host') ?? 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const baseUrl = `${protocol}://${host}`
 
-  // Fetch assets from the API route that serves them
+  // Fetch assets from the public directory
   const [notoSansData, spaceGroteskData, headshotData] = await Promise.all([
     fetch(`${baseUrl}/ogi/fonts/NotoSans-Black.ttf`).then(res => res.arrayBuffer()),
     fetch(`${baseUrl}/ogi/fonts/SpaceGrotesk-Bold.ttf`).then(res => res.arrayBuffer()),
