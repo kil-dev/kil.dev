@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: 'Kilian Tyler | Site Reliability Engineer',
   description: 'Kilian Tyler is a Site Reliability Engineer',
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
+  openGraph: {
+    title: 'Kilian Tyler | Site Reliability Engineer',
+    description: 'Check out my website! It has achievements.',
+    url: 'https://kil.dev',
+  },
 }
 
 const spaceGrotesk = Space_Grotesk({
