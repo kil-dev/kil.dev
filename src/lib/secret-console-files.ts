@@ -108,7 +108,8 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
           children: {
             '.bashrc': {
               type: 'file',
-              content: 'export PS1="\\w $ "\n' + 'alias ach="achievements"\n' + 'alias "?"="help"',
+              content:
+                'export PS1="\\w $ "\n' + 'alias ach="achievements"\n' + 'alias "?"="help"\n' + 'alias b64="base64"\n',
             },
             '.profile': {
               type: 'file',
@@ -381,29 +382,28 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
             'notes.txt': {
               type: 'file',
               content:
-                'Todo:\n' +
-                '- Polish animations\n' +
-                '- Add more virtual files ✓\n' +
-                '- Hide an easter egg ✓\n' +
-                '- More project READMEs ✓\n' +
-                '- System files expansion ✓\n' +
-                '\n' +
-                'Done:\n' +
-                '- Secret console implemented\n' +
-                '- Achievement system working\n' +
-                '- Multiple themes available\n' +
-                '- VFS is now comprehensive!\n' +
-                '\n' +
-                'Ideas:\n' +
-                '- Add more easter eggs?\n' +
-                '- Interactive terminal game?\n' +
-                '- More hidden achievements?\n',
+                'Something feels off lately... little glitches here and there.\n' +
+                'If this keeps up, check the system logs — /var/log/syslog — for anything unusual.\n',
             },
           },
         },
       },
     },
-    tmp: { type: 'dir', children: {} },
+    tmp: {
+      type: 'dir',
+      children: {
+        '.burrow': {
+          type: 'dir',
+          children: {
+            'trail.b64': {
+              type: 'file',
+              content:
+                'Q3VyaW91c2VyIGFuZCBjdXJpb3VzZXIuLi4KCnVuaGV4IC92YXIvbGliL2xvb2tpbmctZ2xhc3MvcG9ja2V0d2F0Y2guaGV4Cg==',
+            },
+          },
+        },
+      },
+    },
     var: {
       type: 'dir',
       children: {
@@ -416,7 +416,8 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
                 'Oct 10 04:20:00 kil-dev kernel: [0.000000] Booting secret console\n' +
                 'Oct 10 04:20:01 kil-dev systemd[1]: Started user session.\n' +
                 'Oct 10 04:20:02 kil-dev achievement-tracker[42]: Monitoring for easter eggs\n' +
-                'Oct 10 04:20:03 kil-dev theme-manager[99]: Loaded 9 themes\n',
+                'Oct 10 04:20:03 kil-dev theme-manager[99]: Loaded 9 themes\n' +
+                'Oct 10 04:20:07 kil-dev audit[451]: white_rabbit: hidden warren created at /tmp/.burrow\n',
             },
             'auth.log': {
               type: 'file',
@@ -459,6 +460,16 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
         lib: {
           type: 'dir',
           children: {
+            'looking-glass': {
+              type: 'dir',
+              children: {
+                'pocketwatch.hex': {
+                  type: 'file',
+                  content:
+                    '49 74 27 73 20 6e 6f 20 75 73 65 20 67 6f 69 6e 67 20 62 61 63 6b 20 74 6f 20 79 65 73 74 65 72 64 61 79 2c 20 62 65 63 61 75 73 65 20 49 20 77 61 73 20 61 20 64 69 66 66 65 72 65 6e 74 20 70 65 72 73 6f 6e 20 74 68 65 6e 2e 0a 54 6f 20 77 61 6b 65 20 75 70 2c 20 73 65 74 20 79 6f 75 72 20 74 68 65 6d 65 20 74 6f 20 6d 61 74 72 69 78\n',
+                },
+              },
+            },
             secrets: {
               type: 'dir',
               children: {
