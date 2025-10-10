@@ -1,6 +1,7 @@
 import { themes } from '@/lib/themes'
 import type { SecretConsoleCommand } from '@/types/secret-console'
 import { hasThemeTapdanceAchievement } from '@/utils/achievements'
+import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { getAchievementSubcommands, getHintableAchievementNumbers, getShowableAchievementNumbers } from './achievements'
 import { getConfettiSubcommands } from './confetti'
@@ -194,6 +195,8 @@ function completeThemes(token: string, before: string, after: string): Completio
   const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
 
   // Get available themes based on achievement status
+  const hasUnlockedMatrix = isMatrixThemeUnlocked()
+
   const availableThemeNames: string[] = themes
     .filter(t => {
       // Always exclude alwaysHidden themes
@@ -204,6 +207,9 @@ function completeThemes(token: string, before: string, after: string): Completio
         // Show if currently active OR user has achievement
         return activeSeasonalThemes.has(t.name) || hasAchievement
       }
+
+      // Exclude matrix from completion until unlocked
+      if (t.name === 'matrix' && !hasUnlockedMatrix) return false
 
       return true
     })

@@ -10,6 +10,7 @@ import { useIsClient } from '@/hooks/use-is-client'
 import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
+import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
 import { getThemeIcon, getThemeLabel } from '@/utils/themes'
@@ -163,11 +164,13 @@ export function ThemeToggle() {
   const allOptions: ThemeOption[] = useMemo(() => {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
     const achievementUnlocked = has('THEME_TAPDANCE')
+    const hasUnlockedMatrix = isMatrixThemeUnlocked()
     const filteredList = themeList.filter(t => {
       if (t === 'system') return true
       const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
       if (entry?.alwaysHidden) return false
-      if (entry?.hiddenFromMenu) return false
+      // Keep hiddenFromMenu unless unlocked and the theme is matrix
+      if (entry?.hiddenFromMenu && !(hasUnlockedMatrix && t === 'matrix')) return false
       const gated = Boolean(entry?.requiresAchievement)
       return achievementUnlocked || !gated
     })
