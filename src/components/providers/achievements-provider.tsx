@@ -68,6 +68,33 @@ export function AchievementsProvider({
     mountedRef.current = true
   }, [])
 
+  // Seed from presence data attributes if local storage is empty or missing entries
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    try {
+      const root = document.documentElement
+      const nowIso = new Date().toISOString()
+
+      function toKebabCase(id: string): string {
+        return id.toLowerCase().replaceAll('_', '-')
+      }
+
+      setUnlocked(prev => {
+        let changed = false
+        const next = { ...prev }
+        for (const id of Object.keys(ACHIEVEMENTS)) {
+          const attr = 'data-achievement-' + toKebabCase(id)
+          if (next[id as AchievementId]) continue
+          if (root.hasAttribute(attr)) {
+            next[id as AchievementId] = nowIso
+            changed = true
+          }
+        }
+        return changed ? next : prev
+      })
+    } catch {}
+  }, [])
+
   // Cross-tab sync: respond to localStorage updates from other tabs
   useEffect(() => {
     if (globalThis.window === undefined) return

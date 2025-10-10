@@ -28,21 +28,6 @@ function isValidAchievementId(id: string): id is AchievementId {
   return Object.hasOwn(ACHIEVEMENTS, id)
 }
 
-export function parseUnlockedCookie(raw: string | undefined): UnlockedMap {
-  if (!raw) return createEmptyUnlocked()
-  let text = raw
-  try {
-    // Handle percent-encoded cookie values
-    text = decodeURIComponent(raw)
-  } catch {}
-  try {
-    const parsed = JSON.parse(text) as unknown
-    return sanitizeUnlockedRecord(parsed)
-  } catch {
-    return createEmptyUnlocked()
-  }
-}
-
 export function serializeUnlockedCookie(map: UnlockedMap): string {
   // Persist only unlocked achievements with non-empty timestamps
   const payload: Record<string, string> = {}
@@ -75,13 +60,41 @@ export function parseUnlockedStorage(raw: string | null | undefined): UnlockedMa
   }
 }
 
-type PresenceConfig = { cookieName?: string; key: string; attribute: string }
-export function buildPresenceScript(cfg: PresenceConfig): string {
-  const finalCfg = { cookieName: ACHIEVEMENTS_COOKIE_NAME, ...cfg }
-  const serializedCfg = JSON.stringify(finalCfg)
-    .replaceAll('<', String.raw`\u003c`)
-    .replaceAll('\u2028', String.raw`\u2028`)
-    .replaceAll('\u2029', String.raw`\u2029`)
-  const invoke = ';try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(' + serializedCfg + ')}catch(e){}'
-  return PRESENCE_RUNTIME_BUNDLE + invoke
+export function buildAllAchievementsPresenceScript(): string {
+  const cookieName = ACHIEVEMENTS_COOKIE_NAME
+
+  function toKebabCase(id: string): string {
+    return id.toLowerCase().replaceAll('_', '-')
+  }
+
+  const calls: string[] = []
+
+  // Generic attribute for every achievement: data-achievement-<kebab-id>
+  for (const id of Object.keys(ACHIEVEMENTS)) {
+    const attribute = `data-achievement-${toKebabCase(id)}`
+    const cfg = { cookieName, key: id, attribute }
+    const serializedCfg = JSON.stringify(cfg)
+      .replaceAll('<', String.raw`\u003c`)
+      .replaceAll('\u2028', String.raw`\u2028`)
+      .replaceAll('\u2029', String.raw`\u2029`)
+    calls.push(`;try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(${serializedCfg})}catch(e){}`)
+  }
+
+  // Maintain existing special-case flags used for CSS-gated UI
+  const special: Array<{ key: keyof typeof ACHIEVEMENTS; attribute: string }> = [
+    { key: 'THEME_TAPDANCE', attribute: 'data-has-theme-tapdance' },
+    { key: 'RECURSIVE_REWARD', attribute: 'data-has-achievements' },
+    { key: 'PET_PARADE', attribute: 'data-has-pet-gallery' },
+  ]
+  for (const { key, attribute } of special) {
+    if (!Object.hasOwn(ACHIEVEMENTS, key)) continue
+    const cfg = { cookieName, key, attribute }
+    const serializedCfg = JSON.stringify(cfg)
+      .replaceAll('<', String.raw`\u003c`)
+      .replaceAll('\u2028', String.raw`\u2028`)
+      .replaceAll('\u2029', String.raw`\u2029`)
+    calls.push(`;try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(${serializedCfg})}catch(e){}`)
+  }
+
+  return PRESENCE_RUNTIME_BUNDLE + calls.join('')
 }
