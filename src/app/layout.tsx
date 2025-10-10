@@ -1,5 +1,6 @@
 import { Providers } from '@/components/providers/providers'
 import '@/styles/globals.css'
+import { Suspense } from 'react'
 
 import { Background } from '@/components/layout/background'
 import { Footer } from '@/components/layout/footer'
@@ -82,19 +83,21 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
-        <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <Background />
-            <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
-              <div className="layout-container flex h-full flex-1 flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
+        <Suspense>
+          <Providers>
+            <div className="relative flex min-h-screen flex-col">
+              <Background />
+              <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
+                <div className="layout-container flex h-full flex-1 flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
               </div>
             </div>
-          </div>
-          <SecretConsoleLoader />
-        </Providers>
+            <SecretConsoleLoader />
+          </Providers>
+        </Suspense>
       </body>
     </html>
   )

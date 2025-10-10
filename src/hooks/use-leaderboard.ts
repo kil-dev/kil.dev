@@ -37,7 +37,7 @@ export function useLeaderboard() {
 
   const checkScoreQualification = useCallback(async (currentScore: number) => {
     try {
-      const response = await fetch(`/api/scores/check?score=${currentScore}`)
+      const response = await fetch(`/api/scores/check/${currentScore}`)
       const jsonData: unknown = await response.json()
       const parsed = CheckScoreResponseSchema.safeParse(jsonData)
       if (!parsed.success) {

@@ -2,8 +2,6 @@ import type { NextRequest } from 'next/server'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-export const runtime = 'nodejs'
-
 type PathParts = [segment: 'pet-gallery', ...rest: string[]]
 
 const allowedExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'])
