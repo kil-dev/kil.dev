@@ -76,8 +76,9 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     if (globalThis.window === undefined) return 45
 
     try {
-      const saved = sessionStorage.getItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT)
-      if (saved) {
+      const key = SESSION_STORAGE_KEYS.CONSOLE_HEIGHT as string
+      const saved = sessionStorage.getItem(key)
+      if (saved !== null) {
         const parsed = Number.parseFloat(saved)
         if (!Number.isNaN(parsed) && parsed >= 30 && parsed <= 95) {
           return parsed
@@ -138,11 +139,11 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleDragMove)
-      window.addEventListener('mouseup', handleDragEnd)
+      globalThis.window.addEventListener('mousemove', handleDragMove)
+      globalThis.window.addEventListener('mouseup', handleDragEnd)
       return () => {
-        window.removeEventListener('mousemove', handleDragMove)
-        window.removeEventListener('mouseup', handleDragEnd)
+        globalThis.window.removeEventListener('mousemove', handleDragMove)
+        globalThis.window.removeEventListener('mouseup', handleDragEnd)
       }
     }
   }, [isDragging, handleDragMove, handleDragEnd])
@@ -209,7 +210,8 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   // Persist height to sessionStorage
   useEffect(() => {
     try {
-      sessionStorage.setItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT, height.toString())
+      const key = SESSION_STORAGE_KEYS.CONSOLE_HEIGHT as string
+      sessionStorage.setItem(key, height.toString())
     } catch {
       // Ignore storage errors
     }
