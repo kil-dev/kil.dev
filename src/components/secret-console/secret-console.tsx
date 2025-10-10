@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 type Entry = { type: 'in' | 'out'; text: string; cwd?: string }
 
 function formatPrompt(cwd: string): string {
-  return cwd.replace(/^\/home\/kil/, '~')
+  return cwd.replace(/^\/home\/kil(?=\/|$)/, '~')
 }
 
 export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }) {
