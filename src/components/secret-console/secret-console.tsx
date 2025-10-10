@@ -64,7 +64,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   }, [router])
 
   const rootVfs = useMemo<VfsNode>(() => SECRET_CONSOLE_VFS, [])
-  const [cwd, setCwd] = useState<string>('/home')
+  const [cwd, setCwd] = useState<string>('/home/kil')
 
   const appendOutput = useCallback((text: string) => {
     setEntries(prev => [...prev, { type: 'out', text }])
