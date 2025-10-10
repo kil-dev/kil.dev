@@ -1,5 +1,6 @@
 import type { SecretConsoleCommand } from '@/types/secret-console'
 import { achievements } from './achievements'
+import { base64 } from './base64'
 import { cat } from './cat'
 import { cd } from './cd'
 import { clear } from './clear'
@@ -10,6 +11,7 @@ import { echo } from './echo'
 import { exit } from './exit'
 import { head } from './head'
 import { createHelpCommand } from './help'
+import { hex } from './hex'
 import { ls } from './ls'
 import { nav } from './nav'
 import { pwd } from './pwd'
@@ -17,6 +19,7 @@ import { tail } from './tail'
 import { theme } from './theme'
 import { tree } from './tree'
 import { uname } from './uname'
+import { unhex } from './unhex'
 import { uptime } from './uptime'
 import { wc } from './wc'
 
@@ -38,6 +41,9 @@ export const Commands = (() => {
     uptime,
     exit,
     nav,
+    base64,
+    hex,
+    unhex,
     // Placeholder - will be replaced below
     commands: {} as SecretConsoleCommand,
     help: {} as SecretConsoleCommand,
