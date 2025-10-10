@@ -1,5 +1,6 @@
 export type SecretConsoleEnv = {
   appendOutput: (text: string) => void
+  clearOutput: () => void
   pwd: () => string
   list: (path: string) => { name: string; isDir: boolean }[]
   read: (path: string) => string | undefined

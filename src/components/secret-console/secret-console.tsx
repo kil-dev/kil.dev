@@ -149,9 +149,15 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   const appendOutput = useCallback((text: string) => {
     setEntries(prev => [...prev, { type: 'out', text }])
   }, [])
+
+  const clearOutput = useCallback(() => {
+    setEntries([])
+  }, [])
+
   const env = useMemo<SecretConsoleEnv>(
     () => ({
       appendOutput,
+      clearOutput,
       pwd: () => cwd,
       list: (path: string) =>
         vfsList(rootVfs, normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${cwd}/${path}`)),
@@ -169,7 +175,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       },
       requestClose: handleClose,
     }),
-    [appendOutput, cwd, rootVfs, handleClose],
+    [appendOutput, clearOutput, cwd, rootVfs, handleClose],
   )
 
   const handleTabKey = useCallback(

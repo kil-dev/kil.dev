@@ -21,6 +21,9 @@ export function createMockEnv(overrides?: Partial<SecretConsoleEnv>): {
     appendOutput: (text: string) => {
       output.push(text)
     },
+    clearOutput: () => {
+      output.length = 0
+    },
     pwd: () => currentDir,
     list: (path: string) => {
       const absolutePath = resolvePath(path)
