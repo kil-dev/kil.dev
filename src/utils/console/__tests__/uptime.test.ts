@@ -33,9 +33,7 @@ describe('uptime', () => {
 
   it('should handle missing /proc/loadavg gracefully', () => {
     const { env, output } = createMockEnv({
-      read: (_path: string) => {
-        return
-      },
+      read: () => void 0,
     })
 
     uptime.execute([], env)
