@@ -30,7 +30,7 @@ export async function GET(_request: Request, context: { params: Promise<{ score?
     }
 
     return NextResponse.json(response)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 })
   }
 }
