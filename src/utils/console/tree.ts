@@ -79,7 +79,7 @@ function buildTree(
   for (const [index, child] of filteredChildren.entries()) {
     const isLastChild = index === filteredChildren.length - 1
     const connector = isLastChild ? '└── ' : '├── '
-    const childPrefix = prefix + (isLast ? '    ' : '│   ')
+    const childPrefix = prefix + (isLastChild ? '    ' : '│   ')
 
     // Display the child
     lines.push(prefix + connector + child.name)
