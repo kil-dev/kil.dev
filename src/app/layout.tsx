@@ -1,12 +1,13 @@
 import { Providers } from '@/components/providers/providers'
 import '@/styles/globals.css'
+import { Suspense } from 'react'
 
 import { Background } from '@/components/layout/background'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { SecretConsoleLoader } from '@/components/secret-console/secret-console-loader'
 import { PROFILE_IMAGE_ALT_DOMAINS } from '@/lib/alt-domains'
-import { buildPresenceScript } from '@/utils/achievements'
+import { buildAllAchievementsPresenceScript } from '@/utils/achievements'
 import {
   PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE,
   buildProfileImageVariantScript,
@@ -47,13 +48,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       suppressHydrationWarning>
       <head>
         <script
-          id="pre-theme-tapdance"
-          dangerouslySetInnerHTML={{
-            __html: buildPresenceScript({
-              key: 'THEME_TAPDANCE',
-              attribute: 'data-has-theme-tapdance',
-            }),
-          }}
+          id="pre-achievement-presence"
+          dangerouslySetInnerHTML={{ __html: buildAllAchievementsPresenceScript() }}
         />
         <script id="pre-theme" dangerouslySetInnerHTML={{ __html: buildThemeScript() }} />
         <script
@@ -62,39 +58,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           data-domains={PROFILE_IMAGE_ALT_DOMAINS.join(',')}
           dangerouslySetInnerHTML={{ __html: buildProfileImageVariantScript(PROFILE_IMAGE_ALT_DOMAINS) }}
         />
-        <script
-          id="pre-achievements"
-          dangerouslySetInnerHTML={{
-            __html: buildPresenceScript({
-              key: 'RECURSIVE_REWARD',
-              attribute: 'data-has-achievements',
-            }),
-          }}
-        />
-        <script
-          id="pre-pet-gallery"
-          dangerouslySetInnerHTML={{
-            __html: buildPresenceScript({
-              key: 'PET_PARADE',
-              attribute: 'data-has-pet-gallery',
-            }),
-          }}
-        />
       </head>
       <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
-        <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <Background />
-            <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
-              <div className="layout-container flex h-full flex-1 flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
+        <Suspense>
+          <Providers>
+            <div className="relative flex min-h-screen flex-col">
+              <Background />
+              <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
+                <div className="layout-container flex h-full flex-1 flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
               </div>
             </div>
-          </div>
-          <SecretConsoleLoader />
-        </Providers>
+            <SecretConsoleLoader />
+          </Providers>
+        </Suspense>
       </body>
     </html>
   )

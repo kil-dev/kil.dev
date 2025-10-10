@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { Pet } from '@/types/pets'
 import { calculateAgeYears, formatDateFull } from '@/utils/utils'
+import { useEffect, useState } from 'react'
 
 function formatBirthday(dateString: string) {
   return formatDateFull(dateString)
@@ -14,8 +15,6 @@ interface PetCardBackProps {
 }
 
 export function PetCardBack({ pet }: PetCardBackProps) {
-  const ageYears = calculateAgeYears(pet.birthday)
-
   return (
     <Card className="absolute inset-0 overflow-hidden p-6 [backface-visibility:hidden] transition-shadow bg-transparent group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
       <div aria-hidden className="absolute inset-0">
@@ -37,8 +36,7 @@ export function PetCardBack({ pet }: PetCardBackProps) {
               <dd className="font-medium text-foreground">{pet.gender}</dd>
               <dt className="text-primary font-bold">Birthday:</dt>
               <dd className="font-medium text-foreground">
-                {formatBirthday(pet.birthday)}
-                {ageYears === null ? null : ` (${ageYears} ${ageYears === 1 ? 'year' : 'years'})`}
+                <BirthdayWithAge birthday={pet.birthday} />
               </dd>
             </dl>
           </div>
@@ -46,5 +44,18 @@ export function PetCardBack({ pet }: PetCardBackProps) {
         </div>
       </ScrollArea>
     </Card>
+  )
+}
+
+function BirthdayWithAge({ birthday }: Readonly<{ birthday: string }>) {
+  const [ageYears, setAgeYears] = useState<number | null>(null)
+  useEffect(() => {
+    setAgeYears(calculateAgeYears(birthday))
+  }, [birthday])
+  return (
+    <>
+      {formatBirthday(birthday)}
+      {ageYears === null ? null : ` (${ageYears} ${ageYears === 1 ? 'year' : 'years'})`}
+    </>
   )
 }

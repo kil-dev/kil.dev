@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 }
 
 export const experimental_ppr = true
-export const dynamic = 'error'
 
 export default function Homepage() {
   return (

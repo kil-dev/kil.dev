@@ -5,7 +5,7 @@ import './src/env.js'
 const config: NextConfig = {
   typedRoutes: true,
   experimental: {
-    ppr: 'incremental',
+    cacheComponents: true,
   },
   images: {
     minimumCacheTTL: 31536000, // 1 year

@@ -2,17 +2,11 @@ import { AchievementCard } from '@/components/layout/achievements/achievement-ca
 import { AchievementResetButton } from '@/components/layout/achievements/achievement-reset-button'
 import { LadybirdSecretListener } from '@/components/layout/achievements/ladybird-secret-listener'
 import { SectionLabel } from '@/components/ui/section-label'
-import { ACHIEVEMENTS, ACHIEVEMENTS_COOKIE_NAME, type AchievementId } from '@/lib/achievements'
-import { parseUnlockedCookie } from '@/utils/achievements'
-import { cookies } from 'next/headers'
+import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
 
 export const experimental_ppr = true
 
-export default async function AchievementsPage() {
-  // Read per-user achievement state only for this page to keep other routes static
-  const cookieStore = await cookies()
-  const cookieValue = cookieStore.get(ACHIEVEMENTS_COOKIE_NAME)?.value
-  const unlocked = parseUnlockedCookie(cookieValue)
+export default function AchievementsPage() {
   const entries: Array<[AchievementId, (typeof ACHIEVEMENTS)[AchievementId]]> = Object.entries(ACHIEVEMENTS) as Array<
     [AchievementId, (typeof ACHIEVEMENTS)[AchievementId]]
   >
@@ -34,7 +28,7 @@ export default async function AchievementsPage() {
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {entries.map(([id]) => (
             <li key={id} className="list-none">
-              <AchievementCard id={id} initialUnlockedAt={unlocked[id]} />
+              <AchievementCard id={id} />
             </li>
           ))}
         </ul>
