@@ -71,12 +71,33 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     return '/home/kil'
   })
 
+  // Initialize console height from sessionStorage
+  const [height, setHeight] = useState<number>(() => {
+    if (globalThis.window === undefined) return 45
+
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT)
+      if (saved) {
+        const parsed = Number.parseFloat(saved)
+        if (!Number.isNaN(parsed) && parsed >= 30 && parsed <= 95) {
+          return parsed
+        }
+      }
+    } catch {
+      // Ignore errors
+    }
+    return 45
+  })
+
   const [input, setInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState<number | null>(null)
   const [savedDraft, setSavedDraft] = useState<string>('')
+  const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isClosing, setIsClosing] = useState(false)
+  const dragStartY = useRef<number>(0)
+  const dragStartHeight = useRef<number>(0)
 
   const handleClose = useCallback(() => {
     if (isClosing) return
@@ -86,6 +107,45 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   const focusInput = useCallback(() => {
     inputRef.current?.focus()
   }, [])
+
+  const handleDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      setIsDragging(true)
+      dragStartY.current = e.clientY
+      dragStartHeight.current = height
+    },
+    [height],
+  )
+
+  const handleDragMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return
+
+      const deltaY = e.clientY - dragStartY.current
+      const viewportHeight = window.innerHeight
+      const deltaVh = (deltaY / viewportHeight) * 100
+      const newHeight = Math.max(30, Math.min(95, dragStartHeight.current + deltaVh))
+
+      setHeight(newHeight)
+    },
+    [isDragging],
+  )
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove)
+      window.addEventListener('mouseup', handleDragEnd)
+      return () => {
+        window.removeEventListener('mousemove', handleDragMove)
+        window.removeEventListener('mouseup', handleDragEnd)
+      }
+    }
+  }, [isDragging, handleDragMove, handleDragEnd])
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -145,6 +205,15 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       // Ignore storage errors
     }
   }, [cwd])
+
+  // Persist height to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT, height.toString())
+    } catch {
+      // Ignore storage errors
+    }
+  }, [height])
 
   const appendOutput = useCallback((text: string) => {
     setEntries(prev => [...prev, { type: 'out', text }])
@@ -300,21 +369,31 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       className="fixed left-0 right-0 top-0 z-50 bg-transparent border-0 p-0 m-0 outline-hidden w-full max-w-none"
       style={{ fontFamily: 'var(--font-vt323)' }}>
       <div
-        onMouseDown={focusInput}
-        onClick={focusInput}
+        onMouseDown={e => {
+          // Don't focus input if clicking the resize handle
+          if ((e.target as HTMLElement).closest('[data-resize-handle]')) return
+          focusInput()
+        }}
+        onClick={e => {
+          if ((e.target as HTMLElement).closest('[data-resize-handle]')) return
+          focusInput()
+        }}
         onTransitionEnd={e => {
           if (isClosing && e.target === e.currentTarget) onRequestClose()
         }}
-        className={`${isClosing ? 'translate-y-[-100%]' : 'translate-y-0'} bg-black/80 text-green-400 border-x border-b border-green-500/30 backdrop-blur-sm shadow-sm h-[45vh] starting:translate-y-[-100%] transition-transform duration-300 ease-out rounded-b-xl overflow-hidden mx-2 sm:mx-4`}>
+        className={`${isClosing ? 'translate-y-[-100%]' : 'translate-y-0'} bg-black/80 text-green-400 border-x border-b border-green-500/30 backdrop-blur-sm shadow-sm starting:translate-y-[-100%] transition-transform duration-300 ease-out rounded-b-xl overflow-hidden mx-2 sm:mx-4`}
+        style={{ height: `${height}vh` }}>
         <div
           ref={scrollRef}
-          className="h-[calc(45vh-3rem)] overflow-y-auto no-scrollbar p-4 flex flex-col justify-end gap-1">
+          className="overflow-y-auto no-scrollbar p-4 flex flex-col justify-end gap-1"
+          style={{ height: `calc(${height}vh - 4rem)` }}>
           {entries.map((e, i) => (
             <div key={i} className={e.type === 'in' ? 'text-green-300' : 'text-green-400 whitespace-pre-wrap'}>
               {e.type === 'in' ? `${formatPrompt(e.cwd ?? '/home/kil')} $ ${e.text}` : e.text}
             </div>
           ))}
         </div>
+
         <form onSubmit={handleSubmit} className="h-12 border-t border-green-500/20 flex items-center gap-2 px-4">
           <span aria-hidden className="text-green-300">
             {formatPrompt(cwd)} $
@@ -331,6 +410,15 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
             spellCheck={false}
           />
         </form>
+
+        {/* Resize handle */}
+        <div
+          data-resize-handle
+          onMouseDown={handleDragStart}
+          className="h-4 flex items-center justify-center cursor-ns-resize group hover:bg-green-500/10 transition-colors border-t border-green-500/20"
+          aria-label="Resize console">
+          <div className="w-12 h-1 rounded-full bg-green-500/30 group-hover:bg-green-500/50 transition-colors" />
+        </div>
       </div>
     </dialog>
   )

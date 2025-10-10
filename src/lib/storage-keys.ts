@@ -43,6 +43,7 @@ export const SESSION_STORAGE_KEYS = {
   CONSOLE_ENTRIES: 'kd_console_entries',
   CONSOLE_HISTORY: 'kd_console_history',
   CONSOLE_CWD: 'kd_console_cwd',
+  CONSOLE_HEIGHT: 'kd_console_height',
 } as const
 
 // ===== Cookie Keys =====
