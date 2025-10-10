@@ -79,6 +79,6 @@ export const base64: SecretConsoleCommand = {
   usage: 'base64 (-d|-e) <path>',
   help: 'base64 — encode (-e) or decode (-d) a file\nusage: base64 (-d|-e) <path>',
   aliases: ['b64'],
-  completion: { args: 'files', maxPositionalArgs: 2, flags: ['-d', '-e'] },
+  completion: { args: 'files', maxPositionalArgs: 1, flags: ['-d', '-e'] },
   execute: executeB64,
 }
