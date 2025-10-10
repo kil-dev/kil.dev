@@ -2,6 +2,7 @@
 
 import { SECRET_CONSOLE_COMMANDS, resolveSecretConsoleCommand } from '@/lib/secret-console-commands'
 import { SECRET_CONSOLE_VFS } from '@/lib/secret-console-files'
+import { SESSION_STORAGE_KEYS } from '@/lib/storage-keys'
 import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
 import { computeTabCompletion } from '@/utils/console/completion'
 import { normalizePath, vfsList, vfsRead, vfsResolve, vfsStat } from '@/utils/secret-console-vfs'
@@ -13,9 +14,60 @@ type Entry = { type: 'in' | 'out'; text: string }
 
 export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }) {
   const router = useRouter()
-  const [entries, setEntries] = useState<Entry[]>([])
+  const rootVfs = useMemo<VfsNode>(() => SECRET_CONSOLE_VFS, [])
+
+  // Initialize entries - load from sessionStorage or use MOTD
+  const [entries, setEntries] = useState<Entry[]>(() => {
+    if (globalThis.window === undefined) return []
+
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEYS.CONSOLE_ENTRIES)
+      if (saved) {
+        return JSON.parse(saved) as Entry[]
+      }
+    } catch {
+      // Ignore parse errors
+    }
+
+    // First time opening - show MOTD
+    const motd = vfsRead(rootVfs, '/etc/motd')
+    if (motd) {
+      return [{ type: 'out', text: motd.trimEnd() }]
+    }
+    return []
+  })
+
+  // Initialize history from sessionStorage
+  const [history, setHistory] = useState<string[]>(() => {
+    if (globalThis.window === undefined) return []
+
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEYS.CONSOLE_HISTORY)
+      if (saved) {
+        return JSON.parse(saved) as string[]
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return []
+  })
+
+  // Initialize cwd from sessionStorage
+  const [cwd, setCwd] = useState<string>(() => {
+    if (globalThis.window === undefined) return '/home/kil'
+
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEYS.CONSOLE_CWD)
+      if (saved) {
+        return saved
+      }
+    } catch {
+      // Ignore errors
+    }
+    return '/home/kil'
+  })
+
   const [input, setInput] = useState('')
-  const [history, setHistory] = useState<string[]>([])
   const [historyIndex, setHistoryIndex] = useState<number | null>(null)
   const [savedDraft, setSavedDraft] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -63,8 +115,32 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     return () => globalThis.removeEventListener('kd:console-navigate', handleConsoleNavigate)
   }, [router])
 
-  const rootVfs = useMemo<VfsNode>(() => SECRET_CONSOLE_VFS, [])
-  const [cwd, setCwd] = useState<string>('/home/kil')
+  // Persist entries to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEYS.CONSOLE_ENTRIES, JSON.stringify(entries))
+    } catch {
+      // Ignore storage errors
+    }
+  }, [entries])
+
+  // Persist history to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEYS.CONSOLE_HISTORY, JSON.stringify(history))
+    } catch {
+      // Ignore storage errors
+    }
+  }, [history])
+
+  // Persist cwd to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEYS.CONSOLE_CWD, cwd)
+    } catch {
+      // Ignore storage errors
+    }
+  }, [cwd])
 
   const appendOutput = useCallback((text: string) => {
     setEntries(prev => [...prev, { type: 'out', text }])
