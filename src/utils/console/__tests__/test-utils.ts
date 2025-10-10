@@ -11,25 +11,31 @@ export function createMockEnv(overrides?: Partial<SecretConsoleEnv>): {
   const state = { closeRequested: false }
   let currentDir = '/home/kil'
 
+  const resolvePath = (localPath: string): string => {
+    return normalizePath(
+      localPath.startsWith('/') || localPath.startsWith('~') ? localPath : `${currentDir}/${localPath}`,
+    )
+  }
+
   const env: SecretConsoleEnv = {
     appendOutput: (text: string) => {
       output.push(text)
     },
     pwd: () => currentDir,
     list: (path: string) => {
-      const absolutePath = normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${currentDir}/${path}`)
+      const absolutePath = resolvePath(path)
       return vfsList(SECRET_CONSOLE_VFS, absolutePath)
     },
     read: (path: string) => {
-      const absolutePath = normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${currentDir}/${path}`)
+      const absolutePath = resolvePath(path)
       return vfsRead(SECRET_CONSOLE_VFS, absolutePath)
     },
     stat: (path: string) => {
-      const absolutePath = normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${currentDir}/${path}`)
+      const absolutePath = resolvePath(path)
       return vfsStat(SECRET_CONSOLE_VFS, absolutePath)
     },
     chdir: (path: string) => {
-      const absolutePath = normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${currentDir}/${path}`)
+      const absolutePath = resolvePath(path)
       const target = vfsResolve(SECRET_CONSOLE_VFS, absolutePath)
 
       if (target === undefined) {
