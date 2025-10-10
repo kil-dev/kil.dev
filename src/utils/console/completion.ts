@@ -3,6 +3,7 @@ import type { SecretConsoleCommand } from '@/types/secret-console'
 import { hasThemeTapdanceAchievement } from '@/utils/achievements'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { getAchievementSubcommands, getHintableAchievementNumbers, getShowableAchievementNumbers } from './achievements'
+import { getConfettiSubcommands } from './confetti'
 import { getAvailablePageNames } from './nav'
 
 type CompletionContext = {
@@ -279,6 +280,30 @@ function completeAchievementSubcommands(token: string, before: string, after: st
   return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
 }
 
+function completeConfettiSubcommands(token: string, before: string, after: string): CompletionResult | null {
+  const subcommands = getConfettiSubcommands()
+  const filtered = subcommands.filter(s => s.startsWith(token))
+
+  if (filtered.length === 0) return { value: `${before}${token}${after}`, caret: (before + token).length }
+  if (filtered.length === 1) {
+    const completed = filtered[0]!
+    const nextToken = `${completed} `
+    const nextValue = `${before}${nextToken}${after}`
+    const nextCaret = (before + nextToken).length
+    return { value: nextValue, caret: nextCaret }
+  }
+  if (token.length === 0)
+    return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
+  const common = longestCommonPrefix(filtered)
+  if (common && common.length > token.length) {
+    const nextToken = common
+    const nextValue = `${before}${nextToken}${after}`
+    const nextCaret = (before + nextToken).length
+    return { value: nextValue, caret: nextCaret }
+  }
+  return { value: `${before}${token}${after}`, caret: (before + token).length, suggestions: filtered }
+}
+
 function completeFromList(token: string, before: string, after: string, items: string[]): CompletionResult | null {
   const filtered = items.filter(item => item.startsWith(token))
 
@@ -385,6 +410,7 @@ export function computeTabCompletion(value: string, caret: number, ctx: Completi
   if (mode === 'themes') return completeThemes(token, before, after) ?? { value, caret }
   if (mode === 'pages') return completePages(token, before, after) ?? { value, caret }
   if (mode === 'achievement-subcommands') return completeAchievementArgs(token, before, after) ?? { value, caret }
+  if (mode === 'confetti-subcommands') return completeConfettiSubcommands(token, before, after) ?? { value, caret }
   const vfsMode = mode === 'none' ? 'paths' : mode
   return completeVfs(token, before, after, ctx, vfsMode) ?? { value, caret }
 }

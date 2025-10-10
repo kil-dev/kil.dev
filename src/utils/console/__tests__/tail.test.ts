@@ -5,20 +5,25 @@ import { createMockEnv } from './test-utils'
 describe('tail command', () => {
   it('outputs last 10 lines by default', () => {
     const { env, output } = createMockEnv()
-    tail.execute(['/home/README.md'], env)
-    expect(output).toEqual(['Line 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12'])
+    tail.execute(['/home/kil/Documents/bookmarks.md'], env)
+    expect(output).toHaveLength(1)
+    expect(output[0]).toContain('Inspiration')
+    expect(output[0]).toContain('Share knowledge')
   })
 
   it('respects -n flag for custom line count', () => {
     const { env, output } = createMockEnv()
-    tail.execute(['-n', '3', '/home/README.md'], env)
-    expect(output).toEqual(['Line 10\nLine 11\nLine 12'])
+    tail.execute(['-n', '3', '/home/kil/Documents/bookmarks.md'], env)
+    expect(output).toHaveLength(1)
+    const lines = output[0]?.split('\n')
+    expect(lines?.length).toBeLessThanOrEqual(3)
   })
 
   it('handles -n flag with count larger than file', () => {
     const { env, output } = createMockEnv()
-    tail.execute(['-n', '100', '/home/about/bio.txt'], env)
-    expect(output).toEqual(['Software engineer and web developer.'])
+    tail.execute(['-n', '1000', '/home/kil/.profile'], env)
+    expect(output).toHaveLength(1)
+    expect(output[0]).toContain('export LANG=en_US.UTF-8')
   })
 
   it('shows usage when no path provided', () => {

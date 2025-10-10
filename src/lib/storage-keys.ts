@@ -38,6 +38,12 @@ export const SESSION_STORAGE_KEYS = {
 
   // Animations
   KONAMI_ANIMATED: 'konami-animated',
+
+  // Console State (persists during session, resets on page reload)
+  CONSOLE_ENTRIES: 'kd_console_entries',
+  CONSOLE_HISTORY: 'kd_console_history',
+  CONSOLE_CWD: 'kd_console_cwd',
+  CONSOLE_HEIGHT: 'kd_console_height',
 } as const
 
 // ===== Cookie Keys =====

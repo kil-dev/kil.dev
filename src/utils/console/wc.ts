@@ -10,6 +10,11 @@ function executeWc(args: string[], env: SecretConsoleEnv) {
     env.appendOutput(`usage: ${wc.usage}`)
     return
   }
+  const stat = env.stat(target)
+  if (stat && stat.kind === 'file' && stat.binary) {
+    env.appendOutput(`wc: ${target}: Is a binary file`)
+    return
+  }
   const content = env.read(target)
   if (content === undefined) {
     env.appendOutput(formatWcNoSuchFile(target))

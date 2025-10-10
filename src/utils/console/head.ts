@@ -30,6 +30,11 @@ function executeHead(args: string[], env: SecretConsoleEnv) {
     env.appendOutput(`usage: ${head.usage}`)
     return
   }
+  const stat = env.stat(target)
+  if (stat && stat.kind === 'file' && stat.binary) {
+    env.appendOutput(`head: ${target}: Is a binary file`)
+    return
+  }
   const content = env.read(target)
   if (content === undefined) {
     env.appendOutput(formatHeadNoSuchFile(target))

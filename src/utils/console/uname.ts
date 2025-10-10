@@ -3,32 +3,39 @@ import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-cons
 function executeUname(args: string[], env: SecretConsoleEnv) {
   const showAll = args.includes('-a')
 
-  const sysname = 'kil-web' // a playful system name
-  const nodename = 'kil.dev'
-  const release = 'v1'
-  const version = new Date().toISOString()
-  let machine = 'x86_64'
+  // Read from fake OS files in VFS (no fallbacks)
+  const osReleaseContent = env.read('/etc/os-release') ?? ''
+  const osReleaseMap = (() => {
+    const map: Record<string, string> = {}
+    for (const raw of osReleaseContent.split('\n')) {
+      const line = raw.trim()
+      if (!line || line.startsWith('#')) continue
+      const eq = line.indexOf('=')
+      if (eq === -1) continue
+      const key = line.slice(0, eq)
+      const rawVal = line.slice(eq + 1)
+      const val = rawVal.startsWith('"') && rawVal.endsWith('"') ? rawVal.slice(1, -1) : rawVal
+      map[key] = val
+    }
+    return map
+  })()
 
-  let platform = 'web'
-  let engine = 'web'
-  if (typeof navigator !== 'undefined') {
+  const sysname = osReleaseMap.NAME ?? ''
+  const release = osReleaseMap.VERSION ?? ''
+  const version = osReleaseMap.PRETTY_NAME ?? ''
+  const nodename = (env.read('/etc/hostname') ?? '').trim()
+  const machine = (() => {
+    if (typeof navigator === 'undefined') return ''
     const nav: Navigator & { userAgentData?: { platform?: string } } = navigator
-    platform = nav.userAgentData?.platform ?? nav.platform ?? 'web'
-    const lowerPlat = platform.toLowerCase()
-    machine = lowerPlat.includes('mac') ? 'aarch64' : 'x86_64'
-    const ua = nav.userAgent ?? ''
-    engine =
-      ua.includes('Chrome') || ua.includes('Chromium')
-        ? 'blink'
-        : ua.includes('Safari')
-          ? 'webkit'
-          : ua.includes('Firefox')
-            ? 'gecko'
-            : 'web'
-  }
+    const platform = nav.userAgentData?.platform ?? nav.platform ?? ''
+    const p = platform.toLowerCase()
+    return p.includes('mac') || p.includes('arm') ? 'aarch64' : 'x86_64'
+  })()
+
+  if (!sysname) return
 
   if (showAll) {
-    env.appendOutput(`${sysname} ${nodename} ${release} ${version} ${machine} ${platform} ${engine}`)
+    env.appendOutput(`${sysname} ${nodename} ${release} ${version} ${machine}`)
     return
   }
 

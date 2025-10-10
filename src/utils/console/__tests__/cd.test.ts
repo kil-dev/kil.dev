@@ -5,9 +5,9 @@ import { createMockEnv } from './test-utils'
 describe('cd command', () => {
   it('changes to specified directory successfully', () => {
     const { env, output } = createMockEnv()
-    cd.execute(['/home/about'], env)
+    cd.execute(['/home/kil/Documents'], env)
     expect(output).toEqual([])
-    expect(env.pwd()).toBe('/home/about')
+    expect(env.pwd()).toBe('/home/kil/Documents')
   })
 
   it('defaults to /home when no argument provided', () => {
@@ -25,7 +25,21 @@ describe('cd command', () => {
 
   it('shows error when target is not a directory', () => {
     const { env, output } = createMockEnv()
-    cd.execute(['/home/README.md'], env)
-    expect(output).toEqual([formatCdNotDirectory('/home/README.md')])
+    cd.execute(['/home/kil/.bashrc'], env)
+    expect(output).toEqual([formatCdNotDirectory('/home/kil/.bashrc')])
+  })
+
+  it('expands ~ to /home/kil', () => {
+    const { env, output } = createMockEnv()
+    cd.execute(['~'], env)
+    expect(output).toEqual([])
+    expect(env.pwd()).toBe('/home/kil')
+  })
+
+  it('expands ~/path to /home/kil/path', () => {
+    const { env, output } = createMockEnv()
+    cd.execute(['~/Documents'], env)
+    expect(output).toEqual([])
+    expect(env.pwd()).toBe('/home/kil/Documents')
   })
 })

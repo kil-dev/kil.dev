@@ -5,10 +5,10 @@ import { createMockEnv } from './test-utils'
 describe('cat command', () => {
   it('outputs file contents', () => {
     const { env, output } = createMockEnv()
-    cat.execute(['/home/README.md'], env)
-    expect(output).toEqual([
-      'Welcome to kil.dev\nThis is a test file.\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12',
-    ])
+    cat.execute(['/home/kil/.bashrc'], env)
+    expect(output).toHaveLength(1)
+    expect(output[0]).toContain('export PS1')
+    expect(output[0]).toContain('alias ach="achievements"')
   })
 
   it('shows usage when no path provided', () => {

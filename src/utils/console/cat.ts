@@ -10,6 +10,11 @@ function executeCat(args: string[], env: SecretConsoleEnv) {
     env.appendOutput(`usage: ${cat.usage}`)
     return
   }
+  const stat = env.stat(target)
+  if (stat && stat.kind === 'file' && stat.binary) {
+    env.appendOutput(`cat: ${target}: Is a binary file`)
+    return
+  }
   const content = env.read(target)
   if (content === undefined) {
     env.appendOutput(formatCatNoSuchFile(target))
