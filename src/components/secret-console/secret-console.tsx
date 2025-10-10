@@ -4,7 +4,7 @@ import { SECRET_CONSOLE_COMMANDS, resolveSecretConsoleCommand } from '@/lib/secr
 import { SECRET_CONSOLE_VFS } from '@/lib/secret-console-files'
 import type { SecretConsoleEnv, VfsNode } from '@/types/secret-console'
 import { computeTabCompletion } from '@/utils/console/completion'
-import { normalizePath, vfsList, vfsRead, vfsResolve } from '@/utils/secret-console-vfs'
+import { normalizePath, vfsList, vfsRead, vfsResolve, vfsStat } from '@/utils/secret-console-vfs'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -75,6 +75,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       pwd: () => cwd,
       list: (path: string) => vfsList(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
       read: (path: string) => vfsRead(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
+      stat: (path: string) => vfsStat(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
       chdir: (path: string) => {
         const abs = normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)
         const node = vfsResolve(rootVfs, abs)

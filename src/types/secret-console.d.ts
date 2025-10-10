@@ -3,6 +3,7 @@ export type SecretConsoleEnv = {
   pwd: () => string
   list: (path: string) => { name: string; isDir: boolean }[]
   read: (path: string) => string | undefined
+  stat: (path: string) => VfsStat | undefined
   chdir: (path: string) => { ok: true } | { ok: false; reason: 'not_found' | 'not_dir' }
   requestClose: () => void
 }
