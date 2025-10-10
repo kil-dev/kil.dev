@@ -4,6 +4,7 @@ import { cat } from './cat'
 import { cd } from './cd'
 import { clear } from './clear'
 import { createCommandsCommand } from './commands'
+import { confetti } from './confetti'
 import { date } from './date'
 import { echo } from './echo'
 import { exit } from './exit'
@@ -42,6 +43,7 @@ export const Commands = (() => {
     help: {} as SecretConsoleCommand,
     achievements,
     theme,
+    confetti,
   }
 
   // Now create help and commands with access to the full registry

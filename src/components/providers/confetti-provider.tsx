@@ -359,6 +359,36 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     )
   }, [])
 
+  // Listen for console command events
+  useEffect(() => {
+    const handleTriggerConfetti = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return
+      const { type } = event.detail as { type: string }
+
+      switch (type) {
+        case 'default':
+          triggerConfetti()
+          break
+        case 'corners':
+          triggerConfettiFromCorners()
+          break
+        case 'top':
+          triggerConfettiFromTop()
+          break
+        case 'center':
+          triggerConfettiFromCenter()
+          break
+        default:
+          break
+      }
+    }
+
+    globalThis.window?.addEventListener('kd:trigger-confetti', handleTriggerConfetti)
+    return () => {
+      globalThis.window?.removeEventListener('kd:trigger-confetti', handleTriggerConfetti)
+    }
+  }, [triggerConfetti, triggerConfettiFromCorners, triggerConfettiFromTop, triggerConfettiFromCenter])
+
   const value = useMemo<ConfettiContextValue>(
     () => ({
       triggerConfetti,
