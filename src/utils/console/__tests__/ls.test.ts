@@ -6,19 +6,23 @@ describe('ls command', () => {
   it('lists files in current directory when no path given', () => {
     const { env, output } = createMockEnv()
     ls.execute([], env)
-    expect(output).toEqual(['README.md  about/  projects/'])
+    // Should list contents of /home/kil
+    expect(output[0]).toContain('Documents/')
+    expect(output[0]).toContain('projects/')
   })
 
   it('lists files in specified directory', () => {
     const { env, output } = createMockEnv()
-    ls.execute(['/home/about'], env)
-    expect(output).toEqual(['bio.txt'])
+    ls.execute(['/home/kil/Documents'], env)
+    expect(output[0]).toContain('resume.txt')
+    expect(output[0]).toContain('ideas.md')
   })
 
   it('lists files in nested directory', () => {
     const { env, output } = createMockEnv()
-    ls.execute(['/home/projects'], env)
-    expect(output).toEqual(['project1.md  project2.md'])
+    ls.execute(['/home/kil/projects'], env)
+    expect(output[0]).toContain('kil.dev/')
+    expect(output[0]).toContain('dotfiles/')
   })
 
   it('outputs empty string for empty directory', () => {

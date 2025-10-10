@@ -6,12 +6,12 @@ describe('pwd command', () => {
   it('outputs the current working directory', () => {
     const { env, output } = createMockEnv()
     pwd.execute([], env)
-    expect(output).toEqual(['/home'])
+    expect(output).toEqual(['/home/kil'])
   })
 
   it('ignores any arguments', () => {
     const { env, output } = createMockEnv()
     pwd.execute(['ignored', 'args'], env)
-    expect(output).toEqual(['/home'])
+    expect(output).toEqual(['/home/kil'])
   })
 })

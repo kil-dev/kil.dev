@@ -10,7 +10,11 @@ import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-type Entry = { type: 'in' | 'out'; text: string }
+type Entry = { type: 'in' | 'out'; text: string; cwd?: string }
+
+function formatPrompt(cwd: string): string {
+  return cwd.replace(/^\/home\/kil/, '~')
+}
 
 export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }) {
   const router = useRouter()
@@ -149,11 +153,14 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     () => ({
       appendOutput,
       pwd: () => cwd,
-      list: (path: string) => vfsList(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
-      read: (path: string) => vfsRead(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
-      stat: (path: string) => vfsStat(rootVfs, normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)),
+      list: (path: string) =>
+        vfsList(rootVfs, normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${cwd}/${path}`)),
+      read: (path: string) =>
+        vfsRead(rootVfs, normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${cwd}/${path}`)),
+      stat: (path: string) =>
+        vfsStat(rootVfs, normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${cwd}/${path}`)),
       chdir: (path: string) => {
-        const abs = normalizePath(path.startsWith('/') ? path : `${cwd}/${path}`)
+        const abs = normalizePath(path.startsWith('/') || path.startsWith('~') ? path : `${cwd}/${path}`)
         const node = vfsResolve(rootVfs, abs)
         if (!node) return { ok: false as const, reason: 'not_found' as const }
         if (node.type !== 'dir') return { ok: false as const, reason: 'not_dir' as const }
@@ -256,7 +263,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       e.preventDefault()
       const trimmed = input.trim()
       if (!trimmed) return
-      setEntries(prev => [...prev, { type: 'in', text: trimmed }])
+      setEntries(prev => [...prev, { type: 'in', text: trimmed, cwd }])
 
       const tokens = trimmed.split(/\s+/)
       const cmd = tokens[0] ?? ''
@@ -277,7 +284,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       setHistoryIndex(null)
       setSavedDraft('')
     },
-    [input, env, appendOutput],
+    [input, env, appendOutput, cwd],
   )
 
   return (
@@ -298,13 +305,13 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
           className="h-[calc(45vh-3rem)] overflow-y-auto no-scrollbar p-4 flex flex-col justify-end gap-1">
           {entries.map((e, i) => (
             <div key={i} className={e.type === 'in' ? 'text-green-300' : 'text-green-400 whitespace-pre-wrap'}>
-              {e.type === 'in' ? `$ ${e.text}` : e.text}
+              {e.type === 'in' ? `${formatPrompt(e.cwd ?? '/home/kil')} $ ${e.text}` : e.text}
             </div>
           ))}
         </div>
         <form onSubmit={handleSubmit} className="h-12 border-t border-green-500/20 flex items-center gap-2 px-4">
           <span aria-hidden className="text-green-300">
-            $
+            {formatPrompt(cwd)} $
           </span>
           <input
             ref={inputRef}
