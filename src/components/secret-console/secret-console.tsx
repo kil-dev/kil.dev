@@ -16,6 +16,20 @@ function formatPrompt(cwd: string): string {
   return cwd.replace(/^\/home\/kil(?=\/|$)/, '~')
 }
 
+/**
+ * Clear all console-related sessionStorage keys to recover from corrupted state
+ */
+function clearConsoleSessionStorage() {
+  try {
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_ENTRIES)
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_HISTORY)
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_CWD)
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT)
+  } catch {
+    // Ignore any errors during cleanup
+  }
+}
+
 export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }) {
   const router = useRouter()
   const rootVfs = useMemo<VfsNode>(() => SECRET_CONSOLE_VFS, [])
@@ -29,8 +43,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       if (saved) {
         return JSON.parse(saved) as Entry[]
       }
-    } catch {
-      // Ignore parse errors
+    } catch (error) {
+      // Clean up corrupted console state to prevent repeated failures
+      console.warn('Failed to parse console entries from sessionStorage, clearing console state:', error)
+      clearConsoleSessionStorage()
     }
 
     // First time opening - show MOTD
@@ -50,8 +66,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       if (saved) {
         return JSON.parse(saved) as string[]
       }
-    } catch {
-      // Ignore parse errors
+    } catch (error) {
+      // Clean up corrupted history state
+      console.warn('Failed to parse console history from sessionStorage, clearing:', error)
+      sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_HISTORY)
     }
     return []
   })
@@ -65,8 +83,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
       if (saved) {
         return saved
       }
-    } catch {
-      // Ignore errors
+    } catch (error) {
+      // Clean up corrupted cwd state
+      console.warn('Failed to read console cwd from sessionStorage, clearing:', error)
+      sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_CWD)
     }
     return '/home/kil'
   })
@@ -84,8 +104,10 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
           return parsed
         }
       }
-    } catch {
-      // Ignore errors
+    } catch (error) {
+      // Clean up corrupted height state
+      console.warn('Failed to parse console height from sessionStorage, clearing:', error)
+      sessionStorage.removeItem(SESSION_STORAGE_KEYS.CONSOLE_HEIGHT)
     }
     return 45
   })
