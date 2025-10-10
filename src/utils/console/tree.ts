@@ -124,7 +124,7 @@ function executeTree(args: string[], env: SecretConsoleEnv) {
   env.appendOutput(absolutePath)
 
   // Build and display the tree
-  const stats = { dirs: 0, files: 0 }
+  const stats = { dirs: 1, files: 0 }
   const lines = buildTree(env, absolutePath, '', true, 1, options, stats)
 
   for (const line of lines) {

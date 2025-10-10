@@ -363,7 +363,25 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleTriggerConfetti = (event: Event) => {
       if (!(event instanceof CustomEvent)) return
-      const { type } = event.detail as { type: string }
+
+      // Runtime validation: ensure event.detail is an object with a string "type" property
+      const detail: unknown = event.detail
+      if (!detail || typeof detail !== 'object') {
+        console.warn('[ConfettiProvider] Invalid event.detail: expected object, got', typeof detail)
+        return
+      }
+
+      if (!('type' in detail) || typeof detail.type !== 'string') {
+        console.warn(
+          '[ConfettiProvider] Invalid event.detail.type: expected string, got',
+          typeof (detail as Record<string, unknown>).type,
+          detail,
+        )
+        return
+      }
+
+      // Safe to use: validated that detail.type is a string
+      const type = detail.type
 
       switch (type) {
         case 'default':
@@ -379,6 +397,7 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
           triggerConfettiFromCenter()
           break
         default:
+          console.warn('[ConfettiProvider] Unexpected confetti type:', type, 'Full event.detail:', detail)
           break
       }
     }
