@@ -1,4 +1,4 @@
-import type { VfsNode } from '@/types/secret-console'
+import type { VfsNode, VfsStat } from '@/types/secret-console'
 
 export function normalizePath(path: string): string {
   if (!path) return '/'
@@ -51,4 +51,17 @@ export function vfsRead(root: VfsNode, path: string): string | undefined {
   const node = vfsResolve(root, path)
   if (!node || node.type !== 'file') return undefined
   return node.content
+}
+
+export function vfsStat(root: VfsNode, path: string): VfsStat | undefined {
+  const node = vfsResolve(root, path)
+  if (!node) return undefined
+  if (node.type === 'dir') {
+    return { kind: 'dir', binary: false, executable: false, size: 0 }
+  }
+  const content = node.content ?? ''
+  const size = new TextEncoder().encode(content).length
+  const binary = node.meta?.binary === true
+  const executable = node.meta?.executable === true
+  return { kind: 'file', binary, executable, size }
 }

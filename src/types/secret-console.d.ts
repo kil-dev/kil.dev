@@ -23,4 +23,22 @@ export type SecretConsoleCommand = {
   }
 }
 
-export type VfsNode = { type: 'dir'; children: Record<string, VfsNode> } | { type: 'file'; content: string }
+export type VfsFileNode = {
+  type: 'file'
+  content: string
+  meta?: {
+    binary?: boolean
+    executable?: boolean
+  }
+}
+
+export type VfsDirNode = { type: 'dir'; children: Record<string, VfsNode> }
+
+export type VfsNode = VfsDirNode | VfsFileNode
+
+export type VfsStat = {
+  kind: 'file' | 'dir'
+  binary: boolean
+  executable: boolean
+  size: number
+}
