@@ -30,6 +30,11 @@ function executeTail(args: string[], env: SecretConsoleEnv) {
     env.appendOutput(`usage: ${tail.usage}`)
     return
   }
+  const stat = env.stat(target)
+  if (stat && stat.kind === 'file' && stat.binary) {
+    env.appendOutput(`tail: ${target}: Is a binary file`)
+    return
+  }
   const content = env.read(target)
   if (content === undefined) {
     env.appendOutput(formatTailNoSuchFile(target))
