@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { captureThemeChanged } from '@/hooks/posthog'
 import { useIsClient } from '@/hooks/use-is-client'
 import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
+import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
@@ -163,11 +164,14 @@ export function ThemeToggle() {
   const allOptions: ThemeOption[] = useMemo(() => {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
     const achievementUnlocked = has('THEME_TAPDANCE')
+    const hasUnlockedMatrix =
+      globalThis.window !== undefined && localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
     const filteredList = themeList.filter(t => {
       if (t === 'system') return true
       const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
       if (entry?.alwaysHidden) return false
-      if (entry?.hiddenFromMenu) return false
+      // Keep hiddenFromMenu unless unlocked and the theme is matrix
+      if (entry?.hiddenFromMenu && !(hasUnlockedMatrix && t === 'matrix')) return false
       const gated = Boolean(entry?.requiresAchievement)
       return achievementUnlocked || !gated
     })

@@ -15,6 +15,9 @@ function getConsoleAvailableThemes(): string[] {
   const activeSeasonalThemes = new Set(getActiveSeasonalThemes().map(st => st.theme))
 
   // Filter themes based on achievement status
+  const hasUnlockedMatrix =
+    typeof localStorage !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED) === '1'
+
   const availableThemeNames = themes
     .filter(t => {
       // Always exclude alwaysHidden themes
@@ -25,6 +28,9 @@ function getConsoleAvailableThemes(): string[] {
         // Show if currently active OR user has achievement
         return activeSeasonalThemes.has(t.name) || hasAchievement
       }
+
+      // Exclude matrix until unlocked
+      if (t.name === 'matrix' && !hasUnlockedMatrix) return false
 
       return true
     })
@@ -190,9 +196,11 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
 
   const requestedTheme = args[0] as Theme
 
-  // Validate theme
+  // Validate theme (allow pre-unlock 'matrix' explicitly)
   const availableThemes = getConsoleAvailableThemes()
-  if (!availableThemes.includes(requestedTheme)) {
+  const isMatrix = requestedTheme === 'matrix'
+  const isValid = isMatrix || availableThemes.includes(requestedTheme)
+  if (!isValid) {
     env.appendOutput(`Invalid theme: ${requestedTheme}`)
     env.appendOutput(`Available themes: ${availableThemes.join(', ')}`)
     return
@@ -216,6 +224,9 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   try {
     applyThemeWithTransition(requestedTheme)
     env.appendOutput(`Theme changed to: ${requestedTheme}`)
+    if (requestedTheme === 'matrix') {
+      env.appendOutput('Through the looking-glass, you found your way. Welcome to the Matrix.')
+    }
   } catch (error) {
     env.appendOutput(`Failed to change theme: ${error instanceof Error ? error.message : 'unknown error'}`)
   }

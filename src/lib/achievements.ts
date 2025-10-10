@@ -130,7 +130,7 @@ export const ACHIEVEMENTS = {
     imageSrc: Images.MatrixMaestroAchievement,
     imageAlt: 'Enter The Matrix',
     cardDescription:
-      'You followed the green code deeper than most dare to go. The Matrix theme was hidden, but you found it. Welcome to the real world.',
+      'You followed deeper than most dare to go. The Matrix theme was hidden, but you found it. Welcome to the real world.',
     unlockHint: 'There is a hidden theme waiting for you. You just need to find it. Follow the white rabbit.',
     confetti: true,
   },
