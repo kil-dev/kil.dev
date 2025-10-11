@@ -4,8 +4,10 @@ import './src/env.js'
 
 const config: NextConfig = {
   typedRoutes: true,
+  reactCompiler: true,
   experimental: {
     cacheComponents: true,
+    turbopackFileSystemCacheForDev: true,
   },
   images: {
     minimumCacheTTL: 31536000, // 1 year
