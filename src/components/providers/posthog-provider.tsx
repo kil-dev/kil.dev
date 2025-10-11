@@ -11,6 +11,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!canCapture || isInitialized) return
 
+    let idleId: number | undefined
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+
     // Defer PostHog initialization until after page is interactive
     const initPostHog = () => {
       import('posthog-js')
@@ -34,9 +37,19 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
     // Use requestIdleCallback if available, otherwise setTimeout
     if ('requestIdleCallback' in globalThis) {
-      requestIdleCallback(initPostHog, { timeout: 2000 })
+      idleId = requestIdleCallback(initPostHog, { timeout: 2000 })
     } else {
-      setTimeout(initPostHog, 2000)
+      timeoutId = setTimeout(initPostHog, 2000)
+    }
+
+    // Cleanup function to cancel scheduled callbacks
+    return () => {
+      if (idleId !== undefined && 'cancelIdleCallback' in globalThis) {
+        cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId)
+      }
     }
   }, [canCapture, posthogKey, isInitialized])
 
