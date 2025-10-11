@@ -71,14 +71,15 @@ export function GalleryClient({ images }: GalleryClientProps) {
   // Load lightbox when user first opens it
   useEffect(() => {
     if (lightboxIndex >= 0 && !lightboxReady) {
-      setLightboxReady(true)
       loadLightbox()
         .then(module => {
+          setLightboxReady(true)
           setLightboxComponent(module)
         })
         .catch(() => {
           // Silently fail if lightbox can't load
           setLightboxIndex(-1)
+          setLightboxReady(false)
         })
     }
   }, [lightboxIndex, lightboxReady])
