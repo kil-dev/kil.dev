@@ -1,5 +1,12 @@
+'use client'
+
 import { LIGHT_GRID } from '@/lib/light-grid'
-import { GridLights } from './grid-lights'
+import dynamic from 'next/dynamic'
+
+const GridLights = dynamic(() => import('./grid-lights').then(mod => ({ default: mod.GridLights })), {
+  ssr: false,
+  loading: () => null,
+})
 
 export function CircuitBackground() {
   return (
