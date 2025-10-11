@@ -1,97 +1,130 @@
-import { isDev } from '@/utils/utils'
 import type { Route } from 'next'
-import posthog from 'posthog-js'
 
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
-const canCapture = !isDev() && posthogKey
+const canCapture = posthogKey
+
+// Lazy load posthog to avoid blocking initial render
+async function getPostHog() {
+  if (!canCapture) return null
+  try {
+    const { default: posthog } = await import('posthog-js')
+    return posthog
+  } catch {
+    return null
+  }
+}
 
 export function captureSocialLinkClicked(platform: string, href: Route) {
   if (!canCapture) return
-  posthog.capture('social_link_clicked', {
-    platform: platform,
-    href: href,
+  void getPostHog().then(posthog => {
+    posthog?.capture('social_link_clicked', {
+      platform: platform,
+      href: href,
+    })
   })
 }
 
 export function captureThemeChanged(theme: string) {
   if (!canCapture) return
-  posthog.capture('theme_changed', {
-    theme: theme,
+  void getPostHog().then(posthog => {
+    posthog?.capture('theme_changed', {
+      theme: theme,
+    })
   })
 }
 
 export function captureProjectCardFlipped(projectId: string, flippedTo: string) {
   if (!canCapture) return
-  posthog.capture('project_card_flipped', {
-    projectId: projectId,
-    flippedTo: flippedTo,
+  void getPostHog().then(posthog => {
+    posthog?.capture('project_card_flipped', {
+      projectId: projectId,
+      flippedTo: flippedTo,
+    })
   })
 }
 
 export function captureProjectSourceClicked(projectId: string, source: Route) {
   if (!canCapture) return
-  posthog.capture('project_source_clicked', {
-    projectId: projectId,
-    source: source,
+  void getPostHog().then(posthog => {
+    posthog?.capture('project_source_clicked', {
+      projectId: projectId,
+      source: source,
+    })
   })
 }
 
 export function captureProjectVisitClicked(projectId: string, href: Route) {
   if (!canCapture) return
-  posthog.capture('project_visit_clicked', {
-    projectId: projectId,
-    href: href,
+  void getPostHog().then(posthog => {
+    posthog?.capture('project_visit_clicked', {
+      projectId: projectId,
+      href: href,
+    })
   })
 }
 
 export function captureProfileImageClicked(interaction: string, newState: string, wasConfused: boolean) {
   if (!canCapture) return
-  posthog.capture('profile_image_clicked', {
-    interaction: interaction,
-    newState: newState,
-    wasConfused: wasConfused,
+  void getPostHog().then(posthog => {
+    posthog?.capture('profile_image_clicked', {
+      interaction: interaction,
+      newState: newState,
+      wasConfused: wasConfused,
+    })
   })
 }
 
 export function captureDarkModeEasterEgg() {
   if (!canCapture) return
-  posthog.capture('dark_mode_easter_egg')
+  void getPostHog().then(posthog => {
+    posthog?.capture('dark_mode_easter_egg')
+  })
 }
 
 export function capturePetCardFlipped(petId: string, flippedTo: string) {
   if (!canCapture) return
-  posthog.capture('pet_card_flipped', {
-    petId: petId,
-    flippedTo: flippedTo,
+  void getPostHog().then(posthog => {
+    posthog?.capture('pet_card_flipped', {
+      petId: petId,
+      flippedTo: flippedTo,
+    })
   })
 }
 
 export function captureLadybirdDetected(userAgent: string) {
   if (!canCapture) return
-  posthog.capture('ladybird_browser_detected', {
-    userAgent: userAgent,
+  void getPostHog().then(posthog => {
+    posthog?.capture('ladybird_browser_detected', {
+      userAgent: userAgent,
+    })
   })
 }
 
 export function captureWorkHighlightsToggled(companyId: string, expanded: boolean) {
   if (!canCapture) return
-  posthog.capture('work_highlights_toggled', {
-    companyId: companyId,
-    expanded: expanded,
+  void getPostHog().then(posthog => {
+    posthog?.capture('work_highlights_toggled', {
+      companyId: companyId,
+      expanded: expanded,
+    })
   })
 }
 
 export function captureCompanyLogoClicked(companyId: string, companyUrl: Route) {
   if (!canCapture) return
-  posthog.capture('company_logo_clicked', {
-    companyId: companyId,
-    href: companyUrl,
+  void getPostHog().then(posthog => {
+    posthog?.capture('company_logo_clicked', {
+      companyId: companyId,
+      href: companyUrl,
+    })
   })
 }
 
 export function captureAchievementUnlocked(achievementId: string) {
   if (!canCapture) return
-  posthog.capture('achievement_unlocked', {
-    achievementId: achievementId,
+  void getPostHog().then(posthog => {
+    posthog?.capture('achievement_unlocked', {
+      achievementId: achievementId,
+    })
   })
 }

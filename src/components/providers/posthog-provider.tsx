@@ -1,27 +1,44 @@
 'use client'
 
 import { isDev } from '@/utils/utils'
-import posthog from 'posthog-js'
-import { PostHogProvider as PHProvider } from 'posthog-js/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
   const canCapture = !isDev() && !!posthogKey
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    if (!canCapture) return
+    if (!canCapture || isInitialized) return
 
-    posthog.init(posthogKey, {
-      api_host: '/vibecheck',
-      ui_host: 'https://us.posthog.com',
-      defaults: '2025-05-24',
-      capture_exceptions: true,
-      debug: false,
-    })
-  }, [canCapture, posthogKey])
+    // Defer PostHog initialization until after page is interactive
+    const initPostHog = () => {
+      import('posthog-js')
+        .then(({ default: posthog }) => {
+          posthog.init(posthogKey, {
+            api_host: '/vibecheck',
+            ui_host: 'https://us.posthog.com',
+            defaults: '2025-05-24',
+            capture_exceptions: true,
+            debug: false,
+            // Additional performance optimizations
+            loaded: () => {
+              setIsInitialized(true)
+            },
+          })
+        })
+        .catch(err => {
+          console.error('Failed to load PostHog:', err)
+        })
+    }
 
-  if (!canCapture) return <>{children}</>
+    // Use requestIdleCallback if available, otherwise setTimeout
+    if ('requestIdleCallback' in globalThis) {
+      requestIdleCallback(initPostHog, { timeout: 2000 })
+    } else {
+      setTimeout(initPostHog, 2000)
+    }
+  }, [canCapture, posthogKey, isInitialized])
 
-  return <PHProvider client={posthog}>{children}</PHProvider>
+  return <>{children}</>
 }
