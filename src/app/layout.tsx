@@ -35,14 +35,19 @@ const spaceGrotesk = Space_Grotesk({
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '700', '900'],
+  weight: ['400', '500', '600', '700', '900'],
   variable: '--font-noto-sans',
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 })
 
 const vt323 = VT323({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-vt323',
+  display: 'swap',
+  fallback: ['monospace'],
 })
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

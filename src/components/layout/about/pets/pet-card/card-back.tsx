@@ -24,7 +24,7 @@ export function PetCardBack({ pet }: PetCardBackProps) {
       <ScrollArea className="relative z-10 h-full">
         <div className="flex flex-col pr-2">
           <h3
-            className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground mb-2"
+            className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-2"
             aria-label={`Pet name: ${pet.name}`}>
             {pet.name}
           </h3>
