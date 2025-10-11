@@ -71,6 +71,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
         <Suspense>
+          <PrefetchLinks />
           <Providers>
             <div className="relative flex min-h-screen flex-col">
               <Background />
@@ -87,5 +88,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Suspense>
       </body>
     </html>
+  )
+}
+
+// Prefetch critical routes for faster navigation
+function PrefetchLinks() {
+  return (
+    <>
+      <link rel="prefetch" href="/about" as="document" />
+      <link rel="prefetch" href="/experience" as="document" />
+      <link rel="prefetch" href="/projects" as="document" />
+    </>
   )
 }
