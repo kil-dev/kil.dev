@@ -4,7 +4,7 @@ const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
 const canCapture = posthogKey
 
 // Centralized event property names for consistent usage across all PostHog events
-export const PostHogEventProperties = {
+const PostHogEventProperties = {
   PLATFORM: 'platform',
   HREF: 'href',
   THEME: 'theme',
