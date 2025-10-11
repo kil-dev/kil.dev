@@ -1,16 +1,33 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PhotoAlbum, { type Photo } from 'react-photo-album'
 import InfiniteScroll from 'react-photo-album/scroll'
-import Lightbox, { type SlideImage } from 'yet-another-react-lightbox'
-import Captions from 'yet-another-react-lightbox/plugins/captions'
-import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
-import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import type { SlideImage } from 'yet-another-react-lightbox'
 
 import { type GalleryImage } from '@/components/layout/pet-gallery/_content'
 import NextImage from 'next/image'
+
+// Lazy load lightbox and plugins only when needed
+function loadLightbox() {
+  return Promise.all([
+    import('yet-another-react-lightbox'),
+    import('yet-another-react-lightbox/plugins/captions'),
+    import('yet-another-react-lightbox/plugins/fullscreen'),
+    import('yet-another-react-lightbox/plugins/thumbnails'),
+    import('yet-another-react-lightbox/plugins/zoom'),
+  ]).then(([lightbox, captions, fullscreen, thumbnails, zoom]) => ({
+    Lightbox: lightbox.default,
+    plugins: {
+      Captions: captions.default,
+      Fullscreen: fullscreen.default,
+      Thumbnails: thumbnails.default,
+      Zoom: zoom.default,
+    },
+  }))
+}
+
+type LightboxModules = Awaited<ReturnType<typeof loadLightbox>>
 
 type GalleryClientProps = {
   images: GalleryImage[]
@@ -44,10 +61,27 @@ function toSlides(images: GalleryImage[]): SlideImageWithBlur[] {
 
 export function GalleryClient({ images }: GalleryClientProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number>(-1)
+  const [lightboxReady, setLightboxReady] = useState(false)
+  const [LightboxComponent, setLightboxComponent] = useState<LightboxModules | null>(null)
   const nextIndexRef = useRef<number>(0)
 
   const allPhotos = useMemo(() => toPhotos(images), [images])
   const slides = useMemo(() => toSlides(images), [images])
+
+  // Load lightbox when user first opens it
+  useEffect(() => {
+    if (lightboxIndex >= 0 && !lightboxReady) {
+      setLightboxReady(true)
+      loadLightbox()
+        .then(module => {
+          setLightboxComponent(module)
+        })
+        .catch(() => {
+          // Silently fail if lightbox can't load
+          setLightboxIndex(-1)
+        })
+    }
+  }, [lightboxIndex, lightboxReady])
 
   const CHUNK_SIZE = 24
   const initialPhotos = useMemo(() => {
@@ -130,17 +164,24 @@ export function GalleryClient({ images }: GalleryClientProps) {
 
       {/* InfiniteScroll handles loading state; no manual sentinel/button */}
 
-      <Lightbox
-        open={lightboxIndex >= 0}
-        close={() => setLightboxIndex(-1)}
-        slides={slides}
-        index={lightboxIndex}
-        plugins={[Captions, Fullscreen, Thumbnails, Zoom]}
-        captions={{ descriptionTextAlign: 'center' }}
-        controller={{ closeOnBackdropClick: true }}
-        carousel={{ finite: false }}
-        animation={{ fade: 250 }}
-      />
+      {LightboxComponent && (
+        <LightboxComponent.Lightbox
+          open={lightboxIndex >= 0}
+          close={() => setLightboxIndex(-1)}
+          slides={slides}
+          index={lightboxIndex}
+          plugins={[
+            LightboxComponent.plugins.Captions,
+            LightboxComponent.plugins.Fullscreen,
+            LightboxComponent.plugins.Thumbnails,
+            LightboxComponent.plugins.Zoom,
+          ]}
+          captions={{ descriptionTextAlign: 'center' }}
+          controller={{ closeOnBackdropClick: true }}
+          carousel={{ finite: false }}
+          animation={{ fade: 250 }}
+        />
+      )}
     </div>
   )
 }
