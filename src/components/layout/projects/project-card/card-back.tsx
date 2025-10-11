@@ -1,5 +1,3 @@
-'use client'
-
 import { Card } from '@/components/ui/card'
 import type { Project } from '@/types/projects'
 import { resolveSkills } from '@/utils/skillicons'
