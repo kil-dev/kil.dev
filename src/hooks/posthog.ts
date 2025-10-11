@@ -4,22 +4,22 @@ const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
 const canCapture = posthogKey
 
 // Centralized event property names for consistent usage across all PostHog events
-const PostHogEventProperties = {
-  PLATFORM: 'platform',
-  HREF: 'href',
-  THEME: 'theme',
-  PROJECT_ID: 'projectId',
-  FLIPPED_TO: 'flippedTo',
-  SOURCE: 'source',
-  INTERACTION: 'interaction',
-  NEW_STATE: 'newState',
-  WAS_CONFUSED: 'wasConfused',
-  PET_ID: 'petId',
-  USER_AGENT: 'userAgent',
-  COMPANY_ID: 'companyId',
-  EXPANDED: 'expanded',
-  ACHIEVEMENT_ID: 'achievementId',
-} as const
+enum PostHogEventProperties {
+  PLATFORM = 'platform',
+  HREF = 'href',
+  THEME = 'theme',
+  PROJECT_ID = 'projectId',
+  FLIPPED_TO = 'flippedTo',
+  SOURCE = 'source',
+  INTERACTION = 'interaction',
+  NEW_STATE = 'newState',
+  WAS_CONFUSED = 'wasConfused',
+  PET_ID = 'petId',
+  USER_AGENT = 'userAgent',
+  COMPANY_ID = 'companyId',
+  EXPANDED = 'expanded',
+  ACHIEVEMENT_ID = 'achievementId',
+}
 
 // Lazy load posthog to avoid blocking initial render
 async function getPostHog() {
