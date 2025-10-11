@@ -536,22 +536,9 @@ export function ThemeProvider({
       applyClasses(currentPref, getSystemTheme())
     }
 
-    const onVis = () => {
-      if (document.visibilityState === 'visible') reapply()
-    }
-    const onShow = () => reapply()
-    const onFocus = () => reapply()
-
-    try {
-      document.addEventListener('visibilitychange', onVis)
-      globalThis.addEventListener?.('pageshow', onShow)
-      globalThis.addEventListener?.('focus', onFocus)
-    } catch {}
-
-    // Minute ticker detects date rollovers even if tab stays visible
+    // Minute ticker and midnight timeout are CRITICAL for seasonal switching - run immediately
     const interval = globalThis.setInterval?.(() => reapply(), 60000)
 
-    // Exact midnight trigger to re-evaluate themes precisely at midnight
     const msUntilNextMidnight = () => {
       const now = new Date()
       const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
@@ -570,14 +557,56 @@ export function ThemeProvider({
     }
     let midnightTimeout = scheduleMidnight()
 
-    return () => {
+    // Defer the non-critical visibility listeners (only for tab switching)
+    let visibilityCleanup: (() => void) | undefined
+    const setupVisibilityWatchers = () => {
+      const onVis = () => {
+        if (document.visibilityState === 'visible') reapply()
+      }
+      const onShow = () => reapply()
+      const onFocus = () => reapply()
+
       try {
-        document.removeEventListener('visibilitychange', onVis)
-        globalThis.removeEventListener?.('pageshow', onShow)
-        globalThis.removeEventListener?.('focus', onFocus)
+        document.addEventListener('visibilitychange', onVis)
+        globalThis.addEventListener?.('pageshow', onShow)
+        globalThis.addEventListener?.('focus', onFocus)
+      } catch {}
+
+      return () => {
+        try {
+          document.removeEventListener('visibilitychange', onVis)
+          globalThis.removeEventListener?.('pageshow', onShow)
+          globalThis.removeEventListener?.('focus', onFocus)
+        } catch {}
+      }
+    }
+
+    // Defer visibility watchers but keep timers immediate
+    if ('requestIdleCallback' in globalThis) {
+      const id = requestIdleCallback(
+        () => {
+          visibilityCleanup = setupVisibilityWatchers()
+        },
+        { timeout: 2000 },
+      )
+      return () => {
+        cancelIdleCallback(id)
         if (typeof interval === 'number') globalThis.clearInterval?.(interval)
         if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
-      } catch {}
+        visibilityCleanup?.()
+      }
+    }
+
+    // Fallback: setup after short delay
+    const timeoutId = setTimeout(() => {
+      visibilityCleanup = setupVisibilityWatchers()
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (typeof interval === 'number') globalThis.clearInterval?.(interval)
+      if (typeof midnightTimeout === 'number') globalThis.clearTimeout?.(midnightTimeout)
+      visibilityCleanup?.()
     }
   }, [theme, setTheme])
 
