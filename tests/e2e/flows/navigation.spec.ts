@@ -125,10 +125,14 @@ test.describe('Navigation Flow', () => {
 
   test.describe('Achievements Navigation (Locked)', () => {
     test('should not show achievements link when locked', async ({ page }) => {
+      await page.goto('/')
+      await page.waitForLoadState('networkidle')
       const achievementsLink = page.locator('.js-achievements-nav')
       await expect(achievementsLink).not.toBeVisible()
     })
     test('should not show pet gallery link when locked', async ({ page }) => {
+      await page.goto('/')
+      await page.waitForLoadState('networkidle')
       const petGalleryLink = page.locator('.js-pet-gallery-nav')
       await expect(petGalleryLink).not.toBeVisible()
     })

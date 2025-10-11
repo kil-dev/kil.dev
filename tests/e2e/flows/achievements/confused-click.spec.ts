@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains } from '../../fixtures/achievement-helpers'
 import { abortNoise, clearState, disableAnimations } from '../../fixtures/test-helpers'
 
@@ -17,6 +17,7 @@ test.describe('CONFUSED_CLICK Achievement', () => {
     // This might be in social links or footer
     const siteLinks = page.locator('a[href*="kil.dev"]')
     const count = await siteLinks.count()
+    let unlocked = false
 
     for (let i = 0; i < count; i++) {
       const link = siteLinks.nth(i)
@@ -39,12 +40,14 @@ test.describe('CONFUSED_CLICK Achievement', () => {
             const decoded = decodeURIComponent(achievementCookie.value)
             const parsed = JSON.parse(decoded) as Record<string, unknown>
             if (parsed.CONFUSED_CLICK) {
+              unlocked = true
               await expectAchievementCookieContains(page, 'CONFUSED_CLICK')
-              return
+              break
             }
           }
         }
       }
     }
+    expect(unlocked).toBe(true)
   })
 })

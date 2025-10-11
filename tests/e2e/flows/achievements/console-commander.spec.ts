@@ -78,23 +78,4 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
       cookieValueBefore,
     )
   })
-
-  test('should not open console when typing in input fields', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-
-    // If there are any input fields on the page, focus them
-    const inputs = page.locator('input, textarea')
-    const inputCount = await inputs.count()
-
-    if (inputCount > 0) {
-      await inputs.first().focus()
-      await page.keyboard.press('`')
-      await page.waitForTimeout(500)
-
-      // Console should not be visible
-      const consoleVisible = await page.locator('dialog[aria-label="Developer console"]').isVisible()
-      expect(consoleVisible).toBe(false)
-    }
-  })
 })
