@@ -62,6 +62,10 @@ export function SecretConsoleLoader() {
     }
 
     globalThis.addEventListener('keydown', onKeyDown)
+    try {
+      // Signal to tests that the console key listener is active
+      ;(globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady = true
+    } catch {}
     return () => globalThis.removeEventListener('keydown', onKeyDown)
   }, [ConsoleComp, isOpen])
 
