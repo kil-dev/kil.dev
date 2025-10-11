@@ -1,7 +1,8 @@
+import { isDev } from '@/utils/utils'
 import type { Route } from 'next'
 
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
-const canCapture = posthogKey
+const canCapture = !isDev() && !!posthogKey
 
 // Centralized event property names for consistent usage across all PostHog events
 enum PostHogEventProperties {
