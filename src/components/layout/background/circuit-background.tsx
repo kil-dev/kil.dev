@@ -2,11 +2,11 @@
 
 import { LIGHT_GRID } from '@/lib/light-grid'
 import { themes } from '@/lib/themes'
-import { useEffect, useState } from 'react'
+import { type ComponentType, useEffect, useState } from 'react'
 
 export function CircuitBackground() {
   const [shouldLoadLights, setShouldLoadLights] = useState(false)
-  const [GridLights, setGridLights] = useState<React.ComponentType | null>(null)
+  const [GridLights, setGridLights] = useState<ComponentType | null>(null)
 
   // Check if grid lights should be loaded
   useEffect(() => {
