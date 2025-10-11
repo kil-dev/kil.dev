@@ -35,14 +35,19 @@ const spaceGrotesk = Space_Grotesk({
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '700', '900'],
+  weight: ['400', '500', '600', '700', '900'],
   variable: '--font-noto-sans',
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
 })
 
 const vt323 = VT323({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-vt323',
+  display: 'swap',
+  fallback: ['monospace'],
 })
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -66,6 +71,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
         <Suspense>
+          <PrefetchLinks />
           <Providers>
             <div className="relative flex min-h-screen flex-col">
               <Background />
@@ -82,5 +88,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Suspense>
       </body>
     </html>
+  )
+}
+
+// Prefetch critical routes for faster navigation
+function PrefetchLinks() {
+  return (
+    <>
+      <link rel="prefetch" href="/about" as="document" />
+      <link rel="prefetch" href="/experience" as="document" />
+      <link rel="prefetch" href="/projects" as="document" />
+    </>
   )
 }
