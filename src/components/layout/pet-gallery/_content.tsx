@@ -1,6 +1,5 @@
 import { ClientMounted, GalleryClient } from '@/components/layout/pet-gallery/gallery-client'
 import { ServerAlbum } from '@/components/layout/pet-gallery/server-album'
-import { SectionLabel } from '@/components/ui/section-label'
 import sizeOf from 'image-size'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -64,21 +63,15 @@ async function getPetGalleryImagesFromPublic(): Promise<GalleryImage[]> {
 export async function PetGalleryContent() {
   const images = await getPetGalleryImagesFromPublic()
 
-  return (
-    <div className="px-10 py-16 md:px-20 lg:px-40">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        <div className="flex flex-col gap-2">
-          <SectionLabel as="p">Pet gallery</SectionLabel>
-        </div>
+  if (images.length === 0) {
+    return <p className="text-muted-foreground">No images found in the pet gallery.</p>
+  }
 
-        {images.length === 0 ? (
-          <p className="text-muted-foreground">No images found in the pet gallery.</p>
-        ) : (
-          <ClientMounted fallback={<ServerAlbum images={images} />}>
-            <GalleryClient images={images} />
-          </ClientMounted>
-        )}
-      </div>
+  return (
+    <div className="animate-in fade-in duration-500">
+      <ClientMounted fallback={<ServerAlbum images={images} />}>
+        <GalleryClient images={images} />
+      </ClientMounted>
     </div>
   )
 }
