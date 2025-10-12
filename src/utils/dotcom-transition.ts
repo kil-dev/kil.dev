@@ -2,7 +2,7 @@
  * Injects a 90s-style chunked downward page load transition for View Transitions API
  * This uses a stepped clip-path wipe from top to bottom.
  */
-export function injectDotcomChunkLoadTransitionStyles(styleIdPrefix = 'dotcom-transition'): void {
+function injectDotcomChunkLoadTransitionStyles(styleIdPrefix = 'dotcom-transition'): void {
   try {
     const styleId = `${styleIdPrefix}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`
     const style = document.createElement('style')
