@@ -32,7 +32,7 @@ export function TimeTurnerDialog({
   const [ready, setReady] = useState(false)
   const triggeredRef = useRef(false)
   const targetYear = 1999
-  const [accessibleYear, setAccessibleYear] = useState<number>(year)
+  const [accessibleYear, setAccessibleYear] = useState<number>(_initialIsDotcom ? targetYear : year)
   const yearDisplay = useMemo(() => {
     const span = year - targetYear
     if (span <= 0) return targetYear

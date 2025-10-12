@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/utils/utils'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 type FluxKnobProps = {
   onRotateClockwise?: (deltaDegrees: number) => void
@@ -81,8 +81,9 @@ export function FluxKnob({ onRotateClockwise }: Readonly<FluxKnobProps>) {
   const beginDrag = useCallback(
     (clientX: number, clientY: number) => {
       draggingRef.current = true
-      lastAngleRef.current = computeAngleAt(clientX, clientY)
-      setAngle(lastAngleRef.current)
+      const startAngle = computeAngleAt(clientX, clientY)
+      lastAngleRef.current = startAngle
+      setAngle(startAngle)
       globalThis.addEventListener('mousemove', onMouseMove, { passive: true })
       globalThis.addEventListener('mouseup', endDrag, { passive: true })
       globalThis.addEventListener('touchmove', onTouchMove, { passive: true })
@@ -90,6 +91,11 @@ export function FluxKnob({ onRotateClockwise }: Readonly<FluxKnobProps>) {
     },
     [computeAngleAt, endDrag, onMouseMove, onTouchMove],
   )
+
+  // Clean up global listeners on unmount
+  useEffect(() => {
+    return () => endDrag()
+  }, [endDrag])
 
   return (
     <button
