@@ -139,31 +139,26 @@ test.describe('Navigation Flow', () => {
   })
 
   test.describe('Achievements Navigation (Unlocked)', () => {
-    test.beforeEach(async ({ page, context }) => {
-      // Unlock achievements access
-      await page.goto('/')
-      // Seed cookie on current URL to ensure domain/path correctness
-      await context.addCookies([
-        {
-          name: 'kil.dev_achievements_v1',
-          value: 'RECURSIVE_REWARD',
-          url: page.url(),
-        },
-      ])
-      await page.evaluate(() => {
-        localStorage.setItem(
-          'kil.dev/achievements/v1',
-          JSON.stringify({
-            ABOUT_AMBLER: new Date().toISOString(),
-            EXPERIENCE_EXPLORER: new Date().toISOString(),
-            PROJECTS_PERUSER: new Date().toISOString(),
-            RECURSIVE_REWARD: new Date().toISOString(),
-          }),
-        )
-        document.documentElement.dataset.hasAchievements = 'true'
+    test.beforeEach(async ({ page }) => {
+      // Pre-hydration seed via init script to avoid races in CI
+      await page.addInitScript(() => {
+        try {
+          document.documentElement.dataset.hasAchievements = 'true'
+        } catch {}
+        try {
+          localStorage.setItem(
+            'kil.dev/achievements/v1',
+            JSON.stringify({
+              ABOUT_AMBLER: new Date().toISOString(),
+              EXPERIENCE_EXPLORER: new Date().toISOString(),
+              PROJECTS_PERUSER: new Date().toISOString(),
+              RECURSIVE_REWARD: new Date().toISOString(),
+            }),
+          )
+        } catch {}
       })
-      // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
-      await expect(page.locator('html')).toHaveAttribute('data-has-achievements', 'true')
+      await page.goto('/')
+      await page.waitForLoadState('domcontentloaded')
       await expect(page.getByTestId('nav-achievements')).toBeVisible({ timeout: 10000 })
     })
 
@@ -188,28 +183,23 @@ test.describe('Navigation Flow', () => {
   })
 
   test.describe('Pet Gallery Navigation (Unlocked)', () => {
-    test.beforeEach(async ({ page, context }) => {
-      // Unlock pet gallery access
-      await page.goto('/')
-      // Seed cookie on current URL to ensure domain/path correctness
-      await context.addCookies([
-        {
-          name: 'kil.dev_achievements_v1',
-          value: 'PET_PARADE',
-          url: page.url(),
-        },
-      ])
-      await page.evaluate(() => {
-        localStorage.setItem(
-          'kil.dev/achievements/v1',
-          JSON.stringify({
-            PET_PARADE: new Date().toISOString(),
-          }),
-        )
-        document.documentElement.dataset.hasPetGallery = 'true'
+    test.beforeEach(async ({ page }) => {
+      // Pre-hydration seed via init script to avoid races in CI
+      await page.addInitScript(() => {
+        try {
+          document.documentElement.dataset.hasPetGallery = 'true'
+        } catch {}
+        try {
+          localStorage.setItem(
+            'kil.dev/achievements/v1',
+            JSON.stringify({
+              PET_PARADE: new Date().toISOString(),
+            }),
+          )
+        } catch {}
       })
-      // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
-      await expect(page.locator('html')).toHaveAttribute('data-has-pet-gallery', 'true')
+      await page.goto('/')
+      await page.waitForLoadState('domcontentloaded')
       await expect(page.getByTestId('nav-pet-gallery')).toBeVisible({ timeout: 10000 })
     })
 
