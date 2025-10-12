@@ -1,10 +1,6 @@
 import Link from 'next/link'
 import { FooterClient } from './footer-client'
-
-async function CurrentYear() {
-  'use cache'
-  return <>{new Date().getFullYear()}</>
-}
+import { FooterYear } from './footer/footer-year'
 
 export function Footer() {
   return (
@@ -12,7 +8,7 @@ export function Footer() {
       <div className="px-10 py-4">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            © <CurrentYear /> <FooterClient /> —{' '}
+            © <FooterYear /> <FooterClient /> —{' '}
             <Link
               href="https://github.com/kiliantyler/kil.dev/blob/main/LICENSE"
               target="_blank"
