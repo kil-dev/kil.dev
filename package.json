@@ -54,7 +54,7 @@
     "lucide-react": "0.545.0",
     "motion": "12.23.22",
     "next": "16.0.0-canary.2",
-    "posthog-js": "1.273.1",
+    "posthog-js": "1.274.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-photo-album": "3.1.0",
