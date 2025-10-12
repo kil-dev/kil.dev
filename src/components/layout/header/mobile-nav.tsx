@@ -68,14 +68,14 @@ export function MobileNav() {
         { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
       ]
     }
-    // Ensure current gated route remains visible while active even if gate toggles off
-    if (pathname === '/achievements' && !allowAchievements) {
+    // Ensure current gated route remains visible while active even if gate toggles off (after mount)
+    if (isMounted && pathname === '/achievements' && !allowAchievements) {
       navigationItems = [
         ...navigationItems,
         { label: 'Achievements', href: '/achievements' as Route, icon: Trophy },
       ]
     }
-    if (pathname === '/pet-gallery' && !allowPetGallery) {
+    if (isMounted && pathname === '/pet-gallery' && !allowPetGallery) {
       navigationItems = [
         ...navigationItems,
         { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
