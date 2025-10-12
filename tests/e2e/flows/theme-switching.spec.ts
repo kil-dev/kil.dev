@@ -137,7 +137,7 @@ test.describe('Theme Switching', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const themeButton = page.getByRole('button', { name: /toggle theme menu/i })
+    const themeButton = page.locator('button[aria-controls="theme-options"]').first()
 
     // Switch to a theme
     await openThemeMenu(page)

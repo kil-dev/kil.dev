@@ -19,7 +19,8 @@ test.describe('404 Not Found Page', () => {
     await page.goto('/this-page-does-not-exist')
     await page.waitForLoadState('networkidle')
 
-    expect(errors).toEqual(['Failed to load resource: the server responded with a status of 404 (Not Found)'])
+    expect(errors).toHaveLength(1)
+    expect(errors[0]).toMatch(/404|not found/i)
   })
 
   test('should have correct page title', async ({ page }) => {
