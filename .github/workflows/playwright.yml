@@ -30,6 +30,8 @@ jobs:
 
       - name: Run Playwright tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         run: bunx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          SKIP_ENV_VALIDATION: true
 
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
