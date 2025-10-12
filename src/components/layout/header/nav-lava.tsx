@@ -36,8 +36,15 @@ export function NavLava() {
     const list: SimpleNavItem[] = baseItems.map(({ href, label }) => ({ href, label }))
     if (allowAchievements) list.push({ href: '/achievements' as Route, label: 'Achievements' })
     if (allowPetGallery) list.push({ href: '/pet-gallery' as Route, label: 'Pet Gallery' })
+    // Ensure current gated route remains included even if gate toggles off mid-session
+    if (pathname === '/achievements' && !list.some(i => i.href === '/achievements')) {
+      list.push({ href: '/achievements' as Route, label: 'Achievements' })
+    }
+    if (pathname === '/pet-gallery' && !list.some(i => i.href === '/pet-gallery')) {
+      list.push({ href: '/pet-gallery' as Route, label: 'Pet Gallery' })
+    }
     return list
-  }, [baseItems, allowAchievements, allowPetGallery])
+  }, [baseItems, allowAchievements, allowPetGallery, pathname])
 
   const [indicator, setIndicator] = React.useState<{ left: number; width: number; visible: boolean; animate: boolean }>(
     {
