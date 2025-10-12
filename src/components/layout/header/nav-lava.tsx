@@ -218,6 +218,7 @@ export function NavLava() {
             if (node) linkRefs.current[href] = node
           }}
           className="js-achievements-nav"
+          testId="nav-achievements"
         />
 
         {/* Pet Gallery link (hidden by default, shown via data attribute set pre-hydration) */}
@@ -234,6 +235,7 @@ export function NavLava() {
             if (node) linkRefs.current[href] = node
           }}
           className="js-pet-gallery-nav"
+          testId="nav-pet-gallery"
         />
       </div>
     </nav>
@@ -252,6 +254,7 @@ type NavLinkProps = {
   className?: string
   isExternal?: boolean
   showUnderline?: boolean
+  testId?: string
 }
 
 function NavLink(props: NavLinkProps) {
@@ -284,6 +287,7 @@ function NavLink(props: NavLinkProps) {
         className,
       )}
       aria-current={isActive ? 'page' : undefined}
+      data-testid={props.testId}
       role="menuitem"
       onMouseEnter={() => {
         setHoveredKey(href)

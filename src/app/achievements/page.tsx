@@ -12,10 +12,11 @@ export default function AchievementsPage() {
   >
 
   return (
-    <div className="px-10 py-16 md:px-20 lg:px-40">
+    <div className="px-10 py-16 md:px-20 lg:px-40" data-testid="achievements-page">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <LadybirdSecretListener />
         <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold md:text-3xl">Achievements</h1>
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-2">
               <SectionLabel as="p">Dopamine Hits</SectionLabel>

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 
 /**
  * Clear all state (localStorage, sessionStorage, cookies) to ensure test isolation
@@ -131,4 +131,38 @@ export async function getCurrentTheme(page: Page): Promise<string> {
     if (html.classList.contains('light')) return 'light'
     return 'light'
   })
+}
+
+/**
+ * Reliably navigate via a primary nav anchor, avoiding overlay/hover races
+ */
+export async function navigateViaAnchor(page: Page, href: string, timeoutMs = 2500) {
+  const selector = `nav[aria-label="Primary"] a[href="${href}"]`
+  const anchor = page.locator(selector).first()
+  await anchor.scrollIntoViewIfNeeded()
+  await expect(anchor).toBeVisible()
+
+  const urlRegex = new RegExp(href.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`) + String.raw`(?:/?|(\?.*)?)$`)
+
+  // Attempt 1: keyboard activation
+  await anchor.focus()
+  try {
+    await page.keyboard.press('Enter')
+    await page.waitForURL(urlRegex, { timeout: timeoutMs })
+    return
+  } catch {}
+
+  // Attempt 2: direct JS click
+  try {
+    await anchor.evaluate(node => (node as HTMLAnchorElement).click())
+    await page.waitForURL(urlRegex, { timeout: timeoutMs })
+    return
+  } catch {}
+
+  // Attempt 3: dispatch MouseEvent as a last resort
+  await anchor.evaluate(node => {
+    const el = node as HTMLAnchorElement
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }))
+  })
+  await page.waitForURL(urlRegex, { timeout: timeoutMs })
 }
