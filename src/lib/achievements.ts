@@ -143,7 +143,7 @@ export const ACHIEVEMENTS = {
     imageAlt: 'Time Turner',
     cardDescription:
       'You held the timeline and rewound to 1999. The Dotcom theme has been revealed. Welcome to the web of yore.',
-    unlockHint: 'Click the year in the footer and… hold on.',
+    unlockHint: "Let's go back in time, if only we could change the date...",
     confetti: true,
   },
   KONAMI_KILLER: {
