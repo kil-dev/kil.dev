@@ -179,6 +179,7 @@ export function AchievementsProvider({
     try {
       // Clear achievement-specific localStorage flags
       localStorage.removeItem(LOCAL_STORAGE_KEYS.MATRIX_THEME_SELECTED)
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.DOTCOM_THEME_UNLOCKED)
       localStorage.removeItem(LOCAL_STORAGE_KEYS.CONSOLE_OPENED)
     } catch {}
     toast.success('Achievements Reset', {

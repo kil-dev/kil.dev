@@ -1,3 +1,5 @@
+'use client'
+
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { ThemeName } from '@/lib/themes'
 import type { UnlockedMap } from '@/utils/achievements'

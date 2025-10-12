@@ -14,6 +14,7 @@ export const LOCAL_STORAGE_KEYS = {
 
   // Feature Flags / Achievement Triggers
   MATRIX_THEME_SELECTED: 'kd_matrix_theme_selected',
+  DOTCOM_THEME_UNLOCKED: 'kd_dotcom_theme_unlocked',
   CONSOLE_OPENED: 'kd_console_opened',
 
   // Theme Preferences

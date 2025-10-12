@@ -134,6 +134,18 @@ export const ACHIEVEMENTS = {
     unlockHint: 'There is a hidden theme waiting for you. You just need to find it. Follow the white rabbit.',
     confetti: true,
   },
+  TIME_TURNER: {
+    id: 'TIME_TURNER',
+    title: 'Time Turner',
+    description: 'You turned back time to the dot-com era.',
+    icon: '🕰️',
+    imageSrc: Images.TimeTurnerAchievement,
+    imageAlt: 'Time Turner',
+    cardDescription:
+      'You held the timeline and rewound to 1999. The Dotcom theme has been revealed. Welcome to the web of yore.',
+    unlockHint: "Let's go back in time, if only we could change the date...",
+    confetti: true,
+  },
   KONAMI_KILLER: {
     id: 'KONAMI_KILLER',
     title: 'Konami Killer',

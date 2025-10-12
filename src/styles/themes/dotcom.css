@@ -1,0 +1,196 @@
+@custom-variant dotcom (&:is(.dotcom *));
+
+.dotcom {
+  /* Typography */
+  --font-sans: Tahoma, 'MS Sans Serif', Verdana, Arial, Helvetica, sans-serif;
+  --radius: 0;
+
+  /* Win98 palette */
+  --win98-bg: #c0c0c0; /* desktop */
+  --win98-window: #d4d0c8; /* window face */
+  --win98-hilight: #ffffff; /* top/left */
+  --win98-light: #dfdfdf; /* inner light */
+  --win98-shadow: #808080; /* bottom/right inner */
+  --win98-darkshadow: #404040; /* deep shadow */
+  --win98-frame: #000000; /* window frame */
+  --win98-link: #0000ff;
+  --win98-visited: #800080;
+
+  /* Surface + tokens bridged to Tailwind variables */
+  --background: var(--win98-bg);
+  --foreground: #000000;
+  --card: var(--win98-window);
+  --card-foreground: var(--foreground);
+  --popover: var(--win98-window);
+  --popover-foreground: var(--foreground);
+  --primary: var(--win98-link);
+  --primary-foreground: #ffffff;
+  --secondary: #e0e0e0;
+  --secondary-foreground: #000000;
+  --muted: #eeeeee;
+  --muted-foreground: #222222;
+  --accent: #e0e0e0;
+  --accent-foreground: #000000;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: var(--win98-shadow);
+  --input: var(--win98-shadow);
+  /* Opaque backdrop for back faces (disable translucency) */
+  --card-backdrop: var(--win98-window);
+  --ring: #000000;
+  --grid-color: color-mix(in srgb, #000 20%, transparent);
+  --grid-light: #808080;
+  --chart-1: #2563eb;
+  --chart-2: #16a34a;
+  --chart-3: #f59e0b;
+  --chart-4: #a855f7;
+  --chart-5: #ef4444;
+  color-scheme: light;
+}
+
+/* Classic link styling */
+.dotcom a:not([role='button']) {
+  color: var(--win98-link);
+  text-decoration: underline;
+  text-underline-offset: 0;
+}
+.dotcom a:visited:not([role='button']) {
+  color: var(--win98-visited);
+}
+
+/* Beveled cards (Win98 window) */
+.dotcom [data-slot='card']:not(.bg-transparent) {
+  background: var(--win98-window);
+  border: 2px solid var(--win98-shadow);
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight);
+  border-radius: 0;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow);
+}
+
+/* Preserve transparency when explicitly requested (used by flipping card fronts) */
+.dotcom [data-slot='card'].bg-transparent {
+  background: transparent !important;
+  /* Keep a Win98 bevel frame while allowing the image to show */
+  border: 2px solid var(--win98-shadow) !important;
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow) !important;
+}
+
+/* Horizontal rule reminiscent of 90s */
+.dotcom hr {
+  height: 0;
+  border: 0;
+  border-top: 2px inset var(--win98-shadow);
+  border-bottom: 2px outset var(--win98-hilight);
+}
+
+/* Buttons - force Win98 3D look over utility classes */
+.dotcom [data-slot='button'] {
+  color: #000 !important;
+  background: var(--win98-window) !important;
+  border: 2px solid var(--win98-shadow) !important;
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow) !important;
+  text-decoration: none !important;
+}
+.dotcom [data-slot='button']:active {
+  border-color: var(--win98-darkshadow) var(--win98-hilight) var(--win98-hilight) var(--win98-darkshadow) !important;
+  box-shadow:
+    inset -1px -1px 0 var(--win98-light),
+    inset 1px 1px 0 var(--win98-shadow) !important;
+}
+.dotcom [data-slot='button']:focus-visible {
+  outline: 1px dotted #000 !important;
+  outline-offset: -3px;
+}
+
+/* Inputs */
+.dotcom input,
+.dotcom select,
+.dotcom textarea {
+  color: #000;
+  background: #ffffff;
+  border: 2px solid var(--win98-shadow);
+  border-color: var(--win98-shadow) var(--win98-hilight) var(--win98-hilight) var(--win98-shadow);
+  border-radius: 0;
+  box-shadow:
+    inset -1px -1px 0 var(--win98-light),
+    inset 1px 1px 0 var(--win98-darkshadow);
+}
+.dotcom input:focus-visible,
+.dotcom select:focus-visible,
+.dotcom textarea:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -3px;
+}
+
+/* Header nav-lava: hide animated blue background, keep links static */
+.dotcom nav[aria-label='Primary'] [aria-hidden='true'] {
+  display: none !important;
+}
+.dotcom nav[aria-label='Primary'] a {
+  color: #000 !important;
+  text-decoration: none !important;
+}
+.dotcom nav[aria-label='Primary'] a:hover,
+.dotcom nav[aria-label='Primary'] a:focus {
+  color: #000 !important;
+  text-decoration: underline !important;
+}
+
+/* Disable hover tilt movement on flipping cards in this theme */
+.dotcom .will-change-transform {
+  transform: none !important;
+}
+
+/* Achievement cards: bevel only the face wrappers, not the back overlay */
+.dotcom [id^='ach-card-'] .absolute.inset-0.rounded-xl:is(.rotate-y-0, .rotate-y-180) {
+  background: transparent;
+  border: 2px solid var(--win98-shadow);
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight);
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow);
+}
+
+/* Mobile nav buttons: square + Win98 bevel */
+.dotcom #mobile-nav-arc a {
+  color: #000 !important;
+  background: var(--win98-window) !important;
+  border: 2px solid var(--win98-shadow) !important;
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow) !important;
+}
+.dotcom #mobile-nav-arc a:hover,
+.dotcom #mobile-nav-arc a:focus {
+  color: #000 !important;
+  background: var(--win98-window) !important;
+}
+/* Icon chip inside mobile item */
+.dotcom #mobile-nav-arc a > span:first-child {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Mobile nav particle effects: disabled in this theme */
+.dotcom span[aria-hidden][class*='fixed'][class*='z-[109]'] {
+  display: none !important;
+}
+
+/* Back faces: remove rounded inner overlay to match square Win98 windows */
+.dotcom .card-back-shadow {
+  border-radius: 0 !important;
+}

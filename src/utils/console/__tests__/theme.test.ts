@@ -114,6 +114,20 @@ describe('theme command', () => {
     expect(output[1]).toContain('Available themes:')
   })
 
+  it('does not allow dotcom before unlock', () => {
+    const { env, output } = createMockEnv()
+    theme.execute(['dotcom'], env)
+    expect(output[0]).toContain('Invalid theme: dotcom')
+  })
+
+  it('allows dotcom after unlock flag is set', () => {
+    const { env, output } = createMockEnv()
+    mockLocalStorage.kd_dotcom_theme_unlocked = '1'
+    theme.execute(['dotcom'], env)
+    expect(mockLocalStorage.theme).toBe('dotcom')
+    expect(output).toContain('Theme changed to: dotcom')
+  })
+
   it('shows message when theme is already set', () => {
     mockLocalStorage.theme = 'dark'
     const { env, output } = createMockEnv()

@@ -8,6 +8,7 @@
 /* Themes */
 @import './themes/default.css';
 @import './themes/dark.css';
+@import './themes/dotcom.css';
 @import './themes/cyberpunk.css';
 @import './themes/halloween.css';
 @import './themes/thanksgiving.css';
