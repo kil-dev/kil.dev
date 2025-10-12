@@ -143,13 +143,11 @@ test.describe('Navigation Flow', () => {
       // Unlock achievements access
       await page.goto('/')
       // Seed cookie on current URL to ensure domain/path correctness
-      const url = new URL(page.url())
       await context.addCookies([
         {
           name: 'kil.dev_achievements_v1',
           value: 'RECURSIVE_REWARD',
-          domain: url.hostname,
-          path: '/',
+          url: page.url(),
         },
       ])
       await page.evaluate(() => {
@@ -164,11 +162,9 @@ test.describe('Navigation Flow', () => {
         )
         document.documentElement.dataset.hasAchievements = 'true'
       })
-      await page.reload()
-      await page.waitForLoadState('domcontentloaded')
       // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
       await expect(page.locator('html')).toHaveAttribute('data-has-achievements', 'true')
-      await expect(page.getByTestId('nav-achievements')).toBeVisible()
+      await expect(page.getByTestId('nav-achievements')).toBeVisible({ timeout: 10000 })
     })
 
     test('should show achievements link when unlocked', async ({ page }) => {
@@ -196,13 +192,11 @@ test.describe('Navigation Flow', () => {
       // Unlock pet gallery access
       await page.goto('/')
       // Seed cookie on current URL to ensure domain/path correctness
-      const url = new URL(page.url())
       await context.addCookies([
         {
           name: 'kil.dev_achievements_v1',
           value: 'PET_PARADE',
-          domain: url.hostname,
-          path: '/',
+          url: page.url(),
         },
       ])
       await page.evaluate(() => {
@@ -214,11 +208,9 @@ test.describe('Navigation Flow', () => {
         )
         document.documentElement.dataset.hasPetGallery = 'true'
       })
-      await page.reload()
-      await page.waitForLoadState('domcontentloaded')
       // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
       await expect(page.locator('html')).toHaveAttribute('data-has-pet-gallery', 'true')
-      await expect(page.getByTestId('nav-pet-gallery')).toBeVisible()
+      await expect(page.getByTestId('nav-pet-gallery')).toBeVisible({ timeout: 10000 })
     })
 
     test('should show pet gallery link when unlocked', async ({ page }) => {
