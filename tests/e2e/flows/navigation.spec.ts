@@ -142,12 +142,13 @@ test.describe('Navigation Flow', () => {
     test.beforeEach(async ({ page, context }) => {
       // Unlock achievements access
       await page.goto('/')
-      // Seed cookie so pre-hydration presence script sets data-has-achievements without visual jump
+      // Seed cookie on current URL to ensure domain/path correctness
+      const url = new URL(page.url())
       await context.addCookies([
         {
           name: 'kil.dev_achievements_v1',
           value: 'RECURSIVE_REWARD',
-          domain: 'localhost',
+          domain: url.hostname,
           path: '/',
         },
       ])
@@ -164,7 +165,10 @@ test.describe('Navigation Flow', () => {
         document.documentElement.dataset.hasAchievements = 'true'
       })
       await page.reload()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('domcontentloaded')
+      // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
+      await expect(page.locator('html')).toHaveAttribute('data-has-achievements', 'true')
+      await expect(page.getByTestId('nav-achievements')).toBeVisible()
     })
 
     test('should show achievements link when unlocked', async ({ page }) => {
@@ -173,11 +177,17 @@ test.describe('Navigation Flow', () => {
     })
 
     test('should navigate to achievements page', async ({ page }) => {
-      const achievementsLink = page.locator('.js-achievements-nav')
-      await achievementsLink.scrollIntoViewIfNeeded()
-      await achievementsLink.click({ force: true })
-      await page.waitForLoadState('networkidle')
-      await expect(page).toHaveURL('/achievements')
+      // Use data-testid to target the single interactive anchor
+      const achievementsAnchor = page.getByTestId('nav-achievements')
+      await expect(achievementsAnchor).toBeVisible()
+      await Promise.all([
+        page.waitForURL(/\/achievements(?:\/?|(\?.*)?)$/),
+        achievementsAnchor.click(),
+      ])
+      await page.waitForLoadState('domcontentloaded')
+      await expect(page).toHaveURL(/\/achievements(?:\/?|(\?.*)?)$/)
+      await expect(page.getByTestId('achievements-page')).toBeVisible({ timeout: 15000 })
+      await expect(page.locator('main').getByRole('heading', { name: 'Achievements', level: 1 })).toBeVisible()
     })
   })
 
@@ -185,12 +195,13 @@ test.describe('Navigation Flow', () => {
     test.beforeEach(async ({ page, context }) => {
       // Unlock pet gallery access
       await page.goto('/')
-      // Seed cookie so pre-hydration presence script sets data-has-pet-gallery without visual jump
+      // Seed cookie on current URL to ensure domain/path correctness
+      const url = new URL(page.url())
       await context.addCookies([
         {
           name: 'kil.dev_achievements_v1',
           value: 'PET_PARADE',
-          domain: 'localhost',
+          domain: url.hostname,
           path: '/',
         },
       ])
@@ -204,10 +215,10 @@ test.describe('Navigation Flow', () => {
         document.documentElement.dataset.hasPetGallery = 'true'
       })
       await page.reload()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('domcontentloaded')
       // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
       await expect(page.locator('html')).toHaveAttribute('data-has-pet-gallery', 'true')
-      await expect(page.locator('.js-pet-gallery-nav')).toBeVisible()
+      await expect(page.getByTestId('nav-pet-gallery')).toBeVisible()
     })
 
     test('should show pet gallery link when unlocked', async ({ page }) => {
@@ -216,12 +227,16 @@ test.describe('Navigation Flow', () => {
     })
 
     test('should navigate to pet gallery page', async ({ page }) => {
-      const petGalleryLink = page.locator('.js-pet-gallery-nav')
-      await petGalleryLink.scrollIntoViewIfNeeded()
-      await expect(petGalleryLink).toBeVisible()
-      await petGalleryLink.click()
-      await page.waitForLoadState('networkidle')
-      await expect(page).toHaveURL('/pet-gallery')
+      const petGalleryAnchor = page.getByTestId('nav-pet-gallery')
+      await expect(petGalleryAnchor).toBeVisible()
+      await Promise.all([
+        page.waitForURL(/\/pet-gallery(?:\/?|(\?.*)?)$/),
+        petGalleryAnchor.click(),
+      ])
+      await page.waitForLoadState('domcontentloaded')
+      await expect(page).toHaveURL(/\/pet-gallery(?:\/?|(\?.*)?)$/)
+      await expect(page.getByTestId('pet-gallery-page')).toBeVisible({ timeout: 15000 })
+      await expect(page.locator('main').getByRole('heading', { name: 'Pet Gallery', level: 1 })).toBeVisible()
     })
   })
 })
