@@ -24,6 +24,7 @@ export const themes = [
     baseColor: 'light',
     darkModeNote: '(circa 1999)',
     disableGridLights: true,
+    hiddenFromMenu: true,
   },
   {
     name: 'cyberpunk',

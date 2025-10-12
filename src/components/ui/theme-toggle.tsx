@@ -10,6 +10,8 @@ import { useIsClient } from '@/hooks/use-is-client'
 import { useThemeMenuState } from '@/hooks/use-theme-menu-state'
 import { themes, type Theme } from '@/lib/themes'
 import type { ThemeConfig } from '@/types/themes'
+import { startDotcomTransition } from '@/utils/dotcom-transition'
+import { isDotcomThemeUnlocked } from '@/utils/dotcom-unlock'
 import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { buildPerThemeVariantCss } from '@/utils/theme-css'
 import { getAvailableThemes, getDefaultThemeForNow } from '@/utils/theme-runtime'
@@ -146,11 +148,18 @@ export function ThemeToggle() {
       const originXPercent = Math.max(0, Math.min(100, (clickX / viewportWidth) * 100))
       const originYPercent = Math.max(0, Math.min(100, (clickY / viewportHeight) * 100))
 
-      injectCircleBlur(originXPercent, originYPercent)
-      startTransition(() => {
-        setTheme(nextPref)
-        captureThemeChanged(nextPref)
-      })
+      if (nextPref === 'dotcom') {
+        startDotcomTransition(() => {
+          setTheme(nextPref)
+          captureThemeChanged(nextPref)
+        })
+      } else {
+        injectCircleBlur(originXPercent, originYPercent)
+        startTransition(() => {
+          setTheme(nextPref)
+          captureThemeChanged(nextPref)
+        })
+      }
       setOpen(false)
     },
     [currentPreference, injectCircleBlur, resolvedTheme, setTheme, startTransition, systemTheme, setOpen],
@@ -165,12 +174,14 @@ export function ThemeToggle() {
     const themeList: readonly Theme[] = getAvailableThemes() as readonly Theme[]
     const achievementUnlocked = has('THEME_TAPDANCE')
     const hasUnlockedMatrix = isMatrixThemeUnlocked()
+    const hasUnlockedDotcom = isDotcomThemeUnlocked()
     const filteredList = themeList.filter(t => {
       if (t === 'system') return true
       const entry = themes.find(e => e.name === t) as ThemeConfig | undefined
       if (entry?.alwaysHidden) return false
-      // Keep hiddenFromMenu unless unlocked and the theme is matrix
-      if (entry?.hiddenFromMenu && !(hasUnlockedMatrix && t === 'matrix')) return false
+      // Keep hiddenFromMenu unless unlocked and the theme is matrix or dotcom
+      if (entry?.hiddenFromMenu && !((hasUnlockedMatrix && t === 'matrix') || (hasUnlockedDotcom && t === 'dotcom')))
+        return false
       const gated = Boolean(entry?.requiresAchievement)
       return achievementUnlocked || !gated
     })
