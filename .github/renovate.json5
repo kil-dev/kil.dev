@@ -103,6 +103,12 @@
       automerge: true,
       pinDigests: true,
     },
+    {
+      matchPackageNames: [
+        "next"
+      ],
+      minimumReleaseAge: "0 days",
+    }
   ],
   lockFileMaintenance: {
     enabled: true,
