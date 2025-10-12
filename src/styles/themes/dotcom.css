@@ -132,6 +132,38 @@
   outline-offset: -3px;
 }
 
+/* Switch (Radix) - Win98 3D look */
+.dotcom [data-slot='switch'] {
+  color: #000 !important;
+  background: var(--win98-window) !important;
+  border: 2px solid var(--win98-shadow) !important;
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset 1px 1px 0 var(--win98-light),
+    inset -1px -1px 0 var(--win98-shadow) !important;
+}
+.dotcom [data-slot='switch'][data-state='checked'] {
+  /* Pressed/depressed look when ON */
+  border-color: var(--win98-darkshadow) var(--win98-hilight) var(--win98-hilight) var(--win98-darkshadow) !important;
+  box-shadow:
+    inset -1px -1px 0 var(--win98-light),
+    inset 1px 1px 0 var(--win98-shadow) !important;
+}
+.dotcom [data-slot='switch']:focus-visible {
+  outline: 1px dotted #000 !important;
+  outline-offset: -3px !important;
+}
+.dotcom [data-slot='switch-thumb'] {
+  background: #ffffff !important;
+  border: 2px solid var(--win98-shadow) !important;
+  border-color: var(--win98-shadow) var(--win98-hilight) var(--win98-hilight) var(--win98-shadow) !important;
+  border-radius: 0 !important;
+  box-shadow:
+    inset -1px -1px 0 var(--win98-light),
+    inset 1px 1px 0 var(--win98-darkshadow) !important;
+}
+
 /* Header nav-lava: hide animated blue background, keep links static */
 .dotcom nav[aria-label='Primary'] [aria-hidden='true'] {
   display: none !important;

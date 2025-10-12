@@ -7,6 +7,12 @@ html[data-has-achievements='true'] .js-achievements-nav {
   display: inline-flex;
 }
 
+/* Always keep visible while on the current page to avoid nav lava glitches */
+.js-achievements-nav[aria-current='page'],
+.js-pet-gallery-nav[aria-current='page'] {
+  display: inline-flex;
+}
+
 /* Sparkle burst when just unlocked (single session) */
 html[data-has-achievements='true'][data-achievements-just-unlocked='true'] .js-achievements-nav {
   position: relative;
