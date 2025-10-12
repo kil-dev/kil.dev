@@ -3,6 +3,8 @@ import { LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { themes, type Theme } from '@/lib/themes'
 import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-console'
 import { hasThemeTapdanceAchievement } from '@/utils/achievements'
+import { startDotcomTransition } from '@/utils/dotcom-transition'
+import { isDotcomThemeUnlocked } from '@/utils/dotcom-unlock'
 import { isMatrixThemeUnlocked } from '@/utils/matrix-unlock'
 import { getActiveSeasonalThemes } from '@/utils/theme-runtime'
 import { maybeStartViewTransition } from '@/utils/view-transition'
@@ -17,6 +19,7 @@ function getConsoleAvailableThemes(): string[] {
 
   // Filter themes based on achievement status
   const hasUnlockedMatrix = isMatrixThemeUnlocked()
+  const hasUnlockedDotcom = isDotcomThemeUnlocked()
 
   const availableThemeNames = themes
     .filter(t => {
@@ -29,8 +32,9 @@ function getConsoleAvailableThemes(): string[] {
         return activeSeasonalThemes.has(t.name) || hasAchievement
       }
 
-      // Exclude matrix until unlocked
+      // Exclude matrix/dotcom until unlocked
       if (t.name === 'matrix' && !hasUnlockedMatrix) return false
+      if (t.name === 'dotcom' && !hasUnlockedDotcom) return false
 
       return true
     })
@@ -176,11 +180,14 @@ function applyThemeWithTransition(requestedTheme: Theme) {
   }
 
   // Try to use view transition, fallback to direct change
-  const transitionUsed = maybeStartViewTransition(performChange, {
-    originXPercent: 50,
-    originYPercent: 50,
-    styleIdPrefix: 'console-theme-transition',
-  })
+  const transitionUsed =
+    requestedTheme === 'dotcom'
+      ? (startDotcomTransition(performChange), true)
+      : maybeStartViewTransition(performChange, {
+          originXPercent: 50,
+          originYPercent: 50,
+          styleIdPrefix: 'console-theme-transition',
+        })
 
   if (!transitionUsed) {
     performChange()
