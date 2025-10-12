@@ -62,11 +62,6 @@ export function AchievementsProvider({
   initialUnlocked?: UnlockedMap
 }) {
   const [unlocked, setUnlocked] = useState<UnlockedMap>(() => initialUnlocked ?? readFromStorage())
-  const mountedRef = useRef(false)
-
-  useEffect(() => {
-    mountedRef.current = true
-  }, [])
 
   // Seed from presence data attributes if local storage is empty or missing entries
   useEffect(() => {
@@ -150,7 +145,6 @@ export function AchievementsProvider({
   const pendingConfettiRef = useRef<Set<AchievementId>>(new Set())
   const unlock = useCallback(
     (id: AchievementId) => {
-      if (!mountedRef.current) return
       if (pendingUnlocksRef.current.has(id)) return
       if (has(id)) return
 
@@ -178,7 +172,6 @@ export function AchievementsProvider({
   )
 
   const reset = useCallback(() => {
-    if (!mountedRef.current) return
     setUnlocked(createEmptyUnlocked())
     try {
       resetReviewState()
@@ -297,7 +290,6 @@ export function AchievementsProvider({
   }, [hasPetParade])
 
   useEffect(() => {
-    if (!mountedRef.current) return
     if (has('RECURSIVE_REWARD')) return
 
     let earnedCount = 0

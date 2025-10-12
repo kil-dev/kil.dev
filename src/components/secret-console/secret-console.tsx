@@ -125,7 +125,14 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
   const handleClose = useCallback(() => {
     if (isClosing) return
     setIsClosing(true)
-  }, [isClosing])
+    // If user prefers reduced motion, close immediately without waiting for transition
+    try {
+      const mq = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')
+      if (mq?.matches) {
+        onRequestClose()
+      }
+    } catch {}
+  }, [isClosing, onRequestClose])
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus()
@@ -430,6 +437,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
             onKeyDown={handleInputKeyDown}
             className="bg-transparent text-green-400 outline-hidden flex-1 placeholder:text-green-700"
             aria-label="Console input"
+            autoFocus
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
