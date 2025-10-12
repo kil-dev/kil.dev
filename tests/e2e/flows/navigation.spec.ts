@@ -205,6 +205,9 @@ test.describe('Navigation Flow', () => {
       })
       await page.reload()
       await page.waitForLoadState('networkidle')
+      // Ensure the pre-hydration dataset flag is present and the link is visible before proceeding
+      await expect(page.locator('html')).toHaveAttribute('data-has-pet-gallery', 'true')
+      await expect(page.locator('.js-pet-gallery-nav')).toBeVisible()
     })
 
     test('should show pet gallery link when unlocked', async ({ page }) => {
@@ -215,7 +218,8 @@ test.describe('Navigation Flow', () => {
     test('should navigate to pet gallery page', async ({ page }) => {
       const petGalleryLink = page.locator('.js-pet-gallery-nav')
       await petGalleryLink.scrollIntoViewIfNeeded()
-      await petGalleryLink.click({ force: true })
+      await expect(petGalleryLink).toBeVisible()
+      await petGalleryLink.click()
       await page.waitForLoadState('networkidle')
       await expect(page).toHaveURL('/pet-gallery')
     })

@@ -13,8 +13,7 @@ test.describe('FIVE_STAR_FAN Achievement', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Look for review/rating component on the page
-    // This might be in the footer or a modal
+    // TODO: Not correct at all
     const reviewButton = page.locator('button:has-text("Review"), button:has-text("Rate")').first()
     const reviewButtonVisible = await reviewButton.isVisible().catch(() => false)
 
