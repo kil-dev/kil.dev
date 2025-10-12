@@ -312,6 +312,22 @@ export function AchievementsProvider({
     return getThemeBaseColor(rt as ThemeName)
   }, [resolvedTheme])
 
+  // Reflect generic per-achievement presence attributes for live updates on static pages
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const root = document.documentElement
+    const toKebabCase = (s: string) => s.toLowerCase().replaceAll('_', '-')
+
+    for (const id of Object.keys(ACHIEVEMENTS)) {
+      const attr = 'data-achievement-' + toKebabCase(id)
+      if (unlocked[id as AchievementId]) {
+        root.setAttribute(attr, 'true')
+      } else {
+        root.removeAttribute(attr)
+      }
+    }
+  }, [unlocked])
+
   return (
     <AchievementsContext.Provider value={value}>
       {children}
