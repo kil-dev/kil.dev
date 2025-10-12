@@ -2,6 +2,16 @@ name: CI - Lighthouse
 
 on:
   pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "bun.lock"
+      - "next.config.ts"
+      - "tsconfig.json"
+      - ".lighthouserc.json"
+      - ".github/workflows/lighthouse.yml"
 
 jobs:
   lighthouse:

@@ -1,10 +1,19 @@
 name: Playwright E2E Tests
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "tests/e2e/**"
+      - "playwright.config.ts"
+      - "package.json"
+      - "bun.lock"
+      - "next.config.ts"
+      - "tsconfig.json"
+      - "vitest.config.ts"
+      - ".github/workflows/playwright.yml"
 
 jobs:
   playwright-tests:
