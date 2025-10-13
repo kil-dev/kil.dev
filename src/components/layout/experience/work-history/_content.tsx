@@ -7,7 +7,7 @@ export function WorkHistory() {
     <section className="flex-1">
       <div className="flex flex-col gap-4">
         <SectionLabel as="p">Where I’ve been</SectionLabel>
-        {(!WORK_HISTORY || WORK_HISTORY.length === 0) && (
+        {(WORK_HISTORY?.length === 0) && (
           <div className="text-muted-foreground">No experience added yet.</div>
         )}
 

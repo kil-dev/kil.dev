@@ -2,7 +2,7 @@ import type { Project } from '@/types/projects'
 import { ProjectCard } from './project-card/_content'
 
 export function ProjectsGrid({ items }: { items: Project[] }) {
-  if (!items || items.length === 0) {
+  if (items?.length === 0) {
     return (
       <div className="text-muted-foreground mx-auto max-w-xl text-center">
         <p>No projects yet. Check back soon.</p>

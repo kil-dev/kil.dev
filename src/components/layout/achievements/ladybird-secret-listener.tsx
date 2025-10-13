@@ -19,7 +19,7 @@ export function LadybirdSecretListener() {
   const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (shouldIgnoreTarget(e.target)) return
     const key = e.key
-    if (!key || key.length !== 1) return
+    if (key?.length !== 1) return
 
     const normalized = key.toLowerCase()
     bufferRef.current = (bufferRef.current + normalized).slice(-target.length)
