@@ -116,7 +116,7 @@ export function AchievementsProvider({
       Cookies.set(ACHIEVEMENTS_COOKIE_NAME, value, {
         path: '/',
         expires: expires,
-        samesite: 'lax',
+        sameSite: 'lax',
       })
     } catch {}
   }, [unlocked])
