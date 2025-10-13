@@ -66,8 +66,25 @@ export function NavLava() {
     const containerRect = container.getBoundingClientRect()
     const targetRect = target.getBoundingClientRect()
 
-    const left = targetRect.left - containerRect.left
+    // Compute position relative to container
+    const baseLeft = targetRect.left - containerRect.left
     const width = targetRect.width - 8
+    let left = baseLeft
+
+    // When the april-fools theme is active, the page is rotated 180deg.
+    // Mirror the indicator position horizontally so it aligns with the
+    // visually flipped navigation order.
+    try {
+      const isAprilFools = document.documentElement.classList.contains('april-fools')
+      if (isAprilFools) {
+        const containerWidth = containerRect.width
+        // Mirror into the rotated coordinate system: start from right edge and
+        // subtract the intended left edge (baseLeft) plus the indicator width and
+        // an extra 4px to reflect the -8px width reduction (4px per side).
+        left = Math.max(0, containerWidth - baseLeft - width - 8)
+      }
+    } catch {}
+
     setIndicator({ left, width, visible: true, animate })
   }, [])
 
@@ -85,6 +102,8 @@ export function NavLava() {
       } else {
         moveIndicatorTo(key, false)
         requestAnimationFrame(() => {
+          // Re-measure once more after first frame to avoid hydration/layout shifts
+          moveIndicatorTo(key, false)
           didInitRef.current = true
           setIndicator(prev => ({ ...prev, animate: true }))
         })

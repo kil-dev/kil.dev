@@ -85,6 +85,15 @@ export const themes = [
     enableSnow: true,
     timeRange: { start: { month: 12, day: 1 }, end: { month: 12, day: 26 } },
   },
+  {
+    name: 'april-fools',
+    icon: Zap,
+    headshotImage: Headshots.Headshot,
+    baseColor: 'dark',
+    darkModeNote: '',
+    timeRange: { start: { month: 4, day: 1 }, end: { month: 4, day: 2 } },
+    alwaysHidden: true,
+  },
 ] as const satisfies ReadonlyArray<ThemeConfig>
 
 export type ThemeEntry = (typeof themes)[number]

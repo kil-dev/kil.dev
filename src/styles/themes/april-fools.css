@@ -1,0 +1,6 @@
+@custom-variant april-fools (&:is(.april-fools *));
+
+/* Rotate the whole rendered document so all content is upside down */
+.april-fools body {
+  transform: rotate(180deg);
+}
