@@ -217,7 +217,7 @@ function executeTheme(args: string[], env: SecretConsoleEnv) {
   const state = getCurrentThemeState()
 
   // Check if theme is already explicitly set to the same value
-  if (state && state.currentTheme === requestedTheme) {
+  if (state?.currentTheme === requestedTheme) {
     env.appendOutput(`Theme is already set to: ${requestedTheme}`)
     return
   }

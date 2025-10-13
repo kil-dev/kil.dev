@@ -63,7 +63,7 @@ export function vfsList(root: VfsNode, path: string): { name: string; isDir: boo
 
 export function vfsRead(root: VfsNode, path: string): string | undefined {
   const node = vfsResolve(root, path)
-  if (!node || node.type !== 'file') return undefined
+  if (node?.type !== 'file') return undefined
   const content = node.content
   return typeof content === 'function' ? content() : content
 }
