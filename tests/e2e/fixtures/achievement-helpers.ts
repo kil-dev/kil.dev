@@ -79,26 +79,40 @@ export async function simulateKonamiCode(page: Page) {
  */
 export async function expectConfettiLikely(page: Page) {
   // Confetti library adds canvas elements to the body
-  const hasCanvas = await page.locator('body > canvas').count()
-  expect(hasCanvas, 'Confetti canvas should be present').toBeGreaterThan(0)
+  // Wait up to ~2s for confetti to mount after popup visible
+  const deadline = Date.now() + 2000
+  let count = 0
+  while (Date.now() < deadline) {
+    count = await page.locator('body > canvas').count()
+    if (count > 0) break
+    await page.waitForTimeout(100)
+  }
+  expect(count, 'Confetti canvas should be present').toBeGreaterThan(0)
 }
 
 /**
- * Check if achievement toast notification appeared
+ * Check if achievement popup appeared (by title text in popup)
  */
-export async function expectAchievementToast(page: Page, achievementTitle: string) {
-  const toast = page.locator('[data-sonner-toast]').filter({ hasText: achievementTitle })
-  await expect(toast).toBeVisible({ timeout: 5000 })
+export async function expectAchievementPopup(page: Page, achievementTitle: string) {
+  const popup = page.locator('[data-achievement-popup]')
+  await expect(popup).toBeVisible({ timeout: 5000 })
+  await expect(popup).toContainText(achievementTitle, { timeout: 2000 })
 }
 
 /**
- * Wait for any achievement toast to appear and disappear
+ * Wait for any achievement popup to appear and complete its animation
  */
-export async function waitForAchievementToast(page: Page) {
-  // Wait for toast to appear
-  await page.waitForSelector('[data-sonner-toast]', { state: 'visible', timeout: 5000 })
-  // Wait for it to disappear or timeout
-  await page.waitForTimeout(4500)
+export async function waitForAchievementPopup(page: Page) {
+  // Wait for popup to appear
+  await page.waitForSelector('[data-achievement-popup]', { state: 'visible', timeout: 5000 })
+  // Wait until the popup reaches its exit phase (if exposed via data-phase="exit")
+  await page
+    .waitForSelector('[data-achievement-popup][data-phase="exit"]', { state: 'attached', timeout: 12000 })
+    .catch(() => {
+      // noop
+    })
+  // Finally, wait for the popup to be removed from the DOM (covers full animation timeline ~7.7s)
+  await page.waitForSelector('[data-achievement-popup]', { state: 'detached', timeout: 15000 })
 }
 
 /**

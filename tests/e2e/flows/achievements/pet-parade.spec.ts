@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import {
   expectAchievementCookieContains,
+  expectAchievementPopup,
   expectConfettiLikely,
   flipAllPetCards,
 } from '../../fixtures/achievement-helpers'
@@ -11,13 +12,24 @@ test.describe('PET_PARADE Achievement', () => {
     await clearState(page)
     await abortNoise(page)
     // Do not fully disable animations here; confetti requires motion
+
+    // Pre-unlock ABOUT_AMBLER so the first popup we see is PET_PARADE
+    await page.addInitScript(() => {
+      try {
+        const key = 'kil.dev/achievements/v1'
+        const stored = globalThis.window.localStorage.getItem(key)
+        const parsed = stored ? (JSON.parse(stored) as Record<string, string>) : {}
+        parsed.ABOUT_AMBLER ??= new Date().toISOString()
+        globalThis.window.localStorage.setItem(key, JSON.stringify(parsed))
+      } catch {}
+    })
   })
 
   test('should unlock PET_PARADE after flipping all pet cards', async ({ page }) => {
     await flipAllPetCards(page)
 
-    // Wait for achievement to process
-    await page.waitForTimeout(1500)
+    // Wait for popup (confetti triggers when popup becomes visible)
+    await expectAchievementPopup(page, 'Pet Parade')
 
     // Verify achievement is unlocked
     await expectAchievementCookieContains(page, 'PET_PARADE')
