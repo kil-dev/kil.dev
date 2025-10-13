@@ -19,7 +19,7 @@ test.describe('PET_PARADE Achievement', () => {
         const key = 'kil.dev/achievements/v1'
         const stored = globalThis.window.localStorage.getItem(key)
         const parsed = stored ? (JSON.parse(stored) as Record<string, string>) : {}
-        if (!parsed['ABOUT_AMBLER']) parsed['ABOUT_AMBLER'] = new Date().toISOString()
+        parsed.ABOUT_AMBLER ??= new Date().toISOString()
         globalThis.window.localStorage.setItem(key, JSON.stringify(parsed))
       } catch {}
     })
