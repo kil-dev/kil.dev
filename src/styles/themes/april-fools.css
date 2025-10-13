@@ -1,6 +1,6 @@
 @custom-variant april-fools (&:is(.april-fools *));
 
-/* Rotate the whole rendered document so all content is upside down */
-.april-fools body {
+/* Flip only the main app container so overlays (portals) can still position correctly */
+.april-fools .layout-container {
   transform: rotate(180deg);
 }
