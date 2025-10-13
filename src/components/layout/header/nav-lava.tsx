@@ -63,11 +63,10 @@ export function NavLava() {
     const target = linkRefs.current[key]
     if (!container || !target) return
 
-    const containerRect = container.getBoundingClientRect()
-    const targetRect = target.getBoundingClientRect()
+    // Center the indicator by offsetting left by 4px (since we reduce width by 8px)
+    const left = target.offsetLeft + 4
+    const width = Math.max(0, target.offsetWidth - 8)
 
-    const left = targetRect.left - containerRect.left
-    const width = targetRect.width - 8
     setIndicator({ left, width, visible: true, animate })
   }, [])
 
@@ -85,6 +84,8 @@ export function NavLava() {
       } else {
         moveIndicatorTo(key, false)
         requestAnimationFrame(() => {
+          // Re-measure once more after first frame to avoid hydration/layout shifts
+          moveIndicatorTo(key, false)
           didInitRef.current = true
           setIndicator(prev => ({ ...prev, animate: true }))
         })
@@ -165,12 +166,12 @@ export function NavLava() {
         <span
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute top-1 bottom-1 z-0 rounded-md bg-primary/40 blur-[1.5px] shadow-sm will-change-[transform,width]',
-            indicator.animate && 'transition-[transform,width,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+            'pointer-events-none absolute top-1 bottom-1 z-0 rounded-md bg-primary/40 blur-[1.5px] shadow-sm will-change-[left,width]',
+            indicator.animate && 'transition-[left,width,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
             indicator.visible ? 'opacity-100' : 'opacity-0',
           )}
           style={{
-            transform: `translateX(${indicator.left}px)`,
+            left: indicator.left,
             width: indicator.width,
           }}
         />
@@ -178,13 +179,12 @@ export function NavLava() {
         <span
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute top-1 bottom-1 z-10 rounded-md bg-primary backdrop-blur-sm shadow-sm will-change-[transform,width]',
-            indicator.animate &&
-              'transition-[transform,width,opacity] duration-450 ease-[cubic-bezier(0.2,0.8,0.16,1)]',
+            'pointer-events-none absolute top-1 bottom-1 z-10 rounded-md bg-primary backdrop-blur-sm shadow-sm will-change-[left,width]',
+            indicator.animate && 'transition-[left,width,opacity] duration-450 ease-[cubic-bezier(0.2,0.8,0.16,1)]',
             indicator.visible ? 'opacity-100' : 'opacity-0',
           )}
           style={{
-            transform: `translateX(${indicator.left}px)`,
+            left: indicator.left,
             width: indicator.width,
           }}
         />

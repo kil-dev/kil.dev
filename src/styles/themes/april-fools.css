@@ -1,0 +1,7 @@
+@custom-variant april-fools (&:is(.april-fools *));
+
+/* Flip the whole document to ensure drawers and other viewport-fixed UI follow */
+.april-fools body,
+.april-fools .kd-tooltip-inner {
+  transform: rotate(180deg);
+}
