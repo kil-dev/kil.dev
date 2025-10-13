@@ -3,6 +3,18 @@
 import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+// Timeline delays/durations (ms)
+const SPAWN_DELAY = 10
+const ENTER_DURATION = 300
+const HOLD_DURATION = 300
+const EXPAND_DURATION = 400
+const TITLE_DURATION = 2500
+const FLIP_DELAY = 450
+const DESCRIPTION_DURATION = 3000
+const COLLAPSE_DURATION = 350
+const EXIT_DURATION = 250
+const COMPLETE_DELAY = 150
+
 type AchievementPopupProps = {
   id: AchievementId
   onVisible?: () => void
@@ -47,50 +59,39 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
   }, [onDone])
 
   useEffect(() => {
-    // Slightly slower overall; title/description stay much longer
-    // spawn -> enter (pop in as circle)
-    const t0 = globalThis.window.setTimeout(() => setPhase('enter'), 10)
-    // hold as circle briefly (longer)
-    const t1 = globalThis.window.setTimeout(() => setPhase('hold'), 10 + 300)
-    // expand to panel (slower)
-    const t2 = globalThis.window.setTimeout(
-      () => {
-        setPhase('expand')
-        try {
-          onVisibleRef.current?.()
-        } catch {}
+    // Build an ordered timeline: each entry waits "delay" ms from the previous one
+    const steps: Array<{ phase?: Phase; delay: number; callback?: () => void }> = [
+      { phase: 'enter', delay: SPAWN_DELAY },
+      { phase: 'hold', delay: ENTER_DURATION },
+      {
+        phase: 'expand',
+        delay: HOLD_DURATION,
+        callback: () => onVisibleRef.current?.(),
       },
-      10 + 300 + 300,
-    )
-    // show title (after expand completes)
-    const t3 = globalThis.window.setTimeout(() => setPhase('title'), 10 + 300 + 300 + 400)
-    // flip to description (title stays much longer)
-    const t4 = globalThis.window.setTimeout(() => setPhase('flip'), 10 + 300 + 300 + 400 + 2500)
-    // show description (flip a bit slower)
-    const t5 = globalThis.window.setTimeout(() => setPhase('description'), 10 + 300 + 300 + 400 + 2500 + 450)
-    // collapse back to circle (description stays much longer)
-    const t6 = globalThis.window.setTimeout(() => setPhase('collapse'), 10 + 300 + 300 + 400 + 2500 + 450 + 3000)
-    // hold collapsed circle briefly (slightly longer)
-    const t7 = globalThis.window.setTimeout(
-      () => setPhase('holdCollapse'),
-      10 + 300 + 300 + 400 + 2500 + 450 + 3000 + 350,
-    )
-    // slide down and fade (slightly slower)
-    const t8 = globalThis.window.setTimeout(
-      () => setPhase('exit'),
-      10 + 300 + 300 + 400 + 2500 + 450 + 3000 + 350 + 250,
-    )
-    // complete
-    const t9 = globalThis.window.setTimeout(
-      () => {
-        try {
-          onDoneRef.current?.()
-        } catch {}
-      },
-      10 + 300 + 300 + 400 + 2500 + 450 + 3000 + 350 + 250 + 150,
-    )
+      { phase: 'title', delay: EXPAND_DURATION },
+      { phase: 'flip', delay: TITLE_DURATION },
+      { phase: 'description', delay: FLIP_DELAY },
+      { phase: 'collapse', delay: DESCRIPTION_DURATION },
+      { phase: 'holdCollapse', delay: COLLAPSE_DURATION },
+      { phase: 'exit', delay: EXIT_DURATION },
+      { delay: COMPLETE_DELAY, callback: () => onDoneRef.current?.() },
+    ]
 
-    timeoutsRef.current.push(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)
+    let at = 0
+    for (const step of steps) {
+      at += step.delay
+      const timerId = globalThis.window.setTimeout(() => {
+        if (step.phase) setPhase(step.phase)
+        if (step.callback) {
+          try {
+            step.callback()
+          } catch (err) {
+            console.error('achievement-popup callback error', err)
+          }
+        }
+      }, at)
+      timeoutsRef.current.push(timerId)
+    }
     return clearTimers
   }, [])
 
