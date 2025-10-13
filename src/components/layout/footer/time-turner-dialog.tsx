@@ -2,7 +2,6 @@
 
 import { CapacitorBars } from '@/components/layout/footer/time-turner/capacitor-bars'
 import { FluxKnob } from '@/components/layout/footer/time-turner/flux-knob'
-import { useAchievements } from '@/components/providers/achievements-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import {
   AlertDialog,
@@ -24,7 +23,6 @@ export function TimeTurnerDialog({
   year,
   initialIsDotcom: _initialIsDotcom = false,
 }: Readonly<{ year: number; initialIsDotcom?: boolean }>) {
-  const { unlock } = useAchievements()
   const { setTheme } = useTheme()
   const [open, setOpen] = useState(false)
   // Flux capacitor: rotary knob + three charge bars
@@ -56,13 +54,17 @@ export function TimeTurnerDialog({
     try {
       localStorage.setItem(LOCAL_STORAGE_KEYS.DOTCOM_THEME_UNLOCKED, '1')
     } catch {}
-    unlock('TIME_TURNER')
+    try {
+      globalThis.window?.dispatchEvent?.(
+        new CustomEvent('kd:unlock-achievement', { detail: { achievementId: 'TIME_TURNER' } }),
+      )
+    } catch {}
     startDotcomTransition(() => {
       setTheme('dotcom')
     })
     setAccessibleYear(targetYear)
     setOpen(false)
-  }, [ready, setTheme, unlock])
+  }, [ready, setTheme])
 
   const handleRotateClockwise = useCallback((deltaDegrees: number) => {
     const added = (deltaDegrees / 360) * 100
