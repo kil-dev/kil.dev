@@ -105,8 +105,14 @@ export async function expectAchievementPopup(page: Page, achievementTitle: strin
 export async function waitForAchievementPopup(page: Page) {
   // Wait for popup to appear
   await page.waitForSelector('[data-achievement-popup]', { state: 'visible', timeout: 5000 })
-  // Total animation ~4s; give a little buffer
-  await page.waitForTimeout(4500)
+  // Wait until the popup reaches its exit phase (if exposed via data-phase="exit")
+  await page
+    .waitForSelector('[data-achievement-popup][data-phase="exit"]', { state: 'attached', timeout: 12000 })
+    .catch(() => {
+      // noop
+    })
+  // Finally, wait for the popup to be removed from the DOM (covers full animation timeline ~7.7s)
+  await page.waitForSelector('[data-achievement-popup]', { state: 'detached', timeout: 15000 })
 }
 
 /**
