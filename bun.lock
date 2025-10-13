@@ -26,7 +26,7 @@
         "lucide-react": "0.545.0",
         "motion": "12.23.24",
         "next": "16.0.0-canary.3",
-        "posthog-js": "1.275.0",
+        "posthog-js": "1.275.1",
         "react": "19.2.0",
         "react-dom": "19.2.0",
         "react-photo-album": "3.1.0",
@@ -1085,7 +1085,7 @@
 
     "postcss": ["postcss@8.5.6", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
 
-    "posthog-js": ["posthog-js@1.275.0", "", { "dependencies": { "@posthog/core": "1.2.4", "core-js": "^3.38.1", "fflate": "^0.4.8", "preact": "^10.19.3", "web-vitals": "^4.2.4" }, "peerDependencies": { "@rrweb/types": "2.0.0-alpha.17", "rrweb-snapshot": "2.0.0-alpha.17" }, "optionalPeers": ["@rrweb/types", "rrweb-snapshot"] }, "sha512-pobnKPqsJoCpv9FnjJZ54QwRBMWqrp5BjXF5TXsh2H81RaRh9Fkaj43BkUIbYzFsVahb8ZHPYv/AywlnJlzR2A=="],
+    "posthog-js": ["posthog-js@1.275.1", "", { "dependencies": { "@posthog/core": "1.2.4", "core-js": "^3.38.1", "fflate": "^0.4.8", "preact": "^10.19.3", "web-vitals": "^4.2.4" }, "peerDependencies": { "@rrweb/types": "2.0.0-alpha.17", "rrweb-snapshot": "2.0.0-alpha.17" }, "optionalPeers": ["@rrweb/types", "rrweb-snapshot"] }, "sha512-ILglAzeUQl7h7rB3axr5rn5j2wBp53XedzJoUha5IC594BsrScdOD9NjLpkDAqV/Q5IsRKXbYOkr+HKaxgb4FA=="],
 
     "preact": ["preact@10.27.2", "", {}, "sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg=="],
 
