@@ -12,6 +12,27 @@
   filter: var(--card-back-shadow);
 }
 
+/* Achievement popup 3D helpers */
+@utility transform-3d {
+  transform-style: preserve-3d;
+}
+
+@utility backface-hidden {
+  backface-visibility: hidden;
+}
+
+@utility perspective-near {
+  perspective: 800px;
+}
+
+@utility rotate-x-0 {
+  transform: rotateX(0deg);
+}
+
+@utility rotate-x-180 {
+  transform: rotateX(180deg);
+}
+
 /* Hide scrollbar utility for scrollable containers */
 @utility no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
