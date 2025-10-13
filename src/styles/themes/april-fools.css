@@ -1,11 +1,6 @@
 @custom-variant april-fools (&:is(.april-fools *));
 
-/* Flip only the main app container so overlays (portals) can still position correctly */
-.april-fools .layout-container {
-  transform: rotate(180deg);
-}
-
-/* Also flip tooltips rendered via Radix portal so text matches the prank */
-.april-fools [data-slot='tooltip-content'] .kd-tooltip-inner {
+/* Flip the whole document to ensure drawers and other viewport-fixed UI follow */
+.april-fools body {
   transform: rotate(180deg);
 }
