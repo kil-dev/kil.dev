@@ -33,7 +33,7 @@ function TooltipContent({
           className,
         )}
         {...props}>
-        {children}
+        <div className="kd-tooltip-inner">{children}</div>
         <TooltipPrimitive.Arrow className="bg-primary fill-primary z-0 pointer-events-none size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>

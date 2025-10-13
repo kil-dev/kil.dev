@@ -4,3 +4,8 @@
 .april-fools .layout-container {
   transform: rotate(180deg);
 }
+
+/* Also flip tooltips rendered via Radix portal so text matches the prank */
+.april-fools [data-slot='tooltip-content'] .kd-tooltip-inner {
+  transform: rotate(180deg);
+}
