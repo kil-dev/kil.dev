@@ -17,7 +17,11 @@ export function getThemeLabel(theme: Theme): string {
     }
   }
   const s = `${theme}`
-  return s.slice(0, 1).toUpperCase() + s.slice(1)
+  return s
+    .split('-')
+    .filter(Boolean)
+    .map(w => w.slice(0, 1).toUpperCase() + w.slice(1))
+    .join(' ')
 }
 const THEME_BY_NAME = new Map<ThemeName, ThemeEntry>(themes.map(t => [t.name, t] as const))
 
