@@ -1,5 +1,6 @@
 'use client'
 
+import { AchievementPopup } from '@/components/layout/achievements/achievement-popup'
 import { captureAchievementUnlocked } from '@/hooks/posthog'
 import { ACHIEVEMENTS, ACHIEVEMENTS_COOKIE_NAME, type AchievementId } from '@/lib/achievements'
 import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS } from '@/lib/storage-keys'
@@ -127,16 +128,26 @@ export function AchievementsProvider({
     [unlocked],
   )
 
-  const showToast = useCallback((id: AchievementId) => {
-    const def = ACHIEVEMENTS[id]
-    if (!def) return
-    toast.success(def.title, {
-      description: def.description,
-      position: 'bottom-right',
-      duration: 4000,
-      icon: def.icon,
-    })
+  // Popup queue state
+  const [currentPopup, setCurrentPopup] = useState<AchievementId | null>(null)
+  const popupQueueRef = useRef<AchievementId[]>([])
+
+  const dequeueAndShow = useCallback(() => {
+    const next = popupQueueRef.current.shift() ?? null
+    setCurrentPopup(next ?? null)
   }, [])
+
+  const enqueuePopup = useCallback(
+    (id: AchievementId) => {
+      if (!Object.hasOwn(ACHIEVEMENTS, id)) return
+      if (currentPopup === id) return
+      if (popupQueueRef.current.includes(id)) return
+      const wasEmpty = popupQueueRef.current.length === 0
+      popupQueueRef.current.push(id)
+      if (currentPopup === null && wasEmpty) dequeueAndShow()
+    },
+    [currentPopup, dequeueAndShow],
+  )
 
   const { triggerConfettiFromCorners } = useConfetti()
 
@@ -148,27 +159,18 @@ export function AchievementsProvider({
       if (pendingUnlocksRef.current.has(id)) return
       if (has(id)) return
 
-      const def = ACHIEVEMENTS[id]
       pendingUnlocksRef.current.add(id)
       const timestampIso = new Date().toISOString()
       setUnlocked(prev => ({ ...prev, [id]: timestampIso }))
       // Schedule cleanup of the pending flag regardless
       queueMicrotask(() => pendingUnlocksRef.current.delete(id))
 
-      showToast(id)
+      enqueuePopup(id)
       try {
         captureAchievementUnlocked(id)
       } catch {}
-
-      // Trigger confetti if achievement has confetti enabled (but only once)
-      if (def?.confetti && !pendingConfettiRef.current.has(id)) {
-        pendingConfettiRef.current.add(id)
-        triggerConfettiFromCorners()
-        // Clean up the confetti pending flag after animation completes
-        setTimeout(() => pendingConfettiRef.current.delete(id), 1000)
-      }
     },
-    [has, showToast, triggerConfettiFromCorners],
+    [has, enqueuePopup],
   )
 
   const reset = useCallback(() => {
@@ -349,6 +351,30 @@ export function AchievementsProvider({
   return (
     <AchievementsContext.Provider value={value}>
       {children}
+      {currentPopup && (
+        <AchievementPopup
+          key={currentPopup}
+          id={currentPopup}
+          onVisible={() => {
+            const id = currentPopup
+            const def = ACHIEVEMENTS[id]
+            if (def?.confetti && !pendingConfettiRef.current.has(id)) {
+              pendingConfettiRef.current.add(id)
+              try {
+                triggerConfettiFromCorners()
+              } catch {}
+              setTimeout(() => pendingConfettiRef.current.delete(id), 1000)
+            }
+          }}
+          onDone={() => {
+            setCurrentPopup(null)
+            if (popupQueueRef.current.length > 0) {
+              // Use microtask to avoid nested state updates
+              queueMicrotask(dequeueAndShow)
+            }
+          }}
+        />
+      )}
       <Toaster
         position="bottom-right"
         theme={sonnerTheme}
