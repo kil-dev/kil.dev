@@ -90,7 +90,7 @@ export const themes = [
     icon: Zap,
     headshotImage: Headshots.Headshot,
     baseColor: 'dark',
-    darkModeNote: '',
+    darkModeNote: '¡slooɟ lᴉɹd∀',
     timeRange: { start: { month: 4, day: 1 }, end: { month: 4, day: 2 } },
     alwaysHidden: true,
   },
