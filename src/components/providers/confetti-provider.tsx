@@ -50,12 +50,19 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
 
   const triggerConfetti = useCallback(() => {
     if (globalThis.window?.matchMedia('(prefers-reduced-motion: reduce)')?.matches) return
+    const flipped = (() => {
+      try {
+        return document.documentElement.classList.contains('april-fools')
+      } catch {
+        return false
+      }
+    })()
     fireAndForget(
       getConfetti().then(confetti =>
         confetti({
           particleCount: 100,
           spread: 70,
-          origin: { y: 0.6 },
+          origin: flipped ? { y: 0.4 } : { y: 0.6 },
           zIndex: 50,
         }),
       ),
@@ -70,25 +77,33 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
-    // Create confetti from bottom corners
+    const flipped = (() => {
+      try {
+        return document.documentElement.classList.contains('april-fools')
+      } catch {
+        return false
+      }
+    })()
+
+    // Create confetti from corners (flip top/bottom under april-fools)
     const leftCorner = {
       x: 0,
-      y: 1,
-      angle: 45,
+      y: flipped ? 0 : 1,
+      angle: flipped ? 315 : 45,
       startVelocity: 55,
       spread: 90,
       particleCount: 50,
-      origin: { x: 0, y: 1 },
+      origin: { x: 0, y: flipped ? 0 : 1 },
     }
 
     const rightCorner = {
       x: 1,
-      y: 1,
-      angle: 135,
+      y: flipped ? 0 : 1,
+      angle: flipped ? 225 : 135,
       startVelocity: 55,
       spread: 90,
       particleCount: 50,
-      origin: { x: 1, y: 1 },
+      origin: { x: 1, y: flipped ? 0 : 1 },
     }
 
     // Fire from both corners with slight delay
@@ -110,13 +125,20 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
     if (pendingConfettiRef.current.has(confettiId)) return
     pendingConfettiRef.current.add(confettiId)
 
+    const flipped = (() => {
+      try {
+        return document.documentElement.classList.contains('april-fools')
+      } catch {
+        return false
+      }
+    })()
     fireAndForget(
       getConfetti().then(confetti =>
         confetti({
           particleCount: 150,
           spread: 180,
-          origin: { y: 0 },
-          angle: 270,
+          origin: { y: flipped ? 1 : 0 },
+          angle: flipped ? 90 : 270,
           startVelocity: 45,
           zIndex: 50,
         }),
