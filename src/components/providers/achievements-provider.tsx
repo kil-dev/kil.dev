@@ -304,6 +304,24 @@ export function AchievementsProvider({
     }
   }, [unlocked, has, unlock])
 
+  // Unlock PERFECT_PLATINUM when all other achievements are unlocked (dynamic, no hardcoded counts)
+  useEffect(() => {
+    if (has('PERFECT_PLATINUM')) return
+
+    const allIds = Object.keys(ACHIEVEMENTS) as AchievementId[]
+    const others = allIds.filter(id => id !== 'PERFECT_PLATINUM')
+    if (others.length === 0) return
+
+    const allOthersUnlocked = others.every(id => {
+      const ts = unlocked[id]
+      return typeof ts === 'string' && ts.trim().length > 0
+    })
+
+    if (allOthersUnlocked) {
+      queueMicrotask(() => unlock('PERFECT_PLATINUM'))
+    }
+  }, [unlocked, has, unlock])
+
   const { resolvedTheme } = useTheme()
   const sonnerTheme: 'light' | 'dark' = useMemo(() => {
     const rt = resolvedTheme
