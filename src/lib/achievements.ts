@@ -168,6 +168,17 @@ export const ACHIEVEMENTS = {
     unlockHint: 'Sometimes, the best rating is the only rating.',
     confetti: true,
   },
+  PERFECT_PLATINUM: {
+    id: 'PERFECT_PLATINUM',
+    title: 'Perfect Platinum',
+    description: 'You unlocked every other achievement.',
+    icon: '🏆',
+    imageSrc: Images.PerfectPlatinumAchievement,
+    imageAlt: 'Perfect Platinum',
+    cardDescription: 'You found everything that I hid! Great job! Thank you for checking out my site.',
+    unlockHint: 'Collect all other achievements.',
+    confetti: true,
+  },
 } as const satisfies Record<string, AchievementDefinition>
 
 export type AchievementId = keyof typeof ACHIEVEMENTS
