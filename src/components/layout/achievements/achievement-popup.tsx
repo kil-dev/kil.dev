@@ -205,14 +205,24 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
               <div
                 className={[
                   'absolute inset-0 transform-3d transition-transform duration-300',
-                  phase === 'flip' ? 'rotate-x-180' : phase === 'description' ? 'rotate-x-180' : 'rotate-x-0',
+                  phase === 'flip' || phase === 'description' ? 'rotate-x-180' : 'rotate-x-0',
                 ].join(' ')}>
-                <div className="absolute inset-0 backface-hidden flex items-center leading-none">
+                <div
+                  className={[
+                    'absolute inset-0 backface-hidden flex items-center leading-none transition-opacity duration-300',
+                    phase === 'flip' || phase === 'description' ? 'opacity-0' : 'opacity-100',
+                  ].join(' ')}
+                  aria-hidden={phase === 'flip' || phase === 'description'}>
                   <div className="truncate font-semibold text-[15px] leading-none">
                     {def?.title ?? 'Achievement Unlocked'}
                   </div>
                 </div>
-                <div className="absolute inset-0 backface-hidden rotate-x-180 flex items-center leading-none">
+                <div
+                  className={[
+                    'absolute inset-0 backface-hidden rotate-x-180 flex items-center leading-none transition-opacity duration-300',
+                    phase === 'flip' || phase === 'description' ? 'opacity-100' : 'opacity-0',
+                  ].join(' ')}
+                  aria-hidden={!(phase === 'flip' || phase === 'description')}>
                   <div className="truncate text-[13px] text-muted-foreground leading-none">
                     {def?.description ?? ''}
                   </div>
