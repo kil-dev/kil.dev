@@ -1,3 +1,4 @@
+import { COOKIE_KEYS, LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
 import { expect, type Page } from '@playwright/test'
 
 /**
@@ -69,6 +70,42 @@ export async function abortNoise(page: Page) {
   await page.route('https://app.posthog.com/**', fulfillNoContent)
   await page.route('**/vibecheck/**', fulfillNoContent)
   await page.route('https://cdn.**', fulfillNoContent)
+}
+
+/**
+ * Disable seasonal overlays before the app's pre-theme script runs
+ * Must be called BEFORE the first navigation/load on the page
+ */
+export async function disableSeasonalOverlays(page: Page) {
+  // Ensure SSR and early scripts see the cookie before any navigation
+  try {
+    await page.context().addCookies([
+      {
+        name: COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED,
+        value: '0',
+        url: 'http://localhost:3000',
+        path: '/',
+        sameSite: 'Lax',
+      },
+    ])
+  } catch {}
+
+  // Also set cookie/localStorage as early as possible in the page context
+  await page.addInitScript(
+    (keys: { cookieName: string; lsKey: string }) => {
+      try {
+        // eslint-disable-next-line unicorn/no-document-cookie
+        document.cookie = `${keys.cookieName}=0; path=/; samesite=lax`
+      } catch {}
+      try {
+        localStorage.setItem(keys.lsKey, '0')
+      } catch {}
+      try {
+        document.documentElement.dataset.seasonalOverlaysEnabled = '0'
+      } catch {}
+    },
+    { cookieName: COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED, lsKey: LOCAL_STORAGE_KEYS.SEASONAL_OVERLAYS_ENABLED },
+  )
 }
 
 /**
