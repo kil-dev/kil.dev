@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, disableSeasonalOverlays } from '../fixtures/test-helpers'
 
 test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
     await clearState(page)
+    await disableSeasonalOverlays(page)
     await abortNoise(page)
     await disableAnimations(page)
   })
