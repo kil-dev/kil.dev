@@ -5,8 +5,8 @@ import './src/env.js'
 const config: NextConfig = {
   typedRoutes: true,
   reactCompiler: true,
+  cacheComponents: true,
   experimental: {
-    cacheComponents: true,
     turbopackFileSystemCacheForDev: true,
   },
   images: {
