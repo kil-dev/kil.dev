@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   description: 'Learn more about Kilian Tyler, a Site Reliability and DevOps Engineer based in Cleveland, Ohio.',
 }
 
-export const experimental_ppr = true
-
 export default function AboutPage() {
   return <AboutContent />
 }

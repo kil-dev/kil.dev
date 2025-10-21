@@ -4,8 +4,6 @@ import { LadybirdSecretListener } from '@/components/layout/achievements/ladybir
 import { SectionLabel } from '@/components/ui/section-label'
 import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
 
-export const experimental_ppr = true
-
 export default function AchievementsPage() {
   const entries: Array<[AchievementId, (typeof ACHIEVEMENTS)[AchievementId]]> = Object.entries(ACHIEVEMENTS) as Array<
     [AchievementId, (typeof ACHIEVEMENTS)[AchievementId]]

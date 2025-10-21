@@ -7,8 +7,6 @@ export const metadata: Metadata = {
   title: 'Kilian Tyler | Site Reliability Engineer',
 }
 
-export const experimental_ppr = true
-
 export default function Homepage() {
   return (
     <KonamiAnimationProvider>
