@@ -8,8 +8,6 @@ export const metadata: Metadata = {
   description: 'A mosaic gallery of pet photos',
 }
 
-export const experimental_ppr = true
-
 function GalleryLoadingSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
