@@ -190,7 +190,6 @@ export function ThemeToggle() {
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iconByTheme, has, unlocked, forceUpdate])
 
   // Compute dynamic width based on the longest theme label (in ch units)
