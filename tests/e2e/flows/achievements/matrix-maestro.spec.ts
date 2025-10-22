@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains, expectConfettiLikely } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('MATRIX_MAESTRO Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -9,8 +9,9 @@ test.describe('MATRIX_MAESTRO Achievement', () => {
   })
 
   test('should unlock MATRIX_MAESTRO when selecting matrix theme', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    // Wait a tick for console listener and theme runtime to mount
+    await page.waitForTimeout(300)
 
     // Use the developer console to activate the Matrix theme directly
     await page.keyboard.press('`')
@@ -32,8 +33,8 @@ test.describe('MATRIX_MAESTRO Achievement', () => {
   })
 
   test('should set matrix theme selected flag in localStorage', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await page.waitForTimeout(300)
 
     // Activate Matrix theme via developer console
     await page.keyboard.press('`')

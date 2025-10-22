@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains, expectConfettiLikely } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState, closeThemeMenu, openThemeMenu } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, closeThemeMenu, gotoAndWaitForMain, openThemeMenu } from '../../fixtures/test-helpers'
 
 test.describe('THEME_TAPDANCE Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,8 +10,7 @@ test.describe('THEME_TAPDANCE Achievement', () => {
   })
 
   test('should not show all seasonal themes before THEME_TAPDANCE', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     await openThemeMenu(page)
 
@@ -24,8 +23,7 @@ test.describe('THEME_TAPDANCE Achievement', () => {
   })
 
   test('should reset counter if theme is selected', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Open and close 3 times
     for (let i = 0; i < 3; i++) {
@@ -59,8 +57,7 @@ test.describe('THEME_TAPDANCE Achievement', () => {
   })
 
   test('should unlock THEME_TAPDANCE after opening/closing theme menu 6 times', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Open and close theme menu 6 times
     for (let i = 0; i < 6; i++) {
@@ -82,8 +79,7 @@ test.describe('THEME_TAPDANCE Achievement', () => {
   })
 
   test('should unlock all seasonal themes after THEME_TAPDANCE', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Unlock THEME_TAPDANCE by opening/closing menu 6 times
     for (let i = 0; i < 6; i++) {

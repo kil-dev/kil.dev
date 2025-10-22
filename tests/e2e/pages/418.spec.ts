@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('418 Teapot Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -16,8 +16,7 @@ test.describe('418 Teapot Page', () => {
       }
     })
 
-    await page.goto('/418')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/418')
 
     expect(errors).toHaveLength(0)
   })
@@ -28,8 +27,7 @@ test.describe('418 Teapot Page', () => {
   })
 
   test('should display teapot message', async ({ page }) => {
-    await page.goto('/418')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/418')
 
     // Check for teapot message
     await expect(page.getByText(/i'm a teapot/i)).toBeVisible()
@@ -38,16 +36,14 @@ test.describe('418 Teapot Page', () => {
   })
 
   test('should display teapot image', async ({ page }) => {
-    await page.goto('/418')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/418')
 
     const teapotImage = page.getByAltText(/teapot/i)
     await expect(teapotImage).toBeVisible()
   })
 
   test('should have link to go home', async ({ page }) => {
-    await page.goto('/418')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/418')
 
     const homeLink = page.getByRole('link', { name: /home page/i })
     await expect(homeLink).toBeVisible()
@@ -55,8 +51,7 @@ test.describe('418 Teapot Page', () => {
   })
 
   test('should have shop tea link', async ({ page }) => {
-    await page.goto('/418')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/418')
 
     const shopLink = page.getByRole('link', { name: /tea/i })
     await expect(shopLink).toBeVisible()

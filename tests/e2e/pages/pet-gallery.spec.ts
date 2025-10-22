@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('Pet Gallery Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -28,20 +28,18 @@ test.describe('Pet Gallery Page', () => {
       }
     })
 
-    await page.goto('/pet-gallery')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/pet-gallery')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have correct page title', async ({ page }) => {
-    await page.goto('/pet-gallery')
+    await page.goto('/pet-gallery', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveTitle(/Pet Gallery.*Kilian Tyler/)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/pet-gallery')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/pet-gallery')
 
     const header = page.getByRole('banner')
     await expect(header).toBeVisible()
@@ -54,16 +52,14 @@ test.describe('Pet Gallery Page', () => {
   })
 
   test('should display pet gallery heading', async ({ page }) => {
-    await page.goto('/pet-gallery')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/pet-gallery')
 
     // There are multiple matches (nav + heading); assert the heading text specifically
     await expect(page.locator('main').getByText('Pet gallery', { exact: true })).toBeVisible()
   })
 
   test('should display gallery images', async ({ page }) => {
-    await page.goto('/pet-gallery')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/pet-gallery')
 
     // Wait for images to load
     await page.waitForTimeout(1000)

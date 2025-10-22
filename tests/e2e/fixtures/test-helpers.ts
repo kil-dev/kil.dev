@@ -1,5 +1,5 @@
 import { COOKIE_KEYS, LOCAL_STORAGE_KEYS } from '@/lib/storage-keys'
-import { expect, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 /**
  * Clear all state (localStorage, sessionStorage, cookies) to ensure test isolation
@@ -113,6 +113,52 @@ export async function disableSeasonalOverlays(page: Page) {
  */
 export async function waitForIdle(page: Page, timeout = 500) {
   await page.waitForTimeout(timeout)
+}
+
+/**
+ * Best-effort hydration wait. Many client-side listeners attach shortly after DOMContentLoaded.
+ * Keep this modest to balance stability and speed.
+ */
+export async function waitForHydration(page: Page, timeout = 800) {
+  await page.waitForTimeout(timeout)
+}
+
+/**
+ * Wait for the primary content landmark to be visible.
+ * Prefer element-based readiness checks over network idleness.
+ */
+export async function waitForMain(page: Page) {
+  const main = page.getByRole('main')
+  await expect(main).toBeVisible()
+}
+
+/**
+ * Navigate and wait for DOMContentLoaded + main landmark visibility.
+ */
+export async function gotoAndWaitForMain(page: Page, url: string) {
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await waitForMain(page)
+  await waitForHydration(page)
+}
+
+/**
+ * Click an element that triggers navigation, wait for URL change, DOM readiness, and main landmark.
+ */
+export async function clickAndWaitForURLThenMain(page: Page, element: Locator, url: string | RegExp) {
+  await expect(element).toBeVisible()
+  await Promise.all([page.waitForURL(url), element.click()])
+  await page.waitForLoadState('domcontentloaded')
+  await waitForMain(page)
+  await waitForHydration(page)
+}
+
+/**
+ * Wait for DOMContentLoaded and main landmark, useful after browser history navigation.
+ */
+export async function waitForDomContentAndMain(page: Page) {
+  await page.waitForLoadState('domcontentloaded')
+  await waitForMain(page)
+  await waitForHydration(page)
 }
 
 /**

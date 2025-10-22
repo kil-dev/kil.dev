@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations, disableSeasonalOverlays } from '../fixtures/test-helpers'
+import {
+  abortNoise,
+  clearState,
+  disableAnimations,
+  disableSeasonalOverlays,
+  gotoAndWaitForMain,
+} from '../fixtures/test-helpers'
 
 test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,20 +23,18 @@ test.describe('Home Page', () => {
       }
     })
 
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have correct page title', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveTitle(/Kilian Tyler/)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Check for header
     const header = page.getByRole('banner')
@@ -46,8 +50,7 @@ test.describe('Home Page', () => {
   })
 
   test('should display hero content', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Check for main heading
     const heading = page.getByRole('heading', { level: 1 })
@@ -59,8 +62,7 @@ test.describe('Home Page', () => {
   })
 
   test('should have working navigation', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Check for navigation menu
     const nav = page.getByRole('navigation', { name: /primary/i })
@@ -72,16 +74,14 @@ test.describe('Home Page', () => {
   })
 
   test('should display theme toggle button', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     const themeToggle = page.getByRole('button', { name: /toggle theme menu/i })
     await expect(themeToggle).toBeVisible()
   })
 
   test('should display social links', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     const githubLink = page.getByRole('link', { name: /github/i })
     await expect(githubLink).toBeVisible()

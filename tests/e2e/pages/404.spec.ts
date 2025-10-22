@@ -16,8 +16,9 @@ test.describe('404 Not Found Page', () => {
       }
     })
 
-    await page.goto('/this-page-does-not-exist')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/this-page-does-not-exist', { waitUntil: 'domcontentloaded' })
+    const heading = page.getByRole('heading', { name: '404' })
+    await expect(heading).toBeVisible()
 
     expect(errors).toHaveLength(1)
     expect(errors[0]).toMatch(/404|not found/i)
@@ -29,8 +30,7 @@ test.describe('404 Not Found Page', () => {
   })
 
   test('should display 404 error message', async ({ page }) => {
-    await page.goto('/this-page-does-not-exist')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/this-page-does-not-exist', { waitUntil: 'domcontentloaded' })
 
     // Check for 404 heading
     const heading = page.getByRole('heading', { name: '404' })
@@ -41,8 +41,7 @@ test.describe('404 Not Found Page', () => {
   })
 
   test('should have link to go home', async ({ page }) => {
-    await page.goto('/this-page-does-not-exist')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/this-page-does-not-exist', { waitUntil: 'domcontentloaded' })
 
     const homeLink = page.getByRole('link', { name: /home page/i })
     await expect(homeLink).toBeVisible()

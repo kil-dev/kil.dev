@@ -48,8 +48,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should display MOTD on first open', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
@@ -79,8 +83,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should execute simple commands', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
@@ -98,8 +106,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should navigate with pwd and ls commands', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
@@ -125,8 +137,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should handle clear command', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
@@ -154,8 +170,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should persist console history across opens', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     // Open console and run a command
     await page.keyboard.press('`')
@@ -180,8 +200,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should support command history navigation with arrow keys', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
@@ -215,8 +239,12 @@ test.describe('Secret Console', () => {
   })
 
   test('should have resize handle', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     await page.keyboard.press('`')
     await page.waitForSelector('dialog[aria-label="Developer console"]', { state: 'visible' })
