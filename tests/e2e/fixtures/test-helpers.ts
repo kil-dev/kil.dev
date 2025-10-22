@@ -94,6 +94,7 @@ export async function disableSeasonalOverlays(page: Page) {
   await page.addInitScript(
     (keys: { cookieName: string; lsKey: string }) => {
       try {
+        // eslint-disable-next-line unicorn/no-document-cookie
         document.cookie = `${keys.cookieName}=0; path=/; samesite=lax`
       } catch {}
       try {

@@ -19,6 +19,7 @@ test.describe('No FOUC with explicit seasonal theme (Halloween)', () => {
         document.documentElement.dataset.hasThemeTapdance = '1'
       } catch {}
       try {
+        // eslint-disable-next-line unicorn/no-document-cookie
         document.cookie = 'kil.dev/achievements/v1=' + encodeURIComponent('THEME_TAPDANCE') + '; path=/'
       } catch {}
 

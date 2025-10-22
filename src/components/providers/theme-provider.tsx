@@ -426,7 +426,7 @@ export function ThemeProvider({
         globalThis.removeEventListener('storage', storageHandler)
       }
     }
-  }, [onOsThemeChange, onStorageChange])
+  }, [])
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next)

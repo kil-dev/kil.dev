@@ -64,7 +64,7 @@ export function KonamiCodeListener() {
   useEffect(() => {
     globalThis.addEventListener('keydown', onKey)
     return () => globalThis.removeEventListener('keydown', onKey)
-  }, [onKey])
+  }, [])
 
   return null
 }

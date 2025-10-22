@@ -48,6 +48,7 @@
     ".storybook/**/*.tsx",
     "**/*.cjs",
     "**/*.js",
+    "**/*.mjs",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
