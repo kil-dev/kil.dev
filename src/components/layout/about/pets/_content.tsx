@@ -42,7 +42,7 @@ export function PetsContent() {
         return next
       })
     },
-    [requiredPetIds, has, unlock],
+    [setFlippedPetIds, requiredPetIds, has, unlock],
   )
 
   return (
