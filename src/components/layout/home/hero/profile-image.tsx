@@ -73,8 +73,11 @@ export function ProfileImage() {
     }
     if (!isLadybirdUA()) return
 
-    setIsLadybird(true)
-    captureIfNotAlready()
+    const id = requestAnimationFrame(() => {
+      setIsLadybird(true)
+      captureIfNotAlready()
+    })
+    return () => cancelAnimationFrame(id)
   }, [isLadybird])
 
   useEffect(() => {
@@ -127,11 +130,14 @@ export function ProfileImage() {
 
   useEffect(() => {
     if (!mounted) return
-    if (isEnvDrivenVariant) {
-      setIsImageLoaded(false)
-    } else {
-      setIsImageLoaded(true)
-    }
+    const id = requestAnimationFrame(() => {
+      if (isEnvDrivenVariant) {
+        setIsImageLoaded(false)
+      } else {
+        setIsImageLoaded(true)
+      }
+    })
+    return () => cancelAnimationFrame(id)
   }, [mounted, isEnvDrivenVariant])
 
   const profileImgCss = useMemo(() => {

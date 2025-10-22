@@ -259,8 +259,11 @@ export function MobileNav() {
   // Reset offsets on each open to avoid cumulative drift across openings
   useEffect(() => {
     if (!open) return
-    setLadderXOffset(-12)
-    setLadderYOffset(22)
+    const id = requestAnimationFrame(() => {
+      setLadderXOffset(-12)
+      setLadderYOffset(22)
+    })
+    return () => cancelAnimationFrame(id)
   }, [open])
 
   // Nudge first item fully into view on open (single pass)

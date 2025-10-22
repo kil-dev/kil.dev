@@ -199,12 +199,23 @@ export function useCrtAnimation({ getDimensions }: UseCrtAnimationArgs) {
   }, [getDimensions, finishCloseAnimation, closeAnimation])
 
   useEffect(() => {
-    if (isReturning) startCrtCloseAnimation()
+    if (!isReturning) return
+    const id = requestAnimationFrame(() => {
+      startCrtCloseAnimation()
+    })
+    return () => cancelAnimationFrame(id)
   }, [isReturning, startCrtCloseAnimation])
 
   useEffect(() => {
-    const disposer = startCrtAnimation()
-    return () => disposer?.()
+    let rafId: number | null = null
+    let disposer: (() => void) | undefined
+    rafId = requestAnimationFrame(() => {
+      disposer = startCrtAnimation()
+    })
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      disposer?.()
+    }
   }, [startCrtAnimation])
 
   useEffect(() => {

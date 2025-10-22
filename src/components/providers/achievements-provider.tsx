@@ -75,19 +75,22 @@ export function AchievementsProvider({
         return id.toLowerCase().replaceAll('_', '-')
       }
 
-      setUnlocked(prev => {
-        let changed = false
-        const next = { ...prev }
-        for (const id of Object.keys(ACHIEVEMENTS)) {
-          const attr = 'data-achievement-' + toKebabCase(id)
-          if (next[id as AchievementId]) continue
-          if (root.hasAttribute(attr)) {
-            next[id as AchievementId] = nowIso
-            changed = true
+      const id = requestAnimationFrame(() => {
+        setUnlocked(prev => {
+          let changed = false
+          const next = { ...prev }
+          for (const id of Object.keys(ACHIEVEMENTS)) {
+            const attr = 'data-achievement-' + toKebabCase(id)
+            if (next[id as AchievementId]) continue
+            if (root.hasAttribute(attr)) {
+              next[id as AchievementId] = nowIso
+              changed = true
+            }
           }
-        }
-        return changed ? next : prev
+          return changed ? next : prev
+        })
       })
+      return () => cancelAnimationFrame(id)
     } catch {}
   }, [])
 
