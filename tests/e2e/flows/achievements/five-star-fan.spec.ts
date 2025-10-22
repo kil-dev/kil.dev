@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains, expectConfettiLikely } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState, disableAnimations } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('FIVE_STAR_FAN Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,8 +10,7 @@ test.describe('FIVE_STAR_FAN Achievement', () => {
   })
 
   test('should unlock FIVE_STAR_FAN when giving 5-star review', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // TODO: Not correct at all
     const reviewButton = page.locator('button:has-text("Review"), button:has-text("Rate")').first()
@@ -53,8 +52,7 @@ test.describe('FIVE_STAR_FAN Achievement', () => {
   })
 
   test('should persist 5-star rating in localStorage', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Check if review state is saved
     const hasReviewState = await page.evaluate(() => {

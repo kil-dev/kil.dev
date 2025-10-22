@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains } from '../fixtures/achievement-helpers'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('Experience Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,20 +17,18 @@ test.describe('Experience Page', () => {
       }
     })
 
-    await page.goto('/experience')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/experience')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have correct page title', async ({ page }) => {
-    await page.goto('/experience')
+    await page.goto('/experience', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveTitle(/Experience.*Kilian Tyler/)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/experience')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/experience')
 
     const header = page.getByRole('banner')
     await expect(header).toBeVisible()
@@ -43,8 +41,7 @@ test.describe('Experience Page', () => {
   })
 
   test('should display work history', async ({ page }) => {
-    await page.goto('/experience')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/experience')
 
     // Check for content sections
     const main = page.getByRole('main')
@@ -55,8 +52,7 @@ test.describe('Experience Page', () => {
   })
 
   test('should unlock EXPERIENCE_EXPLORER achievement on visit', async ({ page }) => {
-    await page.goto('/experience')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/experience')
 
     // Wait for achievement to be processed
     await page.waitForTimeout(1000)

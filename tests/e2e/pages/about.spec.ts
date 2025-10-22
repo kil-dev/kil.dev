@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains } from '../fixtures/achievement-helpers'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('About Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,20 +17,18 @@ test.describe('About Page', () => {
       }
     })
 
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have correct page title', async ({ page }) => {
-    await page.goto('/about')
+    await page.goto('/about', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveTitle(/About.*Kilian Tyler/)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     const header = page.getByRole('banner')
     await expect(header).toBeVisible()
@@ -43,8 +41,7 @@ test.describe('About Page', () => {
   })
 
   test('should display about me content', async ({ page }) => {
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     // Check for main content sections
     const main = page.getByRole('main')
@@ -55,8 +52,7 @@ test.describe('About Page', () => {
   })
 
   test('should display pets section', async ({ page }) => {
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     // Scroll to pets section
     const petsHeading = page.getByText(/these are my pets/i)
@@ -70,8 +66,7 @@ test.describe('About Page', () => {
   })
 
   test('should unlock ABOUT_AMBLER achievement on visit', async ({ page }) => {
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     // Wait for achievement to be processed
     await page.waitForTimeout(1000)

@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test'
+import { gotoAndWaitForMain } from './test-helpers'
 
 const ACHIEVEMENTS_COOKIE_NAME = 'kil.dev_achievements_v1'
 
@@ -16,6 +17,28 @@ export async function expectAchievementCookieContains(page: Page, achievementId:
     expect(parsed, `Achievement ${achievementId} should be in cookie`).toHaveProperty(achievementId)
     expect(typeof parsed[achievementId], `Achievement ${achievementId} should have timestamp`).toBe('string')
   }
+}
+
+/**
+ * Wait until the achievement appears in the cookie.
+ */
+export async function waitForAchievementCookie(page: Page, achievementId: string, timeoutMs = 5000) {
+  await expect
+    .poll(
+      async () => {
+        const cookies = await page.context().cookies()
+        const c = cookies.find(c => c.name === ACHIEVEMENTS_COOKIE_NAME)
+        if (!c) return false
+        try {
+          const parsed = JSON.parse(decodeURIComponent(c.value)) as Record<string, unknown>
+          return Boolean(parsed[achievementId])
+        } catch {
+          return false
+        }
+      },
+      { timeout: timeoutMs },
+    )
+    .toBe(true)
 }
 
 /**
@@ -136,8 +159,7 @@ export async function getUnlockedAchievementCount(page: Page): Promise<number> {
  */
 export async function flipAllPetCards(page: Page) {
   // Navigate to about page
-  await page.goto('/about')
-  await page.waitForLoadState('networkidle')
+  await gotoAndWaitForMain(page, '/about')
 
   // Scroll to pets section
   const petsSection = page.getByText('These are my pets')

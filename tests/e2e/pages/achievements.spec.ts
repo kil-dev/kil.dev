@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('Achievements Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -31,15 +31,13 @@ test.describe('Achievements Page', () => {
       }
     })
 
-    await page.goto('/achievements')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/achievements')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/achievements')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/achievements')
 
     const header = page.getByRole('banner')
     await expect(header).toBeVisible()
@@ -52,8 +50,7 @@ test.describe('Achievements Page', () => {
   })
 
   test('should display achievement cards', async ({ page }) => {
-    await page.goto('/achievements')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/achievements')
 
     // Check for achievements heading
     await expect(page.getByText(/dopamine hits/i)).toBeVisible()
@@ -65,8 +62,7 @@ test.describe('Achievements Page', () => {
   })
 
   test('should show unlocked achievements with unlock indicator', async ({ page }) => {
-    await page.goto('/achievements')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/achievements')
 
     // Find an unlocked achievement card
     const unlockedCard = page.locator('[id="ach-card-about-ambler"]')
@@ -74,8 +70,7 @@ test.describe('Achievements Page', () => {
   })
 
   test('should have reset button', async ({ page }) => {
-    await page.goto('/achievements')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/achievements')
 
     const resetButton = page.getByRole('button', { name: /reset/i })
     await expect(resetButton).toBeVisible()

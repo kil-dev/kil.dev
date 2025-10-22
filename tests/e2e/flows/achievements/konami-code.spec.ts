@@ -4,7 +4,7 @@ import {
   expectConfettiLikely,
   simulateKonamiCode,
 } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('KONAMI_KILLER Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -14,8 +14,9 @@ test.describe('KONAMI_KILLER Achievement', () => {
   })
 
   test('should unlock KONAMI_KILLER when entering Konami code on home page', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    // Ensure the Konami listener is attached post-hydration
+    await page.waitForTimeout(300)
 
     // Simulate Konami code
     await simulateKonamiCode(page)
@@ -31,8 +32,8 @@ test.describe('KONAMI_KILLER Achievement', () => {
   })
 
   test('should trigger snake game animation on Konami code', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await page.waitForTimeout(300)
 
     // Simulate Konami code
     await simulateKonamiCode(page)
@@ -49,8 +50,8 @@ test.describe('KONAMI_KILLER Achievement', () => {
 
   test('should only work on home page', async ({ page }) => {
     // Try Konami code on About page (should not work)
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
+    await page.waitForTimeout(300)
 
     await simulateKonamiCode(page)
     await page.waitForTimeout(1500)
@@ -67,8 +68,8 @@ test.describe('KONAMI_KILLER Achievement', () => {
   })
 
   test('should not unlock on incomplete sequence', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await page.waitForTimeout(300)
 
     // Enter incomplete Konami code (missing last few keys)
     const partialSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft']

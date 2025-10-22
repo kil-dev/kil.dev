@@ -1,5 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import {
+  abortNoise,
+  clearState,
+  clickAndWaitForURLThenMain,
+  disableAnimations,
+  gotoAndWaitForMain,
+  waitForDomContentAndMain,
+} from '../fixtures/test-helpers'
 
 test.describe('Navigation Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,59 +17,51 @@ test.describe('Navigation Flow', () => {
 
   test.describe('Desktop Navigation', () => {
     test('should navigate through main pages using desktop nav', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
 
       // Navigate to About
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
-      await aboutLink.click()
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, aboutLink, /\/about(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/about')
 
       // Navigate to Experience
       const experienceLink = page.getByRole('menuitem', { name: 'Experience' })
-      await experienceLink.click()
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, experienceLink, /\/experience(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/experience')
 
       // Navigate to Projects
       const projectsLink = page.getByRole('menuitem', { name: 'Projects' })
-      await projectsLink.click()
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, projectsLink, /\/projects(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/projects')
 
       // Navigate back to Home
       const homeLink = page.getByRole('menuitem', { name: 'Home' })
-      await homeLink.click()
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, homeLink, /\/(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/')
     })
 
     test('should show active state for current page', async ({ page }) => {
-      await page.goto('/about')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/about')
 
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
       await expect(aboutLink).toHaveAttribute('aria-current', 'page')
     })
 
     test('should navigate using browser back/forward', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
 
       // Navigate forward
-      await page.getByRole('menuitem', { name: 'About' }).click()
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, page.getByRole('menuitem', { name: 'About' }), /\/about(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/about')
 
       // Navigate back
       await page.goBack()
-      await page.waitForLoadState('networkidle')
+      await waitForDomContentAndMain(page)
       await expect(page).toHaveURL('/')
 
       // Navigate forward again
       await page.goForward()
-      await page.waitForLoadState('networkidle')
+      await waitForDomContentAndMain(page)
       await expect(page).toHaveURL('/about')
     })
   })
@@ -71,8 +70,7 @@ test.describe('Navigation Flow', () => {
     test.use({ viewport: { width: 375, height: 667 } })
 
     test('should open and close mobile menu', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
 
       // Open mobile menu (button toggles aria-label between Open/Close)
       const menuButton = page.locator('button[aria-controls="mobile-nav-arc"]')
@@ -91,8 +89,7 @@ test.describe('Navigation Flow', () => {
     })
 
     test('should navigate using mobile menu', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
 
       // Open mobile menu
       const menuButton = page.locator('button[aria-controls="mobile-nav-arc"]')
@@ -101,38 +98,30 @@ test.describe('Navigation Flow', () => {
 
       // Click About in mobile menu
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
-      await aboutLink.click()
-
-      // Wait for navigation
-      await page.waitForTimeout(500)
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, aboutLink, /\/about(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/about')
     })
   })
 
   test.describe('Logo Navigation', () => {
     test('should navigate to home when clicking logo', async ({ page }) => {
-      await page.goto('/about')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/about')
 
       // Click on logo/home button
       const homeLogo = page.getByRole('link', { name: '{ kil.dev }' })
-      await homeLogo.click({ force: true })
-      await page.waitForLoadState('networkidle')
+      await clickAndWaitForURLThenMain(page, homeLogo, /\/(?:\/?|(\?.*)?)$/)
       await expect(page).toHaveURL('/')
     })
   })
 
   test.describe('Achievements Navigation (Locked)', () => {
     test('should not show achievements link when locked', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
       const achievementsLink = page.locator('.js-achievements-nav')
       await expect(achievementsLink).not.toBeVisible()
     })
     test('should not show pet gallery link when locked', async ({ page }) => {
-      await page.goto('/')
-      await page.waitForLoadState('networkidle')
+      await gotoAndWaitForMain(page, '/')
       const petGalleryLink = page.locator('.js-pet-gallery-nav')
       await expect(petGalleryLink).not.toBeVisible()
     })

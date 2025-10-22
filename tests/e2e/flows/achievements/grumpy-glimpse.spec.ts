@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState, disableAnimations } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('GRUMPY_GLIMPSE Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,8 +10,9 @@ test.describe('GRUMPY_GLIMPSE Achievement', () => {
   })
 
   test('should unlock GRUMPY_GLIMPSE when clicking grumpy profile variant', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    // Ensure hydration so the toggle listener is attached
+    await page.waitForTimeout(300)
 
     // Click the accessible profile toggle (wrapper around the image)
     const profileToggle = page.getByRole('button', { name: /toggle grumpy profile image/i })

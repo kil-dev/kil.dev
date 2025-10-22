@@ -404,12 +404,6 @@ export function ThemeProvider({
     const mq = globalThis.matchMedia('(prefers-color-scheme: dark)')
     const mediaHandler = (e: MediaQueryListEvent) => onOsThemeChange(e.matches)
     const storageHandler = (e: StorageEvent) => onStorageChange(e)
-    const legacyMediaHandler: (this: MediaQueryList, ev: MediaQueryListEvent) => void = function (
-      this: MediaQueryList,
-      ev: MediaQueryListEvent,
-    ) {
-      onOsThemeChange(ev.matches)
-    }
     try {
       mq.addEventListener('change', mediaHandler)
       globalThis.addEventListener('storage', storageHandler)
@@ -418,15 +412,15 @@ export function ThemeProvider({
         globalThis.removeEventListener('storage', storageHandler)
       }
     } catch {
-      // Safari fallback
-      mq.addEventListener('change', legacyMediaHandler)
+      // Safari fallback: use deprecated addListener/removeListener
+      mq.addListener(mediaHandler)
       globalThis.addEventListener('storage', storageHandler)
       return () => {
-        mq.removeEventListener('change', legacyMediaHandler)
+        mq.removeListener(mediaHandler)
         globalThis.removeEventListener('storage', storageHandler)
       }
     }
-  }, [onOsThemeChange, onStorageChange])
+  }, [])
 
   const setTheme = React.useCallback((next: Theme) => {
     setThemeState(next)

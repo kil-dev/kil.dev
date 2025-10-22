@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { useRef } from 'react'
 
 import * as SwitchPrimitive from '@radix-ui/react-switch'
 import { motion } from 'motion/react'
@@ -26,21 +25,22 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
   const { TRACK_WIDTH, THUMB_SIZE, THUMB_STRETCH } = SIZES[size]
   const [isChecked, setIsChecked] = React.useState(props.checked ?? props.defaultChecked ?? false)
   const [isStretching, setIsStretching] = React.useState(false)
-  const isFirstMountRef = useRef(true)
+  const [hasMounted, setHasMounted] = React.useState(false)
 
   React.useEffect(() => {
     if (props.checked !== undefined) setIsChecked(props.checked)
   }, [props.checked])
 
   React.useEffect(() => {
-    if (isFirstMountRef.current) {
-      isFirstMountRef.current = false
-      return
-    }
+    setHasMounted(true)
+  }, [])
+
+  React.useEffect(() => {
+    if (!hasMounted) return
     setIsStretching(true)
     const timeout = setTimeout(() => setIsStretching(false), STRETCH_DURATION)
     return () => clearTimeout(timeout)
-  }, [isChecked])
+  }, [isChecked, hasMounted])
 
   const handleCheckedChange = (checked: boolean) => {
     setIsChecked(checked)
@@ -52,7 +52,7 @@ function Switch({ className, size = 'md', ...props }: SwitchProps) {
   const offsetChecked = TRACK_WIDTH - thumbWidth - 2
 
   const thumbLeft = isChecked ? offsetChecked : offsetUnchecked
-  const disableInitialMotion = isFirstMountRef.current
+  const disableInitialMotion = !hasMounted
 
   return (
     <SwitchPrimitive.Root

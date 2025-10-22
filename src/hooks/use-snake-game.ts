@@ -263,7 +263,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     if (globalThis.window === undefined) return
     globalThis.window.addEventListener('keydown', onKey)
     return () => globalThis.window.removeEventListener('keydown', onKey)
-  }, [onKey])
+  }, [])
 
   useEffect(() => {
     return () => {

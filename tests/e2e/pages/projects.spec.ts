@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains } from '../fixtures/achievement-helpers'
-import { abortNoise, clearState, disableAnimations } from '../fixtures/test-helpers'
+import { abortNoise, clearState, disableAnimations, gotoAndWaitForMain } from '../fixtures/test-helpers'
 
 test.describe('Projects Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,20 +17,18 @@ test.describe('Projects Page', () => {
       }
     })
 
-    await page.goto('/projects')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/projects')
 
     expect(errors).toHaveLength(0)
   })
 
   test('should have correct page title', async ({ page }) => {
-    await page.goto('/projects')
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveTitle(/Projects.*Kilian Tyler/)
   })
 
   test('should have proper landmark structure', async ({ page }) => {
-    await page.goto('/projects')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/projects')
 
     const header = page.getByRole('banner')
     await expect(header).toBeVisible()
@@ -43,8 +41,7 @@ test.describe('Projects Page', () => {
   })
 
   test('should display projects content', async ({ page }) => {
-    await page.goto('/projects')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/projects')
 
     const main = page.getByRole('main')
     await expect(main).toBeVisible()
@@ -54,8 +51,7 @@ test.describe('Projects Page', () => {
   })
 
   test('should unlock PROJECTS_PERUSER achievement on visit', async ({ page }) => {
-    await page.goto('/projects')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/projects')
 
     // Wait for achievement to be processed
     await page.waitForTimeout(1000)

@@ -32,7 +32,7 @@ export function GameOverlay({
   useEffect(() => {
     globalThis.addEventListener('keydown', onKey)
     return () => globalThis.removeEventListener('keydown', onKey)
-  }, [onKey])
+  }, [])
 
   return null
 }

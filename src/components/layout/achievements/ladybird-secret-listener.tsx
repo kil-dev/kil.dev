@@ -36,7 +36,7 @@ export function LadybirdSecretListener() {
   useEffect(() => {
     globalThis.addEventListener('keydown', onKey)
     return () => globalThis.removeEventListener('keydown', onKey)
-  }, [onKey])
+  }, [])
 
   return null
 }

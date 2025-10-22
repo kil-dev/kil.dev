@@ -57,7 +57,7 @@ export function useOverlayDismiss<T extends HTMLElement = HTMLElement>(
       globalThis.removeEventListener('pointerdown', onDocumentMouseDown)
       globalThis.removeEventListener('keydown', onDocumentKeyDown)
     }
-  }, [enabled, open, onDocumentMouseDown, onDocumentKeyDown])
+  }, [enabled, open])
 
   const handleOverlayClick = useCallback(() => {
     close()

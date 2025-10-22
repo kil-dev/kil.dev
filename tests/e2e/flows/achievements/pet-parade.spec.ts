@@ -5,7 +5,7 @@ import {
   expectConfettiLikely,
   flipAllPetCards,
 } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('PET_PARADE Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -44,8 +44,7 @@ test.describe('PET_PARADE Achievement', () => {
     await page.waitForTimeout(1500)
 
     // Navigate to home to check for pet gallery link
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Pet gallery link should now be visible
     const petGalleryLink = page.locator('.js-pet-gallery-nav')
@@ -65,8 +64,7 @@ test.describe('PET_PARADE Achievement', () => {
   })
 
   test('should require all pets to be flipped', async ({ page }) => {
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
 
     // Scroll to pets section
     const petsSection = page.getByText('These are my pets')

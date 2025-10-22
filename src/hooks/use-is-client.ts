@@ -9,7 +9,10 @@ import { useEffect, useState } from 'react'
 export function useIsClient() {
   const [isClient, setIsClient] = useState(false)
   useEffect(() => {
-    setIsClient(true)
+    const id = requestAnimationFrame(() => {
+      setIsClient(true)
+    })
+    return () => cancelAnimationFrame(id)
   }, [])
   return isClient
 }

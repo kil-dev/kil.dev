@@ -24,18 +24,21 @@ export function AchievementCard({ id }: { id: AchievementId }) {
   // Footer text for unlocked: default to SSR-stable 'Unlocked', upgrade after mount to include timestamp
   const [unlockedFooter, setUnlockedFooter] = useState<string>('Unlocked')
   useEffect(() => {
-    const unlockedAt = unlocked[id]
-    if (!unlockedAt) {
-      setUnlockedFooter('Unlocked')
-      return
-    }
-    const isoDate = parseISO(unlockedAt)
-    if (isValidDate(isoDate)) {
-      setUnlockedFooter(`Unlocked: ${format(isoDate, 'PP p')}`)
-      return
-    }
-    const fallbackDate = new Date(unlockedAt)
-    setUnlockedFooter(Number.isNaN(fallbackDate.getTime()) ? 'Unlocked' : `Unlocked: ${format(fallbackDate, 'PP p')}`)
+    const frame = requestAnimationFrame(() => {
+      const unlockedAt = unlocked[id]
+      if (!unlockedAt) {
+        setUnlockedFooter('Unlocked')
+        return
+      }
+      const isoDate = parseISO(unlockedAt)
+      if (isValidDate(isoDate)) {
+        setUnlockedFooter(`Unlocked: ${format(isoDate, 'PP p')}`)
+        return
+      }
+      const fallbackDate = new Date(unlockedAt)
+      setUnlockedFooter(Number.isNaN(fallbackDate.getTime()) ? 'Unlocked' : `Unlocked: ${format(fallbackDate, 'PP p')}`)
+    })
+    return () => cancelAnimationFrame(frame)
   }, [id, unlocked])
 
   // Adjust description for Ladybird achievement (if ever re-enabled)

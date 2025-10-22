@@ -28,10 +28,13 @@ export function KonamiAnimationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Clear the animation state on page load to ensure content is visible
     sessionStorage.removeItem(SESSION_STORAGE_KEYS.KONAMI_ANIMATED)
-    setHasAnimated(false)
-    setShowSnake(false)
-    setStartCrtAnimation(false)
+    const id = requestAnimationFrame(() => {
+      setHasAnimated(false)
+      setShowSnake(false)
+      setStartCrtAnimation(false)
+    })
     return () => {
+      cancelAnimationFrame(id)
       // Cleanup any pending timeouts to avoid memory leaks
       for (const id of timeoutIdsRef.current) {
         clearTimeout(id)

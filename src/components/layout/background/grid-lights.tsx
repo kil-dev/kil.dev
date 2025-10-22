@@ -172,8 +172,10 @@ export function GridLights() {
 
   useEffect(() => {
     if (prefersReducedMotion || disableGridLights) {
-      setStyleText('')
-      return
+      const id = requestAnimationFrame(() => {
+        setStyleText('')
+      })
+      return () => cancelAnimationFrame(id)
     }
 
     function regenerate() {

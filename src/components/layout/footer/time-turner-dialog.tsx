@@ -31,11 +31,21 @@ export function TimeTurnerDialog({
   }, [year, totalCharge])
 
   useEffect(() => {
+    let id: number | null = null
     try {
       const isDot = document?.documentElement?.classList?.contains('dotcom')
-      setAccessibleYear(isDot ? targetYear : yearDisplay)
+      const next = isDot ? targetYear : yearDisplay
+      id = requestAnimationFrame(() => {
+        setAccessibleYear(next)
+      })
     } catch {
-      setAccessibleYear(yearDisplay)
+      const fallback = yearDisplay
+      id = requestAnimationFrame(() => {
+        setAccessibleYear(fallback)
+      })
+    }
+    return () => {
+      if (id !== null) cancelAnimationFrame(id)
     }
   }, [yearDisplay])
 

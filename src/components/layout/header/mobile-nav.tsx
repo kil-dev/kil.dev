@@ -259,8 +259,11 @@ export function MobileNav() {
   // Reset offsets on each open to avoid cumulative drift across openings
   useEffect(() => {
     if (!open) return
-    setLadderXOffset(-12)
-    setLadderYOffset(22)
+    const id = requestAnimationFrame(() => {
+      setLadderXOffset(-12)
+      setLadderYOffset(22)
+    })
+    return () => cancelAnimationFrame(id)
   }, [open])
 
   // Nudge first item fully into view on open (single pass)
@@ -294,7 +297,7 @@ export function MobileNav() {
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls="mobile-nav-arc"
-          className="relative z-[106]"
+          className="relative z-106"
           onClick={() => {
             setOpen(prev => {
               const next = !prev
@@ -322,7 +325,7 @@ export function MobileNav() {
 
         <span
           aria-hidden
-          className="pointer-events-none fixed z-[109]"
+          className="pointer-events-none fixed z-109"
           style={{ left: `${anchor.x}px`, top: `${anchor.y}px` }}>
           {particles.map(p => {
             const particleStyle: React.CSSProperties & { ['--tx']?: string; ['--ty']?: string } = {
@@ -358,7 +361,7 @@ export function MobileNav() {
           onKeyDown={handleMenuKeyDown}
           className={cn(
             'pointer-events-none fixed nav:hidden',
-            open || closing ? 'z-[110] opacity-100' : 'z-[110] opacity-0',
+            open || closing ? 'z-110 opacity-100' : 'z-110 opacity-0',
           )}
           style={{
             left: `${anchor.x}px`,
@@ -406,7 +409,7 @@ export function MobileNav() {
         {...overlayProps}
         className={cn(
           'fixed inset-0 nav:hidden transition-opacity duration-200',
-          open ? 'z-[105] opacity-100 pointer-events-auto' : 'z-[105] opacity-0 pointer-events-none',
+          open ? 'z-105 opacity-100 pointer-events-auto' : 'z-105 opacity-0 pointer-events-none',
           'bg-black/40 backdrop-blur-sm',
         )}
       />

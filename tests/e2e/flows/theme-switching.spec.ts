@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, getCurrentTheme, openThemeMenu } from '../fixtures/test-helpers'
+import { abortNoise, clearState, getCurrentTheme, gotoAndWaitForMain, openThemeMenu } from '../fixtures/test-helpers'
 
 test.describe('Theme Switching', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,8 +8,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should open and close theme menu', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Open theme menu
     await openThemeMenu(page)
@@ -27,8 +26,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should switch between themes', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Get initial theme
     const initialTheme = await getCurrentTheme(page)
@@ -65,8 +63,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should persist theme across page reload', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Switch to a specific theme
     await openThemeMenu(page)
@@ -79,8 +76,7 @@ test.describe('Theme Switching', () => {
     const themeBeforeReload = await getCurrentTheme(page)
 
     // Reload page
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+    await page.reload({ waitUntil: 'domcontentloaded' })
 
     const themeAfterReload = await getCurrentTheme(page)
 
@@ -89,8 +85,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should persist theme in localStorage', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Switch theme
     await openThemeMenu(page)
@@ -109,8 +104,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should persist theme in cookie', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Switch theme via programmatic click
     await openThemeMenu(page)
@@ -127,15 +121,13 @@ test.describe('Theme Switching', () => {
     await page.waitForTimeout(300)
 
     // Reload page and ensure preference persisted (non-system)
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+    await page.reload({ waitUntil: 'domcontentloaded' })
     const pref = await page.evaluate(() => localStorage.getItem('theme'))
     expect(Boolean(pref && pref !== 'system')).toBe(true)
   })
 
   test('should update theme button icon when switching themes', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     const themeButton = page.locator('button[aria-controls="theme-options"]').first()
 
@@ -151,8 +143,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should switch back to system theme', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     // Switch to a custom theme first
     await openThemeMenu(page)
@@ -185,8 +176,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should handle keyboard navigation in theme menu', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     await openThemeMenu(page)
 
@@ -205,8 +195,7 @@ test.describe('Theme Switching', () => {
   })
 
   test('should close theme menu on Escape key', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
 
     await openThemeMenu(page)
 

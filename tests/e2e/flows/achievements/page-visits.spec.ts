@@ -4,7 +4,7 @@ import {
   expectAchievementInLocalStorage,
   getUnlockedAchievementCount,
 } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('Page Visit Achievements', () => {
   test.beforeEach(async ({ page }) => {
@@ -14,13 +14,11 @@ test.describe('Page Visit Achievements', () => {
 
   test('should unlock ABOUT_AMBLER on first visit to About page', async ({ page }) => {
     // First visit home page to ensure provider mounts properly (fixes race condition)
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
     await page.waitForTimeout(2000) // Wait for full React hydration
 
     // Now visit About page
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
     await page.waitForTimeout(2000) // Wait for achievement to unlock
 
     // Verify achievement is unlocked
@@ -33,13 +31,11 @@ test.describe('Page Visit Achievements', () => {
 
   test('should unlock EXPERIENCE_EXPLORER on first visit to Experience page', async ({ page }) => {
     // First visit home page to ensure provider mounts properly
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
     await page.waitForTimeout(2000)
 
     // Now visit Experience page
-    await page.goto('/experience')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/experience')
     await page.waitForTimeout(2000)
 
     await expectAchievementCookieContains(page, 'EXPERIENCE_EXPLORER')
@@ -48,13 +44,11 @@ test.describe('Page Visit Achievements', () => {
 
   test('should unlock PROJECTS_PERUSER on first visit to Projects page', async ({ page }) => {
     // First visit home page to ensure provider mounts properly
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
     await page.waitForTimeout(2000)
 
     // Now visit Projects page
-    await page.goto('/projects')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/projects')
     await page.waitForTimeout(2000)
 
     await expectAchievementCookieContains(page, 'PROJECTS_PERUSER')
@@ -63,23 +57,19 @@ test.describe('Page Visit Achievements', () => {
 
   test('should not unlock achievements on subsequent visits', async ({ page }) => {
     // First visit home to mount provider
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
     await page.waitForTimeout(2000)
 
     // First visit to About
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/about')
     await page.waitForTimeout(2000)
 
     const count1 = await getUnlockedAchievementCount(page)
     expect(count1).toBe(1)
 
     // Second visit to About
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-    await page.goto('/about')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await gotoAndWaitForMain(page, '/about')
     await page.waitForTimeout(2000)
 
     const count2 = await getUnlockedAchievementCount(page)

@@ -61,15 +61,12 @@ export function ThemeToggle() {
     buildMenuKeyDownHandler,
   } = useThemeMenuState()
 
-  const [forceUpdate, setForceUpdate] = useState(0)
   const [showOptions, setShowOptions] = useState(false)
   const isClient = useIsClient()
 
   // Force re-render after achievement state changes to ensure localStorage sync
   useEffect(() => {
     const timer = setTimeout(() => {
-      setForceUpdate(prev => prev + 1)
-
       // Check if current theme is still available after achievement reset
       // Add additional delay to ensure CSS attribute is synchronized
       setTimeout(() => {
@@ -190,7 +187,7 @@ export function ThemeToggle() {
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
     })
-  }, [iconByTheme, has, unlocked, forceUpdate])
+  }, [iconByTheme, has])
 
   // Compute dynamic width based on the longest theme label (in ch units)
   const menuWidthCh = useMemo(() => {
@@ -230,11 +227,11 @@ export function ThemeToggle() {
 
   useEffect(() => {
     if (open) {
-      setTooltipHold(false)
       return
     }
-    setTooltipHold(true)
-    const id = globalThis.setTimeout(() => setTooltipHold(false), 150)
+    const id = globalThis.setTimeout(() => {
+      setTooltipHold(true)
+    }, 150)
     return () => globalThis.clearTimeout(id)
   }, [open])
 
@@ -284,7 +281,7 @@ export function ThemeToggle() {
             className={cn(
               'relative hover:ring-accent hover:ring-1 hover:ring-offset-2 ring-offset-background',
               isClient ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
-              open ? 'z-[120] ring-1 ring-accent ring-offset-2 scale-95 rotate-3' : 'z-[70]',
+              open ? 'z-120 ring-1 ring-accent ring-offset-2 scale-95 rotate-3' : 'z-70',
             )}>
             <span className="relative inline-block align-middle">
               <style>{themeIconCss}</style>
@@ -328,7 +325,7 @@ export function ThemeToggle() {
         aria-hidden={!open}
         {...overlayProps}
         className={cn(
-          'fixed inset-0 z-[115] transition-opacity duration-200',
+          'fixed inset-0 z-115 transition-opacity duration-200',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
           'backdrop-blur-sm bg-black/15 dark:bg-black/40',
         )}

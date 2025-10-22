@@ -9,12 +9,16 @@ export function useHash() {
   }, [])
 
   useEffect(() => {
-    readHash()
+    if (globalThis.window === undefined) return
+    const id = requestAnimationFrame(() => {
+      readHash()
+    })
     const onHashChange = () => readHash()
     const onPopState = () => readHash()
     globalThis.window.addEventListener('hashchange', onHashChange, { passive: true })
     globalThis.window.addEventListener('popstate', onPopState)
     return () => {
+      cancelAnimationFrame(id)
       globalThis.window.removeEventListener('hashchange', onHashChange)
       globalThis.window.removeEventListener('popstate', onPopState)
     }

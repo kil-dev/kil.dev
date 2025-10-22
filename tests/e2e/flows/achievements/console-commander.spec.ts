@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectAchievementCookieContains, expectConfettiLikely } from '../../fixtures/achievement-helpers'
-import { abortNoise, clearState } from '../../fixtures/test-helpers'
+import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
 test.describe('CONSOLE_COMMANDER Achievement', () => {
   test.beforeEach(async ({ page }) => {
@@ -9,8 +9,12 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
   })
 
   test('should unlock CONSOLE_COMMANDER on first console open', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     // Press backtick to open console
     await page.keyboard.press('`')
@@ -29,8 +33,12 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
   })
 
   test('should set localStorage flag after first open', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     // Open console
     await page.keyboard.press('`')
@@ -47,8 +55,12 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
   })
 
   test('should not unlock on subsequent opens', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await gotoAndWaitForMain(page, '/')
+    await expect
+      .poll(async () =>
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
+      .toBe(true)
 
     // First open
     await page.keyboard.press('`')
