@@ -85,10 +85,11 @@ export function GalleryClient({ images }: GalleryClientProps) {
   }, [lightboxIndex, lightboxReady])
 
   const CHUNK_SIZE = 24
-  const initialPhotos = useMemo(() => {
-    nextIndexRef.current = Math.min(CHUNK_SIZE, allPhotos.length)
-    return allPhotos.slice(0, nextIndexRef.current)
-  }, [allPhotos])
+  const initialCount = useMemo(() => Math.min(CHUNK_SIZE, allPhotos.length), [allPhotos])
+  useEffect(() => {
+    nextIndexRef.current = initialCount
+  }, [initialCount])
+  const initialPhotos = useMemo(() => allPhotos.slice(0, initialCount), [allPhotos, initialCount])
 
   const fetchMore = useCallback(async () => {
     const start = nextIndexRef.current
