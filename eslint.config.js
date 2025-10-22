@@ -1,12 +1,7 @@
-import { FlatCompat } from '@eslint/eslintrc'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
 
 export default defineConfig(
   {
@@ -17,7 +12,6 @@ export default defineConfig(
       'src/utils/presence-bundle.ts',
     ],
   },
-  ...compat.extends('next/core-web-vitals'),
   eslintConfigPrettier,
   {
     files: ['**/*.ts', '**/*.tsx'],
