@@ -2,6 +2,11 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
+// @ts-expect-error - nextVitals is not typed
+import nextVitals from 'eslint-config-next/core-web-vitals'
+// @ts-expect-error - nextTs is not typed
+import nextTs from 'eslint-config-next/typescript'
+
 
 export default defineConfig(
   {
@@ -12,6 +17,8 @@ export default defineConfig(
       'src/utils/presence-bundle.ts',
     ],
   },
+  ...nextVitals,
+  ...nextTs,
   eslintConfigPrettier,
   {
     files: ['**/*.ts', '**/*.tsx'],
