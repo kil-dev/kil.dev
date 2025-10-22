@@ -14,8 +14,7 @@
   ],
   "ignoreDependencies": [
     "tailwindcss",
-    "tw-animate-css",
-    "eslint-config-next"
+    "tw-animate-css"
   ],
   "ignore": [
     "node_modules/**",
