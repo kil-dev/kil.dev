@@ -29,7 +29,7 @@
         "posthog-js": "1.281.0",
         "react": "19.2.0",
         "react-dom": "19.2.0",
-        "react-photo-album": "3.1.0",
+        "react-photo-album": "3.2.1",
         "react-snowfall": "2.3.0",
         "sharp": "0.34.4",
         "sonner": "2.0.7",
@@ -1138,7 +1138,7 @@
 
     "react-is": ["react-is@16.13.1", "", {}, "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="],
 
-    "react-photo-album": ["react-photo-album@3.1.0", "", { "peerDependencies": { "@types/react": "^18 || ^19", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-9PiWzwvckfefJRHY5E6kcNKoWNjyyFKhQ6Pl5nS1Z29QeP9h8zDOAoVQKWcv/AhZjRoduw1dybu9RNMj0+uPzQ=="],
+    "react-photo-album": ["react-photo-album@3.2.1", "", { "peerDependencies": { "@types/react": "^18 || ^19", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-I4C4ZN/BXE2KEj3lHEhlHc1sAeetgOPLF2UaiJgPW1s5CKotg1l2p+ZOpL9hA868pUZ9BA5TTXXGmFiFG+jdIg=="],
 
     "react-remove-scroll": ["react-remove-scroll@2.7.1", "", { "dependencies": { "react-remove-scroll-bar": "^2.3.7", "react-style-singleton": "^2.2.3", "tslib": "^2.1.0", "use-callback-ref": "^1.3.3", "use-sidecar": "^1.1.3" }, "peerDependencies": { "@types/react": "*", "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-HpMh8+oahmIdOuS5aFKKY6Pyog+FNaZV/XyJOq7b4YFwsFHe5yYfdbIalI4k3vU2nSDql7YskmUseHsRrJqIPA=="],
 
