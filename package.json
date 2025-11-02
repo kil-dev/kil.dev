@@ -76,7 +76,7 @@
     "@types/node": "22.18.13",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "esbuild": "0.25.11",
+    "esbuild": "0.25.12",
     "eslint": "9.39.0",
     "eslint-config-next": "16.0.1",
     "eslint-plugin-unicorn": "61.0.2",
