@@ -10,8 +10,10 @@ const LeaderboardEntrySchema = z.object({
 
 // Additional schemas used in use-leaderboard.ts
 export const CheckScoreResponseSchema = z.object({
+  success: z.boolean().optional(),
   qualifies: z.boolean(),
   currentThreshold: z.number().optional(),
+  message: z.string().optional(),
 })
 
 export const LeaderboardResponseSchema = z.object({

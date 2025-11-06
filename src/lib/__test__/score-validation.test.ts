@@ -118,7 +118,6 @@ describe('validateScoreSubmission', () => {
       score: 100,
       sessionId: 'session123',
       timestamp: 1234567890,
-      nonce: 'a'.repeat(32),
       signature: 'b'.repeat(64),
     })
     expect(result.success).toBe(true)
@@ -129,18 +128,6 @@ describe('validateScoreSubmission', () => {
       name: 'ABC',
       score: 100,
       sessionId: 'session123',
-      nonce: 'a'.repeat(32),
-      signature: 'b'.repeat(64),
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it('rejects sessionId with missing nonce', () => {
-    const result = validateScoreSubmission({
-      name: 'ABC',
-      score: 100,
-      sessionId: 'session123',
-      timestamp: 1234567890,
       signature: 'b'.repeat(64),
     })
     expect(result.success).toBe(false)
@@ -152,19 +139,6 @@ describe('validateScoreSubmission', () => {
       score: 100,
       sessionId: 'session123',
       timestamp: 1234567890,
-      nonce: 'a'.repeat(32),
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it('rejects nonce with wrong length', () => {
-    const result = validateScoreSubmission({
-      name: 'ABC',
-      score: 100,
-      sessionId: 'session123',
-      timestamp: 1234567890,
-      nonce: 'short',
-      signature: 'b'.repeat(64),
     })
     expect(result.success).toBe(false)
   })
@@ -175,7 +149,6 @@ describe('validateScoreSubmission', () => {
       score: 100,
       sessionId: 'session123',
       timestamp: 1234567890,
-      nonce: 'a'.repeat(32),
       signature: 'short',
     })
     expect(result.success).toBe(false)
@@ -187,7 +160,6 @@ describe('validateScoreSubmission', () => {
       score: 100,
       sessionId: 'session123',
       timestamp: 123.45,
-      nonce: 'a'.repeat(32),
       signature: 'b'.repeat(64),
     })
     expect(result.success).toBe(false)

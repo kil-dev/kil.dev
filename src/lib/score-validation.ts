@@ -15,19 +15,16 @@ const scoreSubmissionSchema = z
     sessionId: z.string().optional(),
     // If sessionId present, require signed payload
     timestamp: z.number().int('timestamp must be an integer').optional(),
-    nonce: z.string().length(32, 'nonce must be 16 bytes hex').optional(),
     signature: z.string().length(64, 'signature must be sha256 hex').optional(),
   })
   .refine(
     data => {
       if (typeof data.sessionId === 'string') {
-        return (
-          typeof data.timestamp === 'number' && typeof data.nonce === 'string' && typeof data.signature === 'string'
-        )
+        return typeof data.timestamp === 'number' && typeof data.signature === 'string'
       }
       return true
     },
-    { message: 'timestamp, nonce and signature are required when sessionId is provided' },
+    { message: 'timestamp and signature are required when sessionId is provided' },
   )
 
 export function validateScoreSubmission(data: unknown) {

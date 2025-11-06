@@ -182,10 +182,4 @@ describe('Leaderboard Constants', () => {
     expect(MAX_LEADERBOARD_SIZE).toBeGreaterThan(0)
     expect(MAX_LEADERBOARD_SIZE).toBeLessThan(100)
   })
-
-  it('uses correct Redis key', () => {
-    const LEADERBOARD_KEY = 'snake:leaderboard'
-    expect(LEADERBOARD_KEY).toContain('snake')
-    expect(LEADERBOARD_KEY).toContain('leaderboard')
-  })
 })
