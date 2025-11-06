@@ -12,10 +12,7 @@
     "components.json",
     "docs/**/*.{md,mdx}"
   ],
-  "ignoreDependencies": [
-    "tailwindcss",
-    "tw-animate-css"
-  ],
+  "ignoreDependencies": [],
   "ignore": [
     "node_modules/**",
     ".next/**",

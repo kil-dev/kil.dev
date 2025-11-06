@@ -15,6 +15,7 @@ export default defineConfig(
       'next-env.d.ts',
       'src/utils/theme-bundle.ts',
       'src/utils/presence-bundle.ts',
+      'convex/_generated/**',
     ],
   },
   ...nextVitals,
