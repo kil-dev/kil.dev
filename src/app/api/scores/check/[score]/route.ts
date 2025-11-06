@@ -1,4 +1,4 @@
-import { getQualificationThresholdSafe } from '@/lib/leaderboard'
+import { checkScoreQualification } from '@/lib/leaderboard'
 import type { ScoreQualificationResponse } from '@/types/leaderboard'
 import { NextResponse } from 'next/server'
 
@@ -17,8 +17,7 @@ export async function GET(_request: Request, context: { params: Promise<{ score?
       return NextResponse.json({ success: false, message: 'Invalid score value' }, { status: 400 })
     }
 
-    const threshold = await getQualificationThresholdSafe()
-    const qualifies = score >= threshold
+    const { qualifies, threshold } = await checkScoreQualification(score)
 
     const response: ScoreQualificationResponse = {
       success: true,
