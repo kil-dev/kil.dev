@@ -1,156 +1,66 @@
 import { env } from '@/env'
-import { type LeaderboardEntry } from '@/types/leaderboard'
-import { stableStringify } from '@/utils/stable-stringify'
-import { isDev } from '@/utils/utils'
-import { redis } from './redis'
+import type { LeaderboardEntry } from '@/types/leaderboard'
+import { ConvexHttpClient } from 'convex/browser'
 
-// Redis key structure
-const LEADERBOARD_KEY = 'snake:leaderboard'
-const SCORE_QUALIFICATION_THRESHOLD = 100 // Minimum score to qualify
-const MAX_LEADERBOARD_SIZE = 10
+const SCORE_QUALIFICATION_THRESHOLD = 100
 
-// In-memory fallback for development/local if Redis is unavailable
-const memoryLeaderboard: LeaderboardEntry[] = []
+// Create Convex client for server-side usage
+let convexClient: ConvexHttpClient | null = null
 
-function addScoreToMemory(entry: LeaderboardEntry): number {
-  memoryLeaderboard.push(entry)
-  memoryLeaderboard.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score
-    return a.timestamp - b.timestamp
-  })
-  if (memoryLeaderboard.length > MAX_LEADERBOARD_SIZE) {
-    memoryLeaderboard.splice(MAX_LEADERBOARD_SIZE)
+function getConvexClient(): ConvexHttpClient {
+  if (!convexClient) {
+    if (!env.NEXT_PUBLIC_CONVEX_URL) {
+      throw new Error('NEXT_PUBLIC_CONVEX_URL is not set')
+    }
+    convexClient = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL)
+    if (env.CONVEX_DEPLOY_KEY) {
+      convexClient.setAuth(env.CONVEX_DEPLOY_KEY)
+    }
   }
-  const rank = memoryLeaderboard.findIndex(e => e.id === entry.id)
-  return rank === -1 ? 0 : rank + 1
-}
-
-function getLeaderboardFromMemory(): LeaderboardEntry[] {
-  return [...memoryLeaderboard]
+  return convexClient
 }
 
 export async function addScoreToLeaderboard(entry: LeaderboardEntry): Promise<number> {
   try {
-    // Store the full entry data as JSON in the member field
-    const entryData = stableStringify(entry)
-
-    // Minimal sequential calls (avoid pipeline tuple parsing)
-    await redis.zadd(LEADERBOARD_KEY, { score: entry.score, member: entryData })
-    const currentSize = await redis.zcard(LEADERBOARD_KEY)
-
-    // Remove excess entries if we have more than MAX_LEADERBOARD_SIZE
-    if (currentSize > MAX_LEADERBOARD_SIZE) {
-      // Remove the lowest scores to keep only the top MAX_LEADERBOARD_SIZE
-      await redis.zremrangebyrank(LEADERBOARD_KEY, 0, currentSize - MAX_LEADERBOARD_SIZE - 1)
-    }
-
-    // Return rank (0-indexed, so add 1) or 0 if rank is null
-    const rankIndex = await redis.zrevrank(LEADERBOARD_KEY, entryData)
-    return rankIndex === null ? 0 : rankIndex + 1
-  } catch {
-    // Fallback to in-memory leaderboard in non-production
-    if (isDev()) {
-      return addScoreToMemory(entry)
+    const client = getConvexClient()
+    // Dynamically import to avoid issues before Convex types are generated
+    const apiModule = await import('../../convex/_generated/api')
+    const api = apiModule.api
+    // Use internal mutation via action - this will be called from API route
+    // For now, keep using the HTTP client approach
+    console.log('Adding score to Convex:', { name: entry.name, score: entry.score })
+    const rank = await client.mutation(api.scores.addScorePublic, {
+      name: entry.name,
+      score: entry.score,
+    })
+    console.log('Score added, rank:', rank)
+    // Return rank if it's a number, otherwise 0 (not in top 10)
+    return typeof rank === 'number' ? rank : 0
+  } catch (error) {
+    console.error('Failed to add score to leaderboard:', error)
+    if (error instanceof Error) {
+      console.error('Error details:', error.message, error.stack)
     }
     throw new Error('Failed to add score to leaderboard')
   }
 }
 
-export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+// Helper function for checking qualification with a specific score
+export async function checkScoreQualification(score: number): Promise<{ qualifies: boolean; threshold: number }> {
   try {
-    // Get top scores from Redis sorted set
-    const scores = await redis.zrange(LEADERBOARD_KEY, 0, MAX_LEADERBOARD_SIZE - 1, { withScores: true, rev: true })
-
-    const leaderboard: LeaderboardEntry[] = []
-
-    // Handle the response format from Upstash Redis
-    if (Array.isArray(scores)) {
-      for (let i = 0; i < scores.length; i += 2) {
-        const entryData = scores[i] as string
-
-        try {
-          // Check if entryData is already an object (not a string)
-          if (typeof entryData === 'object') {
-            leaderboard.push(entryData as LeaderboardEntry)
-          } else {
-            const entry = JSON.parse(entryData) as LeaderboardEntry
-            leaderboard.push(entry)
-          }
-        } catch {
-          // Skip invalid entries
-        }
-      }
+    const client = getConvexClient()
+    const apiModule = await import('../../convex/_generated/api')
+    const api = apiModule.api
+    const result = (await client.query(api.scores.checkQualification, { score })) as {
+      qualifies: boolean
+      threshold: number
     }
-
-    return leaderboard
-  } catch {
-    // Fallback to in-memory leaderboard in non-production
-    if (isDev()) return getLeaderboardFromMemory()
-    return [] // Return empty array on error
-  }
-}
-
-function parseNumericScore(raw: string | number): number | null {
-  const value = typeof raw === 'number' ? raw : Number(raw)
-  if (Number.isNaN(value)) return null
-  return value
-}
-
-async function getLowestScoreThreshold(): Promise<number | null> {
-  const scores = await redis.zrange(LEADERBOARD_KEY, 0, 0, { withScores: true, rev: false })
-  if (scores.length < 2) return null
-  const rawLowestScore = scores[1] as string | number
-  const lowestScore = parseNumericScore(rawLowestScore)
-  if (lowestScore === null) return null
-  return lowestScore + 1
-}
-
-async function getNthHighestScoreThreshold(n: number): Promise<number | null> {
-  const index = Math.max(0, n - 1)
-  const scores = await redis.zrange(LEADERBOARD_KEY, index, index, { withScores: true, rev: true })
-  if (scores.length < 2) return null
-  const rawScore = scores[1] as string | number
-  const parsed = parseNumericScore(rawScore)
-  if (parsed === null) return null
-  return parsed + 1
-}
-
-function deriveThresholdFromMemory(): number {
-  const size = memoryLeaderboard.length
-  if (size === 0) return SCORE_QUALIFICATION_THRESHOLD
-  if (size < MAX_LEADERBOARD_SIZE) {
-    const lowest = memoryLeaderboard.at(-1)
-    if (!lowest) return SCORE_QUALIFICATION_THRESHOLD
-    return Math.max(lowest.score + 1, SCORE_QUALIFICATION_THRESHOLD)
-  }
-  const tenth = memoryLeaderboard[Math.min(memoryLeaderboard.length - 1, MAX_LEADERBOARD_SIZE - 1)]
-  if (!tenth) return SCORE_QUALIFICATION_THRESHOLD
-  return Math.max(tenth.score + 1, SCORE_QUALIFICATION_THRESHOLD)
-}
-
-async function getQualificationThreshold(): Promise<number> {
-  try {
-    const leaderboardSize = await redis.zcard(LEADERBOARD_KEY)
-    if (leaderboardSize === 0) return SCORE_QUALIFICATION_THRESHOLD
-
-    if (leaderboardSize < MAX_LEADERBOARD_SIZE) {
-      const threshold = await getLowestScoreThreshold()
-      if (threshold !== null) return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
-      return SCORE_QUALIFICATION_THRESHOLD
+    return result
+  } catch (error) {
+    console.error('Failed to check score qualification:', error)
+    return {
+      qualifies: false,
+      threshold: SCORE_QUALIFICATION_THRESHOLD,
     }
-
-    const threshold = await getNthHighestScoreThreshold(MAX_LEADERBOARD_SIZE)
-    if (threshold !== null) return Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
-    return SCORE_QUALIFICATION_THRESHOLD
-  } catch {
-    if (env.NODE_ENV !== 'production') return deriveThresholdFromMemory()
-    return SCORE_QUALIFICATION_THRESHOLD
   }
-}
-
-// Add a final safety wrapper to ensure we never return 0
-export async function getQualificationThresholdSafe(): Promise<number> {
-  const threshold = await getQualificationThreshold()
-  const safeThreshold = Math.max(threshold, SCORE_QUALIFICATION_THRESHOLD)
-  return safeThreshold
 }
