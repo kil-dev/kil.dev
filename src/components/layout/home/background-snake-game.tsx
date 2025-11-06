@@ -49,6 +49,7 @@ export function BackgroundSnakeGame() {
     setNameInputPosition,
     setShowNameInput,
     submitScore,
+    checkScoreQualification,
     handleGameOverFlow,
     handleNameInputKey,
   } = useLeaderboard()
@@ -96,13 +97,16 @@ export function BackgroundSnakeGame() {
             validatedFinalScoreRef.current = validated
             validationPassedRef.current = true
           } else {
-            // If validation fails, hide name input and show error
+            // If validation fails, hide name input
             validationPassedRef.current = false
             console.error('Validation failed:', result.message)
             if (showNameInput) {
               setShowNameInput(false)
             }
-            if (isDev()) {
+            // Only show toast if score qualifies for leaderboard but validation failed
+            // This prevents showing errors for quick deaths that don't qualify anyway
+            const scoreQualifies = await checkScoreQualification(finalScore)
+            if (scoreQualifies && isDev()) {
               toast.error("Run didn't pass validation", {
                 description: result.message ?? 'Try a longer run with a few moves.',
               })
