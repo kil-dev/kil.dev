@@ -4,7 +4,6 @@
 /src/utils/theme-bundle.ts
 /src/utils/presence-bundle.ts
 /public/pet-gallery/
-/convex/_generated/
 
 # dependencies
 /node_modules
