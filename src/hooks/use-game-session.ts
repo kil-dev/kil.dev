@@ -39,12 +39,20 @@ export function useGameSession() {
   const [error, setError] = useState<string | null>(null)
   const lastMoveTimeRef = useRef<number>(0)
   const startTimeRef = useRef<number>(0)
+  const gameStartTimeRef = useRef<number>(0) // Track when game actually started (before session)
   const eventsRef = useRef<{ t: number; k: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' }[]>([])
   const foodsRef = useRef<{ t: number; g: boolean }[]>([])
+  // Queue food events that happen before session is ready
+  const pendingFoodsRef = useRef<{ t: number; g: boolean }[]>([])
 
   const startGame = useCallback(async () => {
+    // Mark game start time immediately (before async session creation)
+    // Reset if starting a new game
+    gameStartTimeRef.current = Date.now()
+
     setIsLoading(true)
     setError(null)
+    console.log('Starting game session...')
 
     try {
       const response = await fetch('/api/game/start', {
@@ -55,13 +63,27 @@ export function useGameSession() {
       })
 
       const data = (await response.json()) as GameStartResponse
+      console.log('Game session start response:', data)
       if (data.success && data.sessionId && data.secret && typeof data.seed === 'number') {
         setSession({ sessionId: data.sessionId, secret: data.secret, seed: data.seed })
-        startTimeRef.current = Date.now()
+        startTimeRef.current = gameStartTimeRef.current // Use game start time, not session start time
         eventsRef.current = []
         foodsRef.current = []
+        console.log('Game session started successfully:', { sessionId: data.sessionId })
+
+        // Replay any pending food events that happened before session started
+        if (pendingFoodsRef.current.length > 0) {
+          console.log('Replaying', pendingFoodsRef.current.length, 'pending food events')
+          // Replay with timestamps relative to game start time
+          for (const food of pendingFoodsRef.current) {
+            foodsRef.current.push(food)
+          }
+          pendingFoodsRef.current = []
+        }
       } else {
-        setError(data?.message ?? 'Failed to start game session')
+        const errorMsg = data?.message ?? 'Failed to start game session'
+        setError(errorMsg)
+        console.error('Failed to start game session:', errorMsg)
       }
     } catch (err) {
       setError('Failed to start game session')
@@ -89,25 +111,54 @@ export function useGameSession() {
 
   const recordFoodEaten = useCallback(
     async (_position: { x: number; y: number }, isGolden: boolean, _score: number) => {
-      if (!session) return
+      const foodEvent = { t: 0, g: isGolden }
 
-      // Record locally
-      const t = Date.now() - startTimeRef.current
-      foodsRef.current.push({ t, g: isGolden })
+      if (!session) {
+        // Queue food events that happen before session is ready
+        // Calculate time relative to game start (not session start)
+        const gameStartTime = gameStartTimeRef.current || Date.now()
+        foodEvent.t = Date.now() - gameStartTime
+        console.warn('recordFoodEaten called but no session exists - queuing event', { time: foodEvent.t, isGolden })
+        pendingFoodsRef.current.push(foodEvent)
+        return
+      }
+
+      // Record locally with timestamp relative to session start
+      foodEvent.t = Date.now() - startTimeRef.current
+      foodsRef.current.push(foodEvent)
+      console.log('Recorded food eaten:', {
+        isGolden,
+        score: _score,
+        time: foodEvent.t,
+        totalFoods: foodsRef.current.length,
+      })
     },
     [session],
   )
 
   const endGame = useCallback(
     async (finalScoreParam: number) => {
-      if (!session) return { success: false, message: 'No active session' }
+      if (!session) {
+        console.error('endGame called but no session exists')
+        return { success: false, message: 'No active session' }
+      }
 
+      console.log('Ending game session:', { sessionId: session.sessionId, finalScoreParam })
       try {
-        // Derive final score from recorded food events to avoid stale state
+        // Derive final score from recorded food events for validation
         const computedFinalScore = foodsRef.current.reduce((acc, f) => acc + (f.g ? 50 : 10), 0)
+        console.log('Computed final score:', computedFinalScore, 'from', foodsRef.current.length, 'food events')
 
-        // Prefer computed score, but fall back to provided param if somehow empty
-        const finalScore = computedFinalScore > 0 || finalScoreParam === 0 ? computedFinalScore : finalScoreParam
+        // Use the provided score parameter (from game logic) as the primary score
+        // The server will validate that this matches the food events
+        const finalScore = finalScoreParam
+        console.log('Using final score from game:', finalScore, '(computed from events:', computedFinalScore, ')')
+
+        if (computedFinalScore !== finalScore) {
+          console.warn(
+            `Score mismatch! Game score: ${finalScore}, Computed from events: ${computedFinalScore}. This may cause validation to fail.`,
+          )
+        }
 
         // Compute signature: sha256(secret + '.' + stableStringify(payload))
         const payload = {
@@ -117,8 +168,14 @@ export function useGameSession() {
           foods: foodsRef.current,
           durationMs: Date.now() - startTimeRef.current,
         }
+        console.log('End game payload:', {
+          ...payload,
+          events: eventsRef.current.length,
+          foods: foodsRef.current.length,
+        })
 
         const signature = await computeSha256Hex(`${session.secret}.${stableStringify(payload)}`)
+        console.log('Computed signature for end game')
 
         const response = await fetch('/api/game/end', {
           method: 'POST',
@@ -129,6 +186,7 @@ export function useGameSession() {
         })
 
         const data = (await response.json()) as GameEndResponse
+        console.log('End game response:', data)
         if (data.success) {
           return { success: true, validatedScore: data.validatedScore }
         }
@@ -147,16 +205,12 @@ export function useGameSession() {
 
       // Validated score submission
       const timestamp = Date.now()
-      const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
 
       const signingPayload = {
         sessionId: session.sessionId,
         name,
         score,
         timestamp,
-        nonce,
       }
 
       const signature = await computeSha256Hex(`${session.secret}.${stableStringify(signingPayload)}`)

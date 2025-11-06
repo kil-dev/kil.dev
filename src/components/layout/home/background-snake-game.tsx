@@ -47,6 +47,7 @@ export function BackgroundSnakeGame() {
     playerName,
     nameInputPosition,
     setNameInputPosition,
+    setShowNameInput,
     submitScore,
     handleGameOverFlow,
     handleNameInputKey,
@@ -70,12 +71,37 @@ export function BackgroundSnakeGame() {
         void (async () => {
           if (hasEndedRef.current) return
           hasEndedRef.current = true
+          console.log('Game over! Final score:', finalScore)
+          console.log('Current session:', session ? { sessionId: session.sessionId } : 'No session')
+          // Check qualification immediately (don't wait for validation)
+          validatedFinalScoreRef.current = finalScore
+          console.log('Calling handleGameOverFlow immediately with score:', finalScore)
+          await handleGameOverFlow(finalScore)
+          // Validate game session in background (doesn't block UI)
+          if (!session) {
+            console.error('No session available for validation!')
+            validationPassedRef.current = false
+            if (showNameInput) {
+              setShowNameInput(false)
+            }
+            if (isDev()) {
+              toast.error('Game session not found. Please start a new game.')
+            }
+            return
+          }
           const result = await endGame(finalScore)
+          console.log('Game validation result:', result)
           if (result.success) {
             const validated = typeof result.validatedScore === 'number' ? result.validatedScore : finalScore
             validatedFinalScoreRef.current = validated
-            await handleGameOverFlow(validated)
+            validationPassedRef.current = true
           } else {
+            // If validation fails, hide name input and show error
+            validationPassedRef.current = false
+            console.error('Validation failed:', result.message)
+            if (showNameInput) {
+              setShowNameInput(false)
+            }
             if (isDev()) {
               toast.error("Run didn't pass validation", {
                 description: result.message ?? 'Try a longer run with a few moves.',
@@ -96,8 +122,12 @@ export function BackgroundSnakeGame() {
   // Prevent duplicate end-game submissions
   const hasEndedRef = useRef(false)
   const validatedFinalScoreRef = useRef(0)
+  const validationPassedRef = useRef<boolean | null>(null) // null = pending, true = passed, false = failed
   useEffect(() => {
-    if (isPlaying) hasEndedRef.current = false
+    if (isPlaying) {
+      hasEndedRef.current = false
+      validationPassedRef.current = null
+    }
   }, [isPlaying])
 
   // Drawing callbacks
@@ -293,7 +323,13 @@ export function BackgroundSnakeGame() {
         if (nameInputPosition < 2) {
           setNameInputPosition(prev => Math.min(2, prev + 1))
         } else {
-          void submitScore(validatedFinalScoreRef.current, session?.sessionId, session?.secret)
+          // Only submit if validation has passed or is still pending
+          // The server will validate anyway, but we prevent submission if validation already failed
+          if (validationPassedRef.current === false) {
+            toast.error('Score validation failed. Please try again.')
+          } else {
+            void submitScore(validatedFinalScoreRef.current, session?.sessionId, session?.secret)
+          }
         }
         return
       }
