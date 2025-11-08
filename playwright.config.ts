@@ -18,7 +18,7 @@ export default defineConfig({
     colorScheme: 'dark',
   },
   webServer: {
-    command: 'bunx convex dev --once --cmd "bun run preview"',
+    command: 'bunx convex dev --once --run-sh "bun run preview"',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
