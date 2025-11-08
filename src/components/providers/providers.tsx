@@ -14,9 +14,7 @@ import { ThemeProvider } from './theme-provider'
 
 // Create Convex client for client-side usage
 // Use a placeholder URL during build time if NEXT_PUBLIC_CONVEX_URL is not available
-const convex = new ConvexReactClient(
-  env.NEXT_PUBLIC_CONVEX_URL || 'https://placeholder.convex.cloud'
-)
+const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL ?? 'https://placeholder.convex.cloud')
 
 export function Providers({
   children,
