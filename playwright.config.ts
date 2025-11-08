@@ -18,13 +18,16 @@ export default defineConfig({
     colorScheme: 'dark',
   },
   webServer: {
-    command: 'bunx convex dev --once --run-sh "bun run preview"',
+    command: 'bun run preview',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     env: {
       NEXT_TELEMETRY_DISABLED: '1',
       NEXT_PUBLIC_POSTHOG_DISABLED: '1',
+      // Provide a dummy Convex URL in CI to satisfy client construction.
+      // Tests do not hit Convex endpoints.
+      NEXT_PUBLIC_CONVEX_URL: 'http://127.0.0.1:3999',
     },
   },
   projects: [
