@@ -24,13 +24,51 @@ test.describe('KONAMI_KILLER Achievement', () => {
 
     // Wait for achievement to process by checking for cookie
     // Use the helper function that uses expect.poll() for more robust polling
-    await waitForAchievementCookie(page, 'KONAMI_KILLER', 5000)
+    let konamiSeen = false
+    let originalError: Error | null = null
 
-    // Verify achievement is unlocked
-    await expectAchievementCookieContains(page, 'KONAMI_KILLER')
+    try {
+      await waitForAchievementCookie(page, 'KONAMI_KILLER', 5000)
 
-    // Verify confetti was triggered
-    await expectConfettiLikely(page)
+      // Check if achievement cookie contains KONAMI_KILLER
+      const cookies = await page.context().cookies()
+      const achievementCookie = cookies.find(c => c.name === 'kil.dev_achievements_v1')
+
+      if (achievementCookie) {
+        const decoded = decodeURIComponent(achievementCookie.value)
+        const parsed = JSON.parse(decoded) as Record<string, unknown>
+        if (parsed.KONAMI_KILLER) {
+          konamiSeen = true
+        }
+      }
+    } catch (error) {
+      // Only capture context errors (e.g., page context issues)
+      if (error instanceof Error && error.message.includes('context')) {
+        originalError = error
+      } else {
+        // Rethrow non-context errors immediately
+        throw error
+      }
+    }
+
+    // If flag is false after try/catch, rethrow original error so test fails rather than silently succeeding
+    if (!konamiSeen && originalError) {
+      throw originalError
+    }
+
+    // Run assertions unconditionally after try/catch block
+    // Skip assertions if achievement wasn't seen (they would fail anyway)
+    if (konamiSeen) {
+      // Verify achievement is unlocked
+      await expectAchievementCookieContains(page, 'KONAMI_KILLER')
+
+      // Verify confetti was triggered
+      await expectConfettiLikely(page)
+    } else {
+      // Achievement wasn't seen and no error was caught - assertions will fail naturally
+      await expectAchievementCookieContains(page, 'KONAMI_KILLER')
+      await expectConfettiLikely(page)
+    }
   })
 
   test('should trigger snake game animation on Konami code', async ({ page }) => {
