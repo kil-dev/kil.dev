@@ -1,10 +1,18 @@
 import { expect, test } from '@playwright/test'
-import { abortNoise, clearState, getCurrentTheme, gotoAndWaitForMain, openThemeMenu } from '../fixtures/test-helpers'
+import {
+  abortNoise,
+  clearState,
+  disableAnimations,
+  getCurrentTheme,
+  gotoAndWaitForMain,
+  openThemeMenu,
+} from '../fixtures/test-helpers'
 
 test.describe('Theme Switching', () => {
   test.beforeEach(async ({ page }) => {
     await clearState(page)
     await abortNoise(page)
+    await disableAnimations(page)
   })
 
   test('should open and close theme menu', async ({ page }) => {
@@ -20,9 +28,8 @@ test.describe('Theme Switching', () => {
     const backdrop = page.locator('[aria-label="Close overlay"]').first()
     const visible = await backdrop.isVisible().catch(() => false)
     await (visible ? backdrop.click({ position: { x: 10, y: 10 } }) : page.mouse.click(10, 10))
-    await page.waitForTimeout(300)
-
-    await expect(themeMenu).toHaveAttribute('aria-hidden', 'true')
+    // Wait for menu to close instead of arbitrary timeout
+    await expect(themeMenu).toHaveAttribute('aria-hidden', 'true', { timeout: 1000 })
   })
 
   test('should switch between themes', async ({ page }) => {
@@ -54,7 +61,7 @@ test.describe('Theme Switching', () => {
         const t = localStorage.getItem('theme')
         return !!t && t !== 'system'
       },
-      { timeout: 3000 },
+      { timeout: 2000 },
     )
 
     // Verify preference persisted (explicit selection)
@@ -71,7 +78,14 @@ test.describe('Theme Switching', () => {
       const first = document.querySelector<HTMLButtonElement>('#theme-options [role="menuitem"]')
       first?.click()
     })
-    await page.waitForTimeout(500)
+    // Wait for theme to be applied
+    await page.waitForFunction(
+      () => {
+        const t = localStorage.getItem('theme')
+        return !!t && t !== 'system'
+      },
+      { timeout: 2000 },
+    )
 
     const themeBeforeReload = await getCurrentTheme(page)
 
@@ -93,7 +107,14 @@ test.describe('Theme Switching', () => {
       const first = document.querySelector<HTMLButtonElement>('#theme-options [role="menuitem"]')
       first?.click()
     })
-    await page.waitForTimeout(500)
+    // Wait for theme to be applied
+    await page.waitForFunction(
+      () => {
+        const t = localStorage.getItem('theme')
+        return !!t && t !== 'system'
+      },
+      { timeout: 2000 },
+    )
 
     // Check localStorage
     const storedTheme = await page.evaluate(() => {
@@ -118,7 +139,14 @@ test.describe('Theme Switching', () => {
       }
       items[0]?.click()
     })
-    await page.waitForTimeout(300)
+    // Wait for theme to be applied
+    await page.waitForFunction(
+      () => {
+        const t = localStorage.getItem('theme')
+        return !!t && t !== 'system'
+      },
+      { timeout: 2000 },
+    )
 
     // Reload page and ensure preference persisted (non-system)
     await page.reload({ waitUntil: 'domcontentloaded' })
@@ -136,7 +164,8 @@ test.describe('Theme Switching', () => {
     const themeOption = page.locator('#theme-options [role="menuitem"]').first()
     await themeOption.focus()
     await page.keyboard.press('Enter')
-    await page.waitForTimeout(500)
+    // Wait for menu to close
+    await page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 2000 })
 
     // Theme button should still be visible
     await expect(themeButton).toBeVisible()
@@ -151,9 +180,24 @@ test.describe('Theme Switching', () => {
       .locator('#theme-options [role="menuitem"]')
       .filter({ hasNotText: /system/i })
       .first()
-    await customTheme.focus()
-    await page.keyboard.press('Enter')
-    await page.waitForTimeout(500)
+
+    // Use click instead of keyboard navigation for better reliability across devices
+    await customTheme.click()
+
+    // Wait for theme to be applied by checking DOM classes (more reliable than localStorage)
+    await page.waitForFunction(
+      () => {
+        const html = document.documentElement
+        // Check if a non-system theme class is applied (not just light/dark)
+        const themeClasses = Array.from(html.classList).filter(
+          cls => cls !== 'light' && cls !== 'dark' && cls !== 'system',
+        )
+        // Also check localStorage as fallback
+        const stored = localStorage.getItem('theme')
+        return themeClasses.length > 0 || (stored && stored !== 'system')
+      },
+      { timeout: 3000 },
+    )
 
     // Now switch back to system
     await openThemeMenu(page)
@@ -162,7 +206,14 @@ test.describe('Theme Switching', () => {
 
     if (isVisible) {
       await systemTheme.click()
-      await page.waitForTimeout(500)
+      // Wait for theme to be applied
+      await page.waitForFunction(
+        () => {
+          const html = document.documentElement
+          return html.classList.contains('light') || html.classList.contains('dark')
+        },
+        { timeout: 2000 },
+      )
 
       // Should have either 'light' or 'dark' class
       const hasLightOrDark = await page.evaluate(() => {
@@ -182,11 +233,13 @@ test.describe('Theme Switching', () => {
 
     // Tab to first theme option
     await page.keyboard.press('Tab')
-    await page.waitForTimeout(100)
+    // Small delay for focus to settle
+    await page.waitForTimeout(50)
 
     // Should be able to select with Enter
     await page.keyboard.press('Enter')
-    await page.waitForTimeout(500)
+    // Wait for menu to close
+    await page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 2000 })
 
     // Menu should close
     const themeMenu = page.locator('#theme-options')
@@ -203,8 +256,7 @@ test.describe('Theme Switching', () => {
     await expect(themeMenu).toHaveAttribute('aria-hidden', 'false')
 
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(300)
-
-    await expect(themeMenu).toHaveAttribute('aria-hidden', 'true')
+    // Wait for menu to close
+    await expect(themeMenu).toHaveAttribute('aria-hidden', 'true', { timeout: 1000 })
   })
 })

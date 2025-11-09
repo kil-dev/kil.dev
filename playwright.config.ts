@@ -2,10 +2,10 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: 30000,
+  timeout: 15000,
   expect: { timeout: 5000 },
   fullyParallel: true,
-  retries: process.env.CI ? 3 : 0,
+  retries: process.env.CI ? 2 : 0,
   workers: undefined,
   reporter: process.env.CI ? 'blob' : [['list'], ['html', { open: 'never' }]],
   use: {
@@ -23,8 +23,9 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     env: {
-      // Forward required env so Next build/start sees them in CI
-      NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL ?? '',
+      // Spread existing env so Next.js can read .env.local automatically
+      ...process.env,
+      // Override specific values for test environment
       SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? 'true',
       NEXT_TELEMETRY_DISABLED: '1',
       NEXT_PUBLIC_POSTHOG_DISABLED: '1',

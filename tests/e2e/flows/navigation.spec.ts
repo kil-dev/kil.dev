@@ -77,11 +77,8 @@ test.describe('Navigation Flow', () => {
       await expect(menuButton).toBeVisible()
       await menuButton.click()
 
-      // Wait for menu to open
-      await page.waitForTimeout(500)
-
-      // Check that menu is open
-      await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+      // Wait for menu to open by checking aria-expanded attribute
+      await expect(menuButton).toHaveAttribute('aria-expanded', 'true', { timeout: 2000 })
 
       // Check for menu items
       const mobileNav = page.locator('#mobile-nav-arc[role="menu"]')

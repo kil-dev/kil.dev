@@ -20,12 +20,18 @@ test.describe('MATRIX_MAESTRO Achievement', () => {
     const input = page.locator('input[aria-label="Console input"]')
     await input.fill('theme matrix')
     await page.keyboard.press('Enter')
-    await page.waitForTimeout(1200)
 
-    const hasMatrixClass = await page.evaluate(() => {
-      return document.documentElement.classList.contains('matrix')
-    })
-    expect(hasMatrixClass, 'Console command should apply the matrix theme').toBe(true)
+    // Wait for the matrix class to be applied to documentElement
+    await page.waitForFunction(() => document.documentElement.classList.contains('matrix'), { timeout: 2000 })
+
+    // Wait for achievement to be unlocked (it's triggered when matrix theme is first selected)
+    await page.waitForFunction(
+      () => {
+        const cookies = document.cookie.split(';')
+        return cookies.some(c => c.includes('kil.dev_achievements_v1') && c.includes('MATRIX_MAESTRO'))
+      },
+      { timeout: 3000 },
+    )
 
     // Verify achievement is unlocked and confetti likely triggered
     await expectAchievementCookieContains(page, 'MATRIX_MAESTRO')
@@ -42,7 +48,9 @@ test.describe('MATRIX_MAESTRO Achievement', () => {
     const input = page.locator('input[aria-label="Console input"]')
     await input.fill('theme matrix')
     await page.keyboard.press('Enter')
-    await page.waitForTimeout(1000)
+
+    // Wait for the matrix class to be applied
+    await page.waitForFunction(() => document.documentElement.classList.contains('matrix'), { timeout: 2000 })
 
     // Check localStorage flag
     const hasFlag = await page.evaluate(() => {
