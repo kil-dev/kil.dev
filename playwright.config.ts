@@ -39,6 +39,8 @@ export default defineConfig({
     {
       name: 'chromium-mobile',
       use: { ...devices.Pixel5, viewport: devices.Pixel5?.viewport },
+      // Exclude snake game tests - not available on mobile
+      testIgnore: ['**/flows/snake-leaderboard.spec.ts'],
     },
   ],
 })
