@@ -23,6 +23,13 @@ jobs:
   playwright-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      SKIP_ENV_VALIDATION: "1"
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+      # Set dummy values for required PostHog env vars to avoid validation errors
+      NEXT_PUBLIC_POSTHOG_KEY: "test-key"
+      NEXT_PUBLIC_POSTHOG_HOST: "test-host"
     strategy:
       fail-fast: false
       matrix:
@@ -43,14 +50,6 @@ jobs:
 
       - name: Run Playwright tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         run: bunx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-        env:
-          SKIP_ENV_VALIDATION: "1"
-          NODE_ENV: "production"
-          NEXT_TELEMETRY_DISABLED: "1"
-          NEXT_PUBLIC_POSTHOG_KEY: ""
-          NEXT_PUBLIC_POSTHOG_HOST: ""
-          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
 
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ always() && !cancelled() }}

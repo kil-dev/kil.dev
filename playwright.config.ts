@@ -26,9 +26,12 @@ export default defineConfig({
       // Spread existing env so Next.js can read .env.local automatically
       ...process.env,
       // Override specific values for test environment
-      SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? 'true',
+      SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? '1',
       NEXT_TELEMETRY_DISABLED: '1',
       NEXT_PUBLIC_POSTHOG_DISABLED: '1',
+      // Ensure PostHog env vars are set (even if dummy values) to avoid validation errors
+      NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? 'test-key',
+      NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'test-host',
     },
   },
   projects: [
