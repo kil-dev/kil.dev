@@ -48,35 +48,94 @@ function getConvexClient(): ConvexHttpClient {
   return client
 }
 
+/**
+ * Validates that a string is a valid sessionId format.
+ * Convex IDs are validated server-side, but we check basic format here.
+ */
+function validateSessionId(sessionId: string): sessionId is Id<'gameSessions'> {
+  // Basic validation: non-empty string
+  // Convex will validate the actual ID format server-side
+  return typeof sessionId === 'string' && sessionId.length > 0
+}
+
+/**
+ * Type matching the return type of getSessionPublic query.
+ * This matches the return validator defined in convex/gameSessions.ts
+ */
+type SessionQueryResult = {
+  id: string
+  secret: string
+  seed: number
+  createdAt: number
+  isActive: boolean
+  validatedScore?: number
+} | null
+
+/**
+ * Type guard to validate the session query result structure.
+ * Checks that all required properties exist and have correct types.
+ */
+function isValidSessionResult(result: unknown): result is NonNullable<SessionQueryResult> {
+  if (!result || typeof result !== 'object') {
+    return false
+  }
+  // Check properties without type assertion by using 'in' operator and type narrowing
+  if (
+    !('id' in result) ||
+    !('secret' in result) ||
+    !('seed' in result) ||
+    !('createdAt' in result) ||
+    !('isActive' in result)
+  ) {
+    return false
+  }
+  return (
+    typeof result.id === 'string' &&
+    typeof result.secret === 'string' &&
+    typeof result.seed === 'number' &&
+    typeof result.createdAt === 'number' &&
+    typeof result.isActive === 'boolean' &&
+    ('validatedScore' in result
+      ? typeof result.validatedScore === 'number' || result.validatedScore === undefined
+      : true)
+  )
+}
+
 async function getSession(sessionId: string): Promise<GameSession | undefined> {
   try {
-    const client = getConvexClient()
-    const apiModule = await import('../../convex/_generated/api')
-    const api = apiModule.api
-    // Convex IDs are strings at runtime, so we can safely cast
-    const sessionIdAsId = sessionId as Id<'gameSessions'>
-    const session = (await client.query(api.gameSessions.getSessionPublic, {
-      sessionId: sessionIdAsId,
-    })) as {
-      id: string
-      secret: string
-      seed: number
-      createdAt: number
-      isActive: boolean
-      validatedScore?: number
-    } | null
-
-    if (!session) {
+    // Validate sessionId format before using it
+    if (!validateSessionId(sessionId)) {
       return undefined
     }
 
+    const client = getConvexClient()
+    const apiModule = await import('../../convex/_generated/api')
+    const api = apiModule.api
+
+    // Call query - ConvexHttpClient returns unknown, so we validate the result
+    const queryResult: unknown = await client.query(api.gameSessions.getSessionPublic, {
+      sessionId,
+    })
+
+    // Handle null/undefined case explicitly
+    if (!queryResult) {
+      return undefined
+    }
+
+    // Validate the result structure using type guard instead of type assertion
+    if (!isValidSessionResult(queryResult)) {
+      console.error('Invalid session data structure returned from Convex')
+      return undefined
+    }
+
+    // Now TypeScript knows queryResult is the correct type
     return {
-      id: session.id,
-      createdAt: session.createdAt,
-      isActive: session.isActive,
-      secret: session.secret,
-      seed: session.seed,
-      validatedScore: session.validatedScore,
+      id: queryResult.id,
+      createdAt: queryResult.createdAt,
+      isActive: queryResult.isActive,
+      secret: queryResult.secret,
+      seed: queryResult.seed,
+      validatedScore: queryResult.validatedScore,
     }
   } catch (error) {
     console.error('Failed to get session from Convex:', error)
@@ -86,11 +145,16 @@ async function getSession(sessionId: string): Promise<GameSession | undefined> {
 
 async function updateSession(session: GameSession): Promise<void> {
   try {
+    // Validate sessionId format before using it
+    const sessionId = session.id
+    if (!validateSessionId(sessionId)) {
+      throw new Error('Invalid session ID format')
+    }
+
     const client = getConvexClient()
     const apiModule = await import('../../convex/_generated/api')
     const api = apiModule.api
-    // Convex IDs are strings at runtime, so we can safely cast
-    const sessionId = session.id as Id<'gameSessions'>
+
     await client.mutation(api.gameSessions.updateSession, {
       sessionId,
       isActive: session.isActive,
