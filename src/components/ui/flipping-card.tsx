@@ -50,7 +50,7 @@ export function FlippingCard({
   }, [resolvedTheme])
 
   const [flipped, setFlipped] = useState(false)
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const containerRef = useRef<HTMLButtonElement | null>(null)
   const frameRequestRef = useRef<number | null>(null)
   const pendingPointer = useRef<{ x: number; y: number } | null>(null)
   const tiltRef = useRef<HTMLDivElement | null>(null)
@@ -76,7 +76,7 @@ export function FlippingCard({
   }, [flipped])
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
         handleToggle()
@@ -144,7 +144,7 @@ export function FlippingCard({
   )
 
   const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
+    (e: React.PointerEvent<HTMLButtonElement>) => {
       if (e.pointerType !== 'mouse') return
       pendingPointer.current = { x: e.clientX, y: e.clientY }
       if (frameRequestRef.current != null) return
@@ -171,10 +171,9 @@ export function FlippingCard({
   }, [])
 
   return (
-    <div
+    <button
       ref={containerRef}
-      role="button"
-      tabIndex={0}
+      type="button"
       aria-pressed={flipped}
       aria-label={ariaLabel}
       data-flipped={flipped ? 'true' : 'false'}
@@ -183,7 +182,7 @@ export function FlippingCard({
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       className={cn(
-        'group relative w-full aspect-[16/10] cursor-pointer select-none outline-hidden [perspective:1200px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary',
+        'group relative w-full aspect-16/10 cursor-pointer select-none outline-hidden perspective-distant focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary',
         className,
       )}>
       <div ref={tiltRef} className="relative h-full w-full will-change-transform">
@@ -222,6 +221,6 @@ export function FlippingCard({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }

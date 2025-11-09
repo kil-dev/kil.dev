@@ -74,7 +74,7 @@ export function buildAllAchievementsPresenceScript(): string {
     const attribute = `data-achievement-${toKebabCase(id)}`
     const cfg = { cookieName, key: id, attribute }
     const serializedCfg = JSON.stringify(cfg)
-      .replaceAll('<', String.raw`\u003c`)
+      .replaceAll('<', String.raw`\u003C`)
       .replaceAll('\u2028', String.raw`\u2028`)
       .replaceAll('\u2029', String.raw`\u2029`)
     calls.push(`;try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(${serializedCfg})}catch(e){}`)
@@ -90,7 +90,7 @@ export function buildAllAchievementsPresenceScript(): string {
     if (!Object.hasOwn(ACHIEVEMENTS, key)) continue
     const cfg = { cookieName, key, attribute }
     const serializedCfg = JSON.stringify(cfg)
-      .replaceAll('<', String.raw`\u003c`)
+      .replaceAll('<', String.raw`\u003C`)
       .replaceAll('\u2028', String.raw`\u2028`)
       .replaceAll('\u2029', String.raw`\u2029`)
     calls.push(`;try{window.PresenceRuntime&&window.PresenceRuntime.initPresence(${serializedCfg})}catch(e){}`)

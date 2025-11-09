@@ -13,7 +13,7 @@
 - **Framework**: Next.js 15 (App Router, RSC)
 - **UI**: React 19, Tailwind CSS v4, Radix UI, shadcn/ui
 - **Analytics/UX**: PostHog
-- **Lang/Tooling**: TypeScript, ESLint, Prettier, Bun
+- **Lang/Tooling**: TypeScript, Oxlint, Prettier, Bun
 
 ## Getting started
 

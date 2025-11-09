@@ -410,6 +410,12 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
           if ((e.target as HTMLElement).closest('[data-resize-handle]')) return
           focusInput()
         }}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            if ((e.target as HTMLElement).closest('[data-resize-handle]')) return
+            focusInput()
+          }
+        }}
         onTransitionEnd={e => {
           if (isClosing && e.target === e.currentTarget) onRequestClose()
         }}
@@ -437,7 +443,6 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
             onKeyDown={handleInputKeyDown}
             className="bg-transparent text-green-400 outline-hidden flex-1 placeholder:text-green-700"
             aria-label="Console input"
-            autoFocus
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}

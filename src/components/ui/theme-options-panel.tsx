@@ -54,10 +54,12 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
               exit: { opacity: 0, y: -2 },
             }}>
             <motion.label
+              htmlFor="theme-panel-seasonal-overlays"
               variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
               className="flex items-center justify-between gap-2 select-none w-full">
               <span>Seasonal overlays</span>
               <MotionSwitch
+                id="theme-panel-seasonal-overlays"
                 checked={seasonalOverlaysEnabled}
                 onCheckedChange={setSeasonalOverlaysEnabled}
                 aria-label="Seasonal overlays"
@@ -65,10 +67,12 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
               />
             </motion.label>
             <motion.label
+              htmlFor="theme-panel-headshot"
               variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
               className="flex items-center justify-between gap-2 select-none w-full">
               <span>Themed headshot</span>
               <MotionSwitch
+                id="theme-panel-headshot"
                 checked={!disableThemeHeadshot}
                 onCheckedChange={v => setDisableThemeHeadshot(!v)}
                 aria-label="Themed headshot"
@@ -90,6 +94,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                 <>
                   {visualTheme === 'christmas' && (
                     <motion.label
+                      htmlFor="theme-panel-snow"
                       variants={{
                         hidden: { opacity: 0, y: -2 },
                         show: { opacity: 1, y: 0 },
@@ -98,6 +103,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                       className="flex items-center justify-between gap-2 select-none w-full">
                       <span>Snow</span>
                       <MotionSwitch
+                        id="theme-panel-snow"
                         checked={!disableSnow}
                         onCheckedChange={v => setDisableSnow(!v)}
                         aria-label="Snow"
@@ -107,6 +113,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                   )}
                   {visualTheme === 'matrix' && (
                     <motion.label
+                      htmlFor="theme-panel-code-rain"
                       variants={{
                         hidden: { opacity: 0, y: -2 },
                         show: { opacity: 1, y: 0 },
@@ -115,6 +122,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                       className="flex items-center justify-between gap-2 select-none w-full">
                       <span>Code rain</span>
                       <MotionSwitch
+                        id="theme-panel-code-rain"
                         checked={!disableCodeRain}
                         onCheckedChange={v => setDisableCodeRain(!v)}
                         aria-label="Code rain"
@@ -128,6 +136,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                     return (
                       themeHasGrid && (
                         <motion.label
+                          htmlFor="theme-panel-grid-lights"
                           variants={{
                             hidden: { opacity: 0, y: -2 },
                             show: { opacity: 1, y: 0 },
@@ -136,6 +145,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                           className="flex items-center justify-between gap-2 select-none w-full">
                           <span>Grid lights</span>
                           <MotionSwitch
+                            id="theme-panel-grid-lights"
                             checked={!disableGridLights}
                             onCheckedChange={v => setDisableGridLights(!v)}
                             aria-label="Grid lights"
@@ -179,18 +189,20 @@ export function ThemeOptionsSheet() {
     <div className="w-full text-xs text-right">
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">Theme Options</div>
       <div className="p-2 flex flex-col gap-2">
-        <label className="flex items-center justify-between gap-2 select-none w-full">
+        <label htmlFor="theme-seasonal-overlays" className="flex items-center justify-between gap-2 select-none w-full">
           <span>Seasonal overlays</span>
           <MotionSwitch
+            id="theme-seasonal-overlays"
             checked={seasonalOverlaysEnabled}
             onCheckedChange={setSeasonalOverlaysEnabled}
             aria-label="Seasonal overlays"
             size="md"
           />
         </label>
-        <label className="flex items-center justify-between gap-2 select-none w-full">
+        <label htmlFor="theme-headshot" className="flex items-center justify-between gap-2 select-none w-full">
           <span>Themed headshot</span>
           <MotionSwitch
+            id="theme-headshot"
             checked={!disableThemeHeadshot}
             onCheckedChange={v => setDisableThemeHeadshot(!v)}
             aria-label="Themed headshot"
@@ -211,9 +223,10 @@ export function ThemeOptionsSheet() {
           return (
             <>
               {visualTheme === 'christmas' && (
-                <label className="flex items-center justify-between gap-2 select-none w-full">
+                <label htmlFor="theme-snow" className="flex items-center justify-between gap-2 select-none w-full">
                   <span>Snow</span>
                   <MotionSwitch
+                    id="theme-snow"
                     checked={!disableSnow}
                     onCheckedChange={v => setDisableSnow(!v)}
                     aria-label="Snow"
@@ -222,9 +235,10 @@ export function ThemeOptionsSheet() {
                 </label>
               )}
               {visualTheme === 'matrix' && (
-                <label className="flex items-center justify-between gap-2 select-none w-full">
+                <label htmlFor="theme-code-rain" className="flex items-center justify-between gap-2 select-none w-full">
                   <span>Code rain</span>
                   <MotionSwitch
+                    id="theme-code-rain"
                     checked={!disableCodeRain}
                     onCheckedChange={v => setDisableCodeRain(!v)}
                     aria-label="Code rain"
@@ -237,9 +251,12 @@ export function ThemeOptionsSheet() {
                 const themeHasGrid = entry ? !('disableGridLights' in entry && entry.disableGridLights) : true
                 return (
                   themeHasGrid && (
-                    <label className="flex items-center justify-between gap-2 select-none w-full">
+                    <label
+                      htmlFor="theme-grid-lights"
+                      className="flex items-center justify-between gap-2 select-none w-full">
                       <span>Grid lights</span>
                       <MotionSwitch
+                        id="theme-grid-lights"
                         checked={!disableGridLights}
                         onCheckedChange={v => setDisableGridLights(!v)}
                         aria-label="Grid lights"

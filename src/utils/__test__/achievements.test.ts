@@ -286,8 +286,8 @@ describe('buildAllAchievementsPresenceScript', () => {
     // Should escape < characters to prevent XSS
     expect(result).not.toContain('<script')
     // Check for proper escaping
-    if (result.includes(String.raw`\u003c`)) {
-      expect(result).toContain(String.raw`\u003c`)
+    if (result.includes(String.raw`\u003C`)) {
+      expect(result).toContain(String.raw`\u003C`)
     }
   })
 

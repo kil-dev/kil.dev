@@ -105,7 +105,7 @@ export function ProfileImage() {
   }, [])
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
+    (event: KeyboardEvent<HTMLButtonElement>) => {
       if (event.key !== 'Enter' && event.key !== ' ') return
       event.preventDefault()
       if (isGrumpy) return
@@ -158,10 +158,9 @@ export function ProfileImage() {
   }, [])
 
   return (
-    <div
+    <button
+      type="button"
       className={`group relative order-1 mx-auto w-full max-w-md lg:order-2 lg:mx-0 select-none ${getAnimationClass(isAnimating, hasAnimated, isReturning)}`}
-      role="button"
-      tabIndex={0}
       aria-pressed={isGrumpy}
       aria-label="Toggle grumpy profile image"
       onClick={handleClick}
@@ -214,6 +213,6 @@ export function ProfileImage() {
           role="presentation"
         />
       </div>
-    </div>
+    </button>
   )
 }
