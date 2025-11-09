@@ -1,10 +1,10 @@
-import { Providers } from '@/components/providers/providers'
-import '@/styles/globals.css'
 import { Background } from '@/components/layout/background'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { Providers } from '@/components/providers/providers'
 import { SecretConsoleLoader } from '@/components/secret-console/secret-console-loader'
 import { PROFILE_IMAGE_ALT_DOMAINS } from '@/lib/alt-domains'
+import '@/styles/globals.css'
 import { buildAllAchievementsPresenceScript } from '@/utils/achievements'
 import {
   PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE,
