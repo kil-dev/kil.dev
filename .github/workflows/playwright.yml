@@ -44,7 +44,11 @@ jobs:
       - name: Run Playwright tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         run: bunx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
-          SKIP_ENV_VALIDATION: true
+          SKIP_ENV_VALIDATION: "1"
+          NODE_ENV: "production"
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_PUBLIC_POSTHOG_KEY: ""
+          NEXT_PUBLIC_POSTHOG_HOST: ""
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
 
