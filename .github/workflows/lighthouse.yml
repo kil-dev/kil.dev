@@ -51,6 +51,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
           NEXT_PUBLIC_POSTHOG_KEY: ""
           NEXT_PUBLIC_POSTHOG_HOST: ""
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
 
       - name: Run Lighthouse CI
         id: lhci
@@ -61,4 +62,5 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
           NEXT_PUBLIC_POSTHOG_KEY: ""
           NEXT_PUBLIC_POSTHOG_HOST: ""
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         run: bunx -y @lhci/cli@0.15.x autorun --config=.lighthouserc.json

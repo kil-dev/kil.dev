@@ -7,7 +7,17 @@ const ACHIEVEMENTS_COOKIE_NAME = 'kil.dev_achievements_v1'
  * Check if an achievement is unlocked by reading the cookie
  */
 export async function expectAchievementCookieContains(page: Page, achievementId: string) {
-  const cookies = await page.context().cookies()
+  if (page.isClosed()) {
+    throw new Error('Page is closed, cannot read cookies')
+  }
+
+  let cookies
+  try {
+    cookies = await page.context().cookies()
+  } catch (error) {
+    throw new Error(`Failed to read cookies: ${error instanceof Error ? error.message : String(error)}`)
+  }
+
   const achievementCookie = cookies.find(c => c.name === ACHIEVEMENTS_COOKIE_NAME)
   expect(achievementCookie, `Achievement cookie should exist`).toBeDefined()
 
@@ -26,7 +36,19 @@ export async function waitForAchievementCookie(page: Page, achievementId: string
   await expect
     .poll(
       async () => {
-        const cookies = await page.context().cookies()
+        // Check if page/context is still valid before accessing cookies
+        if (page.isClosed()) {
+          throw new Error('Page is closed, cannot read cookies')
+        }
+
+        let cookies
+        try {
+          cookies = await page.context().cookies()
+        } catch (error) {
+          // If context is invalid, throw to stop polling
+          throw new Error(`Browser context invalid: ${error instanceof Error ? error.message : String(error)}`)
+        }
+
         const c = cookies.find(c => c.name === ACHIEVEMENTS_COOKIE_NAME)
         if (!c) return false
         try {
@@ -90,17 +112,39 @@ export async function simulateKonamiCode(page: Page) {
 
   for (const key of sequence) {
     await page.keyboard.press(key)
+    // Small delay between key presses to simulate real typing
     await page.waitForTimeout(50)
   }
 
-  // Wait for animation to trigger
-  await page.waitForTimeout(500)
+  // Check if we're on the home page - Konami code only works there
+  const isHomePage = await page.evaluate(() => globalThis.window.location.pathname === '/')
+
+  await (isHomePage
+    ? // Wait for animation to trigger by checking sessionStorage
+      page
+        .waitForFunction(() => sessionStorage.getItem('konami-animated') === 'true', { timeout: 2000 })
+        .catch(async () => {
+          // Fallback: if sessionStorage check fails, wait a bit
+          // But check if page is still open first
+          if (!page.isClosed()) {
+            await page.waitForTimeout(300)
+          }
+        })
+    : // On non-home pages, Konami code won't trigger, so just wait a short time
+      // for any potential processing
+      page.waitForTimeout(100))
 }
 
 /**
  * Check if confetti is likely playing (heuristic: canvas element presence)
+ * Waits for achievement popup to be visible first, then checks for confetti canvas
  */
 export async function expectConfettiLikely(page: Page) {
+  // First wait for the achievement popup to appear (confetti is triggered when popup becomes visible)
+  await page.waitForSelector('[data-achievement-popup]', { state: 'visible', timeout: 3000 }).catch(() => {
+    // If popup doesn't appear, that's okay - confetti might still be triggered
+  })
+
   // Confetti library adds canvas elements to the body
   // Wait up to ~2s for confetti to mount after popup visible
   const deadline = Date.now() + 2000
@@ -164,7 +208,8 @@ export async function flipAllPetCards(page: Page) {
   // Scroll to pets section
   const petsSection = page.getByText('These are my pets')
   await petsSection.scrollIntoViewIfNeeded()
-  await page.waitForTimeout(300)
+  // Wait for section to be visible
+  await expect(petsSection).toBeVisible({ timeout: 1000 })
 
   // Find all pet cards and flip them
   const petCards = page.locator('[aria-label*="Toggle details for"]')
@@ -174,8 +219,21 @@ export async function flipAllPetCards(page: Page) {
     const card = petCards.nth(i)
     await card.scrollIntoViewIfNeeded()
     await card.click()
-    await page.waitForTimeout(400) // Wait for flip animation
+    // Small delay for flip animation (animations are disabled but card state needs to update)
+    await page.waitForTimeout(100)
   }
 
-  await page.waitForTimeout(500)
+  // Wait for achievement to be processed
+  await page
+    .waitForFunction(
+      () => {
+        const cookies = document.cookie.split(';')
+        return cookies.some(c => c.includes('kil.dev_achievements_v1') && c.includes('PET_PARADE'))
+      },
+      { timeout: 2000 },
+    )
+    .catch(() => {
+      // Fallback: if cookie check fails, wait a bit
+      return page.waitForTimeout(300)
+    })
 }

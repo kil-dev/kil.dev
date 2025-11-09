@@ -12,13 +12,15 @@ export async function clearState(page: Page) {
   const currentUrl = page.url()
   if (!currentUrl || currentUrl === 'about:blank' || currentUrl === '') {
     try {
-      await page.goto('/')
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
     } catch {
-      // Retry once after a short delay if server isn't ready yet
-      await page.waitForTimeout(300)
+      // If server isn't ready, wait for it with a proper check
       try {
-        await page.goto('/')
-      } catch {}
+        await page.waitForLoadState('domcontentloaded', { timeout: 2000 })
+      } catch {
+        // If still not ready, try navigation again
+        await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 5000 })
+      }
     }
   }
 
@@ -109,18 +111,28 @@ export async function disableSeasonalOverlays(page: Page) {
 }
 
 /**
- * Wait for page to be idle (useful after navigation or animation-heavy actions)
+ * Wait for React hydration to complete by checking for page readiness.
+ * Uses proper waiting strategies instead of arbitrary timeouts.
+ * This waits for DOMContentLoaded and main content visibility, then gives React
+ * a brief moment to hydrate and attach event listeners.
  */
-export async function waitForIdle(page: Page, timeout = 500) {
-  await page.waitForTimeout(timeout)
-}
+export async function waitForHydration(page: Page, timeout = 2000) {
+  // Wait for DOM to be ready (should already be done, but ensure it)
+  try {
+    await page.waitForLoadState('domcontentloaded', { timeout: Math.min(timeout, 1000) })
+  } catch {
+    // If already loaded, continue
+  }
 
-/**
- * Best-effort hydration wait. Many client-side listeners attach shortly after DOMContentLoaded.
- * Keep this modest to balance stability and speed.
- */
-export async function waitForHydration(page: Page, timeout = 800) {
-  await page.waitForTimeout(timeout)
+  // Wait for main content to be visible (ensures SSR content is rendered)
+  const main = page.getByRole('main')
+  await expect(main).toBeVisible({ timeout })
+
+  // Give React a moment to hydrate and attach event listeners
+  // This is a balance: too short and listeners aren't attached, too long and tests are slow
+  // 400ms is typically enough for React hydration after DOMContentLoaded
+  // Reduced from 800ms to improve test speed while maintaining stability
+  await page.waitForTimeout(400)
 }
 
 /**
@@ -133,12 +145,15 @@ export async function waitForMain(page: Page) {
 }
 
 /**
- * Navigate and wait for DOMContentLoaded + main landmark visibility.
+ * Navigate and wait for DOMContentLoaded + main landmark visibility + hydration.
+ * Optimized to use proper waiting strategies instead of arbitrary timeouts.
  */
 export async function gotoAndWaitForMain(page: Page, url: string) {
   await page.goto(url, { waitUntil: 'domcontentloaded' })
   await waitForMain(page)
-  await waitForHydration(page)
+  // Wait for React hydration - give it time to attach event listeners
+  // Reduced from 800ms to 400ms to improve test speed
+  await page.waitForTimeout(400)
 }
 
 /**
@@ -149,7 +164,8 @@ export async function clickAndWaitForURLThenMain(page: Page, element: Locator, u
   await Promise.all([page.waitForURL(url), element.click()])
   await page.waitForLoadState('domcontentloaded')
   await waitForMain(page)
-  await waitForHydration(page)
+  // Use a shorter timeout for hydration since we've already waited for main
+  await waitForHydration(page, 1000)
 }
 
 /**
@@ -158,7 +174,8 @@ export async function clickAndWaitForURLThenMain(page: Page, element: Locator, u
 export async function waitForDomContentAndMain(page: Page) {
   await page.waitForLoadState('domcontentloaded')
   await waitForMain(page)
-  await waitForHydration(page)
+  // Use a shorter timeout for hydration since we've already waited for main
+  await waitForHydration(page, 1000)
 }
 
 /**
@@ -166,9 +183,12 @@ export async function waitForDomContentAndMain(page: Page) {
  */
 export async function openThemeMenu(page: Page) {
   // Select by aria-controls as the button has no accessible name
-  const themeButton = page.locator('button[aria-controls="theme-options"]')
-  await themeButton.first().click()
-  await page.waitForSelector('[role="menu"][aria-label="Select theme"]', { state: 'visible' })
+  const themeButton = page.locator('button[aria-controls="theme-options"]').first()
+  // Wait for button to be visible and enabled before clicking
+  await expect(themeButton).toBeVisible({ timeout: 5000 })
+  await themeButton.click()
+  // Wait for menu to be visible instead of using arbitrary timeout
+  await page.waitForSelector('[role="menu"][aria-label="Select theme"]', { state: 'visible', timeout: 2000 })
 }
 
 /**
@@ -186,7 +206,8 @@ export async function closeThemeMenu(page: Page) {
 
   const trigger = page.locator('button[aria-controls="theme-options"]').first()
   await trigger.click()
-  await page.waitForTimeout(300)
+  // Wait for menu to close instead of arbitrary timeout
+  await page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 1000 })
 }
 
 /**
@@ -196,7 +217,20 @@ export async function toggleTheme(page: Page, themeName: string) {
   await openThemeMenu(page)
   const themeOption = page.getByRole('menuitem', { name: themeName })
   await themeOption.click()
-  await page.waitForTimeout(500)
+  // Wait for theme to be applied by checking localStorage or DOM attribute
+  await page
+    .waitForFunction(
+      (name: string) => {
+        const stored = localStorage.getItem('theme')
+        return stored === name || document.documentElement.dataset.themePref === name
+      },
+      themeName,
+      { timeout: 2000 },
+    )
+    .catch(() => {
+      // Fallback: wait for menu to close
+      return page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 1000 })
+    })
 }
 
 /**

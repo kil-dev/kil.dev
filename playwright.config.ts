@@ -2,10 +2,10 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: 30000,
+  timeout: 15000,
   expect: { timeout: 5000 },
   fullyParallel: true,
-  retries: process.env.CI ? 3 : 0,
+  retries: process.env.CI ? 2 : 0,
   workers: undefined,
   reporter: process.env.CI ? 'blob' : [['list'], ['html', { open: 'never' }]],
   use: {
@@ -23,8 +23,15 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     env: {
+      // Spread existing env so Next.js can read .env.local automatically
+      ...process.env,
+      // Override specific values for test environment
+      SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? '1',
       NEXT_TELEMETRY_DISABLED: '1',
       NEXT_PUBLIC_POSTHOG_DISABLED: '1',
+      // Ensure PostHog env vars are set (even if dummy values) to avoid validation errors
+      NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? 'test-key',
+      NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'test-host',
     },
   },
   projects: [
@@ -32,6 +39,8 @@ export default defineConfig({
     {
       name: 'chromium-mobile',
       use: { ...devices.Pixel5, viewport: devices.Pixel5?.viewport },
+      // Exclude snake game tests - not available on mobile
+      testIgnore: ['**/flows/snake-leaderboard.spec.ts'],
     },
   ],
 })

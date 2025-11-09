@@ -1,42 +1,37 @@
-import { CheckScoreResponseSchema, LeaderboardResponseSchema, SubmitScoreResponseSchema } from '@/lib/api-schemas'
+'use client'
+
+import { CheckScoreResponseSchema } from '@/lib/api-schemas'
 import type { LeaderboardEntry } from '@/types/leaderboard'
 import { computeSha256Hex } from '@/utils/crypto'
 import { stableStringify } from '@/utils/stable-stringify'
+import { useAction, useQuery } from 'convex/react'
 import { useCallback, useState } from 'react'
+import { api } from '../../convex/_generated/api'
+import type { Id } from '../../convex/_generated/dataModel'
 
 const SUBMIT_HIDE_NAME_TIMEOUT_MS = 1000
 
 export function useLeaderboard() {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-  const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false)
+  // Use Convex's real-time query hook for leaderboard
+  const convexLeaderboard = useQuery(api.scores.getLeaderboard) ?? []
+
+  // Transform Convex data to match LeaderboardEntry interface
+  const leaderboard: LeaderboardEntry[] = convexLeaderboard
+  const isLoadingLeaderboard = convexLeaderboard === undefined
+
+  // Use Convex action for score submission with signature verification
+  const submitScoreAction = useAction(api.scoreSubmission.verifyAndSubmitScore)
+
   const [isSubmittingScore, setIsSubmittingScore] = useState(false)
   const [showNameInput, setShowNameInput] = useState(false)
   const [playerName, setPlayerName] = useState(['A', 'A', 'A'])
   const [nameInputPosition, setNameInputPosition] = useState(0)
+  const [optimisticScore, setOptimisticScore] = useState<LeaderboardEntry | null>(null)
 
-  const fetchLeaderboard = useCallback(async () => {
-    setIsLoadingLeaderboard(true)
+  // Check qualification using API route (can be optimized further with useQuery)
+  const checkScoreQualification = useCallback(async (currentScore: number): Promise<boolean> => {
     try {
-      const response = await fetch('/api/scores')
-      const jsonData: unknown = await response.json()
-      const parseResult = LeaderboardResponseSchema.safeParse(jsonData)
-
-      if (!parseResult.success) {
-        console.error('Failed to parse leaderboard response:', parseResult.error)
-        return
-      }
-
-      const data = parseResult.data
-      if (data.success) setLeaderboard(data.leaderboard)
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error)
-    } finally {
-      setIsLoadingLeaderboard(false)
-    }
-  }, [])
-
-  const checkScoreQualification = useCallback(async (currentScore: number) => {
-    try {
+      console.log('Checking qualification for score:', currentScore)
       const response = await fetch(`/api/scores/check/${currentScore}`)
       const jsonData: unknown = await response.json()
       const parsed = CheckScoreResponseSchema.safeParse(jsonData)
@@ -53,63 +48,92 @@ export function useLeaderboard() {
 
   const submitScore = useCallback(
     async (score: number, sessionId?: string, secret?: string) => {
-      if (isSubmittingScore) return
+      if (isSubmittingScore || !sessionId || !secret) return
       setIsSubmittingScore(true)
+
+      // Optimistic update: add score to local leaderboard immediately
+      const sanitizedName = playerName
+        .join('')
+        .toUpperCase()
+        .replaceAll(/[^A-Z]/g, '')
+        .slice(0, 3)
+        .padEnd(3, 'A')
+      const optimisticEntry: LeaderboardEntry = {
+        id: `optimistic-${Date.now()}`,
+        name: sanitizedName,
+        score,
+        timestamp: Date.now(),
+      }
+      setOptimisticScore(optimisticEntry)
+
       try {
-        let body: Record<string, unknown> = { name: playerName.join(''), score }
-        if (sessionId && secret) {
-          const timestamp = Date.now()
-          const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('')
-          const signingPayload = { sessionId, name: playerName.join(''), score, timestamp, nonce }
-          const signature = await computeSha256Hex(`${secret}.${stableStringify(signingPayload)}`)
-          body = { ...signingPayload, signature }
-        }
+        const timestamp = Date.now()
+        const signingPayload = { sessionId, name: playerName.join(''), score, timestamp }
+        const signature = await computeSha256Hex(`${secret}.${stableStringify(signingPayload)}`)
 
-        const response = await fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+        // Convert sessionId string to Convex Id type
+        const sessionIdAsId = sessionId as Id<'gameSessions'>
+
+        const result = await submitScoreAction({
+          sessionId: sessionIdAsId,
+          name: playerName.join(''),
+          score,
+          timestamp,
+          signature,
         })
-        const jsonData: unknown = await response.json()
-        const parseResult = SubmitScoreResponseSchema.safeParse(jsonData)
 
-        if (!parseResult.success) {
-          console.error('Failed to parse score submission response:', parseResult.error)
-          setShowNameInput(false)
-          return
-        }
-
-        const data = parseResult.data
-        if (data.success) {
-          if (data.leaderboard) setLeaderboard(data.leaderboard)
+        if (result.success) {
+          // Leaderboard will automatically update via Convex subscription
+          // Remove optimistic entry - real one will appear
+          setOptimisticScore(null)
           setTimeout(() => setShowNameInput(false), SUBMIT_HIDE_NAME_TIMEOUT_MS)
         } else {
-          console.error('Failed to submit score:', data.message)
+          // Remove optimistic entry on failure
+          setOptimisticScore(null)
+          console.error('Failed to submit score:', result.message)
           setShowNameInput(false)
         }
       } catch (error) {
+        // Remove optimistic entry on error
+        setOptimisticScore(null)
         console.error('Error submitting score:', error)
         setShowNameInput(false)
       } finally {
         setIsSubmittingScore(false)
       }
     },
-    [isSubmittingScore, playerName],
+    [isSubmittingScore, playerName, submitScoreAction],
   )
+
+  // Merge optimistic score into leaderboard if present
+  const displayLeaderboard = optimisticScore
+    ? [...leaderboard, optimisticScore]
+        .toSorted((a, b) => {
+          if (b.score !== a.score) return b.score - a.score
+          return a.timestamp - b.timestamp
+        })
+        .slice(0, 10)
+    : leaderboard
 
   const handleGameOverFlow = useCallback(
     async (score: number) => {
-      await fetchLeaderboard()
-      const qualifies = await checkScoreQualification(score)
+      console.log('handleGameOverFlow called with score:', score)
+      // Check qualification - leaderboard updates automatically via Convex
+      const qualifiesResult = await checkScoreQualification(score)
+      console.log('Score qualification result:', qualifiesResult, 'type:', typeof qualifiesResult)
+      // Ensure we're checking a boolean value
+      const qualifies = Boolean(qualifiesResult)
+      console.log('Qualifies (boolean):', qualifies)
       if (qualifies) {
+        console.log('Score qualifies! Showing name input')
         setShowNameInput(true)
         setPlayerName(['A', 'A', 'A'])
         setNameInputPosition(0)
+      } else {
+        console.log('Score does not qualify for leaderboard. Score:', score, 'Qualifies result:', qualifiesResult)
       }
     },
-    [fetchLeaderboard, checkScoreQualification],
+    [checkScoreQualification],
   )
 
   const handleNameInputKey = useCallback(
@@ -152,7 +176,7 @@ export function useLeaderboard() {
   )
 
   return {
-    leaderboard,
+    leaderboard: displayLeaderboard,
     isLoadingLeaderboard,
     isSubmittingScore,
     showNameInput,
@@ -161,7 +185,6 @@ export function useLeaderboard() {
     setPlayerName,
     setNameInputPosition,
     setShowNameInput,
-    fetchLeaderboard,
     checkScoreQualification,
     submitScore,
     handleGameOverFlow,

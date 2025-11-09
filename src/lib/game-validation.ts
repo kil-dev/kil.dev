@@ -1,6 +1,8 @@
-import { redis } from '@/lib/redis'
+import { env } from '@/env'
 import { stableStringify } from '@/utils/stable-stringify'
+import { ConvexHttpClient } from 'convex/browser'
 import { createHash, randomBytes } from 'node:crypto'
+import type { Id } from '../../convex/_generated/dataModel'
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'
 
@@ -27,22 +29,6 @@ function computeSignatureHex(secret: string, payloadString: string): string {
   return createHash('sha256').update(`${secret}.${payloadString}`).digest('hex')
 }
 
-const NONCE_KEY_PREFIX = 'game:nonce:'
-const NONCE_TTL_SECONDS = 60 * 5 // 5 minutes
-
-async function reserveNonceOnce(nonce: string): Promise<boolean> {
-  if (!nonce) return false
-  const key = `${NONCE_KEY_PREFIX}${nonce}`
-  try {
-    // NX set ensures we only accept the nonce once
-    const setRes = await redis.set(key, '1', { nx: true, ex: NONCE_TTL_SECONDS })
-    return setRes === 'OK'
-  } catch {
-    // In case of Redis issues, fail-closed in production
-    return process.env.NODE_ENV !== 'production'
-  }
-}
-
 // Tunable validation thresholds (relaxed in development)
 const IS_DEV = process.env.NODE_ENV !== 'production'
 const MIN_DURATION_MS = IS_DEV ? 500 : 2000
@@ -50,114 +36,151 @@ const MIN_MOVE_EVENTS = IS_DEV ? 3 : 5
 const MIN_MOVE_INTERVAL_MS = IS_DEV ? 30 : 50
 const MAX_FOOD_RATE_MS = IS_DEV ? 80 : 200
 
-// Redis key and TTL configuration
-const SESSION_KEY_PREFIX = 'game:session:'
-const SESSION_TTL_SECONDS = 60 * 60 // 1 hour
+// Convex client factory - creates a fresh instance per request
+function getConvexClient(): ConvexHttpClient {
+  if (!env.NEXT_PUBLIC_CONVEX_URL) {
+    throw new Error('NEXT_PUBLIC_CONVEX_URL is not set')
+  }
+  const client = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL)
+  if (env.CONVEX_DEPLOY_KEY) {
+    client.setAuth(env.CONVEX_DEPLOY_KEY)
+  }
+  return client
+}
 
-// In-memory fallback store (useful in dev/local or if Redis is temporarily unavailable)
-const memorySessions = new Map<string, GameSession>()
+/**
+ * Validates that a string is a valid sessionId format.
+ * Convex IDs are validated server-side, but we check basic format here.
+ */
+function validateSessionId(sessionId: string): sessionId is Id<'gameSessions'> {
+  // Basic validation: non-empty string
+  // Convex will validate the actual ID format server-side
+  return typeof sessionId === 'string' && sessionId.length > 0
+}
 
-function setMemorySession(session: GameSession) {
-  memorySessions.set(session.id, session)
-  // Best-effort TTL cleanup
-  setTimeout(
-    () => {
-      const existing = memorySessions.get(session.id)
-      if (existing && Date.now() - existing.createdAt >= SESSION_TTL_SECONDS * 1000) {
-        memorySessions.delete(session.id)
-      }
-    },
-    SESSION_TTL_SECONDS * 1000 + 1000,
+/**
+ * Type matching the return type of getSessionPublic query.
+ * This matches the return validator defined in convex/gameSessions.ts
+ */
+type SessionQueryResult = {
+  id: string
+  secret: string
+  seed: number
+  createdAt: number
+  isActive: boolean
+  validatedScore?: number
+} | null
+
+/**
+ * Type guard to validate the session query result structure.
+ * Checks that all required properties exist and have correct types.
+ */
+function isValidSessionResult(result: unknown): result is NonNullable<SessionQueryResult> {
+  if (!result || typeof result !== 'object') {
+    return false
+  }
+  // Check properties without type assertion by using 'in' operator and type narrowing
+  if (
+    !('id' in result) ||
+    !('secret' in result) ||
+    !('seed' in result) ||
+    !('createdAt' in result) ||
+    !('isActive' in result)
+  ) {
+    return false
+  }
+  return (
+    typeof result.id === 'string' &&
+    typeof result.secret === 'string' &&
+    typeof result.seed === 'number' &&
+    typeof result.createdAt === 'number' &&
+    typeof result.isActive === 'boolean' &&
+    ('validatedScore' in result
+      ? typeof result.validatedScore === 'number' || result.validatedScore === undefined
+      : true)
   )
 }
 
-type RetryOptions = {
-  attempts?: number
-  initialDelayMs?: number
-  maxDelayMs?: number
-}
-
-async function withRetry<T>(fn: () => Promise<T>, options?: RetryOptions): Promise<T> {
-  const attempts = options?.attempts ?? 3
-  const initialDelayMs = options?.initialDelayMs ?? 100
-  const maxDelayMs = options?.maxDelayMs ?? 1000
-
-  let lastError: unknown
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    try {
-      return await fn()
-    } catch (error) {
-      lastError = error
-      const delay = Math.min(maxDelayMs, initialDelayMs * 2 ** attempt) + Math.floor(Math.random() * 50)
-      if (attempt === attempts - 1) break
-      await new Promise(resolve => setTimeout(resolve, delay))
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error('Unknown error during Redis operation')
-}
-
-function getSessionKey(sessionId: string): string {
-  return `${SESSION_KEY_PREFIX}${sessionId}`
-}
-
-async function createSession(session: GameSession): Promise<void> {
-  const key = getSessionKey(session.id)
-  try {
-    await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
-    // Also store in memory as a soft cache to avoid race/infra hiccups
-    setMemorySession(session)
-  } catch {
-    // Fallback to memory in dev
-    if (IS_DEV) setMemorySession(session)
-    else throw new Error('Failed to create session')
-  }
-}
-
 async function getSession(sessionId: string): Promise<GameSession | undefined> {
-  const key = getSessionKey(sessionId)
-  let raw: GameSession | null = null
   try {
-    raw = await withRetry(() => redis.get<GameSession>(key))
-  } catch {
-    const mem = memorySessions.get(sessionId)
-    if (mem) return mem
-    if (!IS_DEV) throw new Error('Failed to get session')
+    // Validate sessionId format before using it
+    if (!validateSessionId(sessionId)) {
+      return undefined
+    }
+
+    const client = getConvexClient()
+    const apiModule = await import('../../convex/_generated/api')
+    const api = apiModule.api
+
+    // Call query - ConvexHttpClient returns unknown, so we validate the result
+    const queryResult: unknown = await client.query(api.gameSessions.getSessionPublic, {
+      sessionId,
+    })
+
+    // Handle null/undefined case explicitly
+    if (!queryResult) {
+      return undefined
+    }
+
+    // Validate the result structure using type guard instead of type assertion
+    if (!isValidSessionResult(queryResult)) {
+      console.error('Invalid session data structure returned from Convex')
+      return undefined
+    }
+
+    // Now TypeScript knows queryResult is the correct type
+    return {
+      id: queryResult.id,
+      createdAt: queryResult.createdAt,
+      isActive: queryResult.isActive,
+      secret: queryResult.secret,
+      seed: queryResult.seed,
+      validatedScore: queryResult.validatedScore,
+    }
+  } catch (error) {
+    console.error('Failed to get session from Convex:', error)
     return undefined
   }
-  if (!raw) {
-    const mem = memorySessions.get(sessionId)
-    if (mem) return mem
-    return undefined
-  }
-  // If Upstash already deserialized JSON, return it directly
-  return raw
 }
 
 async function updateSession(session: GameSession): Promise<void> {
-  const key = getSessionKey(session.id)
   try {
-    await withRetry(() => redis.set(key, session, { ex: SESSION_TTL_SECONDS }))
-    setMemorySession(session)
-  } catch {
-    if (IS_DEV) setMemorySession(session)
-    else throw new Error('Failed to update session')
+    // Validate sessionId format before using it
+    const sessionId = session.id
+    if (!validateSessionId(sessionId)) {
+      throw new Error('Invalid session ID format')
+    }
+
+    const client = getConvexClient()
+    const apiModule = await import('../../convex/_generated/api')
+    const api = apiModule.api
+
+    await client.mutation(api.gameSessions.updateSession, {
+      sessionId,
+      isActive: session.isActive,
+      validatedScore: session.validatedScore,
+    })
+    console.log('Session updated in Convex:', session.id)
+  } catch (error) {
+    console.error('Failed to update session in Convex:', error)
+    throw new Error('Failed to update session')
   }
 }
 
 export async function createGameSession(): Promise<{ sessionId: string; secret: string; seed: number }> {
-  const sessionId = randomBytes(16).toString('hex')
   const secret = randomBytes(32).toString('hex')
   const seed = randomBytes(4).readUInt32BE(0)
 
-  const session: GameSession = {
-    id: sessionId,
-    createdAt: Date.now(),
-    isActive: true,
+  // Create session in Convex - Convex will generate the ID
+  const client = getConvexClient()
+  const apiModule = await import('../../convex/_generated/api')
+  const api = apiModule.api
+
+  // Call mutation that creates session and returns the ID
+  const sessionId = await client.mutation(api.gameSessions.createSessionWithId, {
     secret,
     seed,
-  }
-
-  await createSession(session)
+  })
 
   return { sessionId, secret, seed }
 }
@@ -256,12 +279,11 @@ export async function verifySignedScoreSubmission(
     name: string
     score: number
     timestamp: number
-    nonce: string
     signature: string
   },
   maxSkewMs = 2 * 60 * 1000, // 2 minutes
 ): Promise<{ success: boolean; message?: string }> {
-  const { sessionId, name, score, timestamp, nonce, signature } = params
+  const { sessionId, name, score, timestamp, signature } = params
   const session = await getSession(sessionId)
   if (!session) return { success: false, message: 'Invalid game session' }
   if (!sessionId || !name || typeof score !== 'number') return { success: false, message: 'Invalid payload' }
@@ -272,12 +294,8 @@ export async function verifySignedScoreSubmission(
     return { success: false, message: 'Stale or invalid timestamp' }
   }
 
-  // Nonce must be unique
-  const nonceOk = await reserveNonceOnce(nonce)
-  if (!nonceOk) return { success: false, message: 'Replay detected' }
-
   // Verify signature over stable payload
-  const payloadString = stableStringify({ sessionId, name, score, timestamp, nonce })
+  const payloadString = stableStringify({ sessionId, name, score, timestamp })
   const expected = computeSignatureHex(session.secret, payloadString)
   if (expected !== signature) return { success: false, message: 'Invalid signature' }
 
