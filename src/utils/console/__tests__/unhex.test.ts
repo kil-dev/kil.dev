@@ -20,6 +20,14 @@ describe('unhex command', () => {
     expect(output[0]).toBe('theme matrix')
   })
 
+  it('tolerates 0X (capital) prefixes and whitespace', () => {
+    const { env, output } = createMockEnv({
+      read: () => '0X74 68 65 6d 65 20 6d 61 74 72 69 78',
+    })
+    unhex.execute(['/tmp/fake.hex'], env)
+    expect(output[0]).toBe('theme matrix')
+  })
+
   it('errors on missing file', () => {
     const { env, output } = createMockEnv()
     unhex.execute(['/nope'], env)
