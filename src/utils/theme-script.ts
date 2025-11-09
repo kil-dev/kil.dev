@@ -68,7 +68,7 @@ function inRange(dt: Date, s: CompactDate, e: CompactDate): boolean {
 
 function getCookieTheme(): string | null {
   try {
-    const re = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.THEME}=([^;]+)`)
+    const re = new RegExp(String.raw`(?:^|;\s*)${COOKIE_KEYS.THEME}=([^;]+)`)
     const m = re.exec(document.cookie)
     return m ? decodeURIComponent(m[1]!) : null
   } catch {
@@ -115,7 +115,9 @@ function removeElementSoon(el: HTMLElement | null): void {
 
 function overlaysEnabledFromStorage(): boolean {
   try {
-    const match = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED}=([^;]+)`).exec(document.cookie)
+    const match = new RegExp(String.raw`(?:^|;\s*)${COOKIE_KEYS.SEASONAL_OVERLAYS_ENABLED}=([^;]+)`).exec(
+      document.cookie,
+    )
     if (match?.[1] === '0') return false
     if (match?.[1] === '1') return true
   } catch {}
@@ -129,7 +131,7 @@ function overlaysEnabledFromStorage(): boolean {
 
 function headshotsDisabledFromStorage(): boolean {
   try {
-    const match = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.DISABLE_THEME_HEADSHOT}=([^;]+)`).exec(document.cookie)
+    const match = new RegExp(String.raw`(?:^|;\s*)${COOKIE_KEYS.DISABLE_THEME_HEADSHOT}=([^;]+)`).exec(document.cookie)
     if (match?.[1] === '1') return true
     if (match?.[1] === '0') return false
   } catch {}
@@ -146,7 +148,9 @@ function detectHasThemeTapdance(root: HTMLElement): boolean {
     if (Object.hasOwn(root.dataset, 'hasThemeTapdance')) return true
   } catch {}
   try {
-    const cookieRegex = new RegExp(`(?:^|;\\s*)${COOKIE_KEYS.ACHIEVEMENTS.replaceAll('.', String.raw`\.`)}=([^;]+)`)
+    const cookieRegex = new RegExp(
+      String.raw`(?:^|;\s*)${COOKIE_KEYS.ACHIEVEMENTS.replaceAll('.', String.raw`\.`)}=([^;]+)`,
+    )
     const cookieMatch = cookieRegex.exec(document.cookie)
     const cookieValue = cookieMatch?.[1] ? decodeURIComponent(cookieMatch[1]) : ''
     return cookieValue.includes('THEME_TAPDANCE')
