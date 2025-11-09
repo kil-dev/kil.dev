@@ -32,8 +32,6 @@ export function CollapsibleHighlights({ item, skillsEntries }: CollapsibleHighli
     <Collapsible className="group/collapsible" open={open} onOpenChange={handleOpenChange}>
       <CollapsibleTrigger asChild>
         <span
-          role="button"
-          tabIndex={0}
           className="group inline-flex items-center gap-1 text-xs md:text-sm text-muted-foreground hover:text-foreground cursor-pointer select-none -ml-1 mt-1 outline-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           aria-label={`Toggle details for ${item.company}`}>
           Highlights and Skills

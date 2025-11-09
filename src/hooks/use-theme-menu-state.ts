@@ -105,7 +105,7 @@ export function useThemeMenuState(): UseThemeMenuStateResult {
       }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
-        const prevIndex = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
+        const prevIndex = currentIndex === -1 ? 0 : Math.max(0, currentIndex - 1)
         optionRefs.current[prevIndex]?.focus()
         return
       }

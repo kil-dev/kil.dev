@@ -3,7 +3,7 @@ import type { SecretConsoleCommand, SecretConsoleEnv } from '@/types/secret-cons
 function parseHexToUtf8(input: string): string {
   // Remove 0x prefixes, spaces, and newlines
   const cleaned = input
-    .replaceAll(/0x/gi, ' ')
+    .replaceAll('0x', ' ')
     .replaceAll(/[^0-9a-fA-F]/g, '')
     .toLowerCase()
 
