@@ -11,6 +11,8 @@
   semanticCommits: "enabled",
   semanticCommitType: "chore",
   semanticCommitScope: "deps",
+  automergeType: "pr",
+  automergeStrategy: "squash",
   packageRules: [
     {
       matchUpdateTypes: [
@@ -43,7 +45,17 @@
       matchDepTypes: [
         "dependencies"
       ],
-      minimumReleaseAge: "3 days",
+      minimumReleaseAge: "12h",
+    },
+    {
+      matchDepTypes: [
+        "dependencies"
+      ],
+      matchUpdateTypes: [
+        "minor"
+      ],
+      automerge: true,
+      minimumReleaseAge: "12h",
     },
     {
       matchDatasources: [
@@ -116,6 +128,7 @@
       "every weekend"
     ],
     automerge: true,
+    automergeType: "pr",
   },
   prConcurrentLimit: 0,
   prHourlyLimit: 0,
