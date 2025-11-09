@@ -13,7 +13,12 @@ import { SnowProvider } from './snow-provider'
 import { ThemeProvider } from './theme-provider'
 
 // Create Convex client for client-side usage
-const convex = new ConvexReactClient(env.NEXT_PUBLIC_CONVEX_URL)
+const convex = new ConvexReactClient(
+  env.NEXT_PUBLIC_CONVEX_URL ??
+    (() => {
+      throw new Error('NEXT_PUBLIC_CONVEX_URL is required. Ensure it is set in your environment variables.')
+    }),
+)
 
 export function Providers({
   children,
