@@ -75,14 +75,14 @@ test.describe('Navigation Flow', () => {
       // Open mobile menu (button toggles aria-label between Open/Close)
       const menuButton = page.locator('button[aria-controls="mobile-nav-arc"]')
       await expect(menuButton).toBeVisible()
-      
+
       // Wait for menu items to appear after clicking (more reliable than checking aria-expanded)
       const mobileNav = page.locator('#mobile-nav-arc[role="menu"]')
       await menuButton.click()
-      
+
       // Wait for menu to be visible - this ensures React has updated the DOM
       await expect(mobileNav).toBeVisible({ timeout: 2000 })
-      
+
       // Verify aria-expanded is set correctly after menu is visible
       await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
     })
