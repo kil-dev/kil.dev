@@ -18,7 +18,7 @@ test.describe('KONAMI_KILLER Achievement', () => {
     await gotoAndWaitForMain(page, '/')
     // Ensure the Konami listener is attached - wait for page to be interactive
     await page.waitForLoadState('domcontentloaded')
-    
+
     // Wait for React to hydrate and KonamiCodeListener component to mount
     // The listener attaches a keydown event listener, so we need to ensure it's ready
     await page.waitForTimeout(500)
