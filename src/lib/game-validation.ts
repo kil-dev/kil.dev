@@ -36,20 +36,16 @@ const MIN_MOVE_EVENTS = IS_DEV ? 3 : 5
 const MIN_MOVE_INTERVAL_MS = IS_DEV ? 30 : 50
 const MAX_FOOD_RATE_MS = IS_DEV ? 80 : 200
 
-// Convex client for server-side usage
-let convexClient: ConvexHttpClient | null = null
-
+// Convex client factory - creates a fresh instance per request
 function getConvexClient(): ConvexHttpClient {
-  if (!convexClient) {
-    if (!env.NEXT_PUBLIC_CONVEX_URL) {
-      throw new Error('NEXT_PUBLIC_CONVEX_URL is not set')
-    }
-    convexClient = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL)
-    if (env.CONVEX_DEPLOY_KEY) {
-      convexClient.setAuth(env.CONVEX_DEPLOY_KEY)
-    }
+  if (!env.NEXT_PUBLIC_CONVEX_URL) {
+    throw new Error('NEXT_PUBLIC_CONVEX_URL is not set')
   }
-  return convexClient
+  const client = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL)
+  if (env.CONVEX_DEPLOY_KEY) {
+    client.setAuth(env.CONVEX_DEPLOY_KEY)
+  }
+  return client
 }
 
 async function getSession(sessionId: string): Promise<GameSession | undefined> {
