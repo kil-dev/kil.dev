@@ -46,6 +46,7 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: true
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
 
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ always() && !cancelled() }}
