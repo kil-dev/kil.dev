@@ -12,7 +12,7 @@
   semanticCommitType: "chore",
   semanticCommitScope: "deps",
   automergeType: "pr",
-  automergeStrategy: "auto",
+  automergeStrategy: "squash",
   packageRules: [
     {
       matchUpdateTypes: [
