@@ -3,6 +3,7 @@ import {
   expectAchievementCookieContains,
   expectConfettiLikely,
   simulateKonamiCode,
+  waitForAchievementCookie,
 } from '../../fixtures/achievement-helpers'
 import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
 
@@ -22,37 +23,8 @@ test.describe('KONAMI_KILLER Achievement', () => {
     await simulateKonamiCode(page)
 
     // Wait for achievement to process by checking for cookie
-    // Use a polling approach that handles page closure gracefully
-    try {
-      await page.waitForFunction(
-        () => {
-          const cookies = document.cookie.split(';')
-          return cookies.some(c => c.includes('kil.dev_achievements_v1') && c.includes('KONAMI_KILLER'))
-        },
-        { timeout: 3000 },
-      )
-    } catch (error) {
-      // If page closes, try to check cookies from context, but handle context errors gracefully
-      if (page.isClosed()) {
-        try {
-          const cookies = await page.context().cookies()
-          const achievementCookie = cookies.find(c => c.name === 'kil.dev_achievements_v1')
-          if (achievementCookie) {
-            const decoded = decodeURIComponent(achievementCookie.value)
-            const parsed = JSON.parse(decoded) as Record<string, unknown>
-            if (parsed.KONAMI_KILLER) {
-              // Achievement was unlocked before page closed, continue
-              return
-            }
-          }
-        } catch {
-          // Context might be invalid, but achievement might still be set
-          // Check if we can verify achievement was unlocked before timeout
-          // If not, rethrow original error
-        }
-      }
-      throw error
-    }
+    // Use the helper function that uses expect.poll() for more robust polling
+    await waitForAchievementCookie(page, 'KONAMI_KILLER', 5000)
 
     // Verify achievement is unlocked
     await expectAchievementCookieContains(page, 'KONAMI_KILLER')
