@@ -7,7 +7,17 @@ const ACHIEVEMENTS_COOKIE_NAME = 'kil.dev_achievements_v1'
  * Check if an achievement is unlocked by reading the cookie
  */
 export async function expectAchievementCookieContains(page: Page, achievementId: string) {
-  const cookies = await page.context().cookies()
+  if (page.isClosed()) {
+    throw new Error('Page is closed, cannot read cookies')
+  }
+  
+  let cookies
+  try {
+    cookies = await page.context().cookies()
+  } catch (error) {
+    throw new Error(`Failed to read cookies: ${error instanceof Error ? error.message : String(error)}`)
+  }
+  
   const achievementCookie = cookies.find(c => c.name === ACHIEVEMENTS_COOKIE_NAME)
   expect(achievementCookie, `Achievement cookie should exist`).toBeDefined()
 
@@ -26,7 +36,19 @@ export async function waitForAchievementCookie(page: Page, achievementId: string
   await expect
     .poll(
       async () => {
-        const cookies = await page.context().cookies()
+        // Check if page/context is still valid before accessing cookies
+        if (page.isClosed()) {
+          throw new Error('Page is closed, cannot read cookies')
+        }
+        
+        let cookies
+        try {
+          cookies = await page.context().cookies()
+        } catch (error) {
+          // If context is invalid, throw to stop polling
+          throw new Error(`Browser context invalid: ${error instanceof Error ? error.message : String(error)}`)
+        }
+        
         const c = cookies.find(c => c.name === ACHIEVEMENTS_COOKIE_NAME)
         if (!c) return false
         try {
