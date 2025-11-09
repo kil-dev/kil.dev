@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "kil.dev",
@@ -17,7 +18,7 @@
         "canvas-confetti": "1.9.4",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
-        "convex": "^1.28.2",
+        "convex": "1.28.2",
         "date-fns": "4.1.0",
         "eslint-config-prettier": "10.1.8",
         "image-size": "2.0.2",
