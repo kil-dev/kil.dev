@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { FooterClient } from './footer-client'
 import { FooterYear } from './footer/footer-year'
 
@@ -8,7 +9,11 @@ export function Footer() {
       <div className="px-10 py-4">
         <div className="text-center text-sm text-muted-foreground">
           <p>
-            © <FooterYear /> <FooterClient /> —{' '}
+            ©{' '}
+            <Suspense fallback={null}>
+              <FooterYear />
+            </Suspense>{' '}
+            <FooterClient /> —{' '}
             <Link
               href="https://github.com/kiliantyler/kil.dev/blob/main/LICENSE"
               target="_blank"
