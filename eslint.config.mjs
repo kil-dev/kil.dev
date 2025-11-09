@@ -1,14 +1,13 @@
 import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
-import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
-// @ts-expect-error - nextVitals is not typed
-import nextVitals from 'eslint-config-next/core-web-vitals'
 // @ts-expect-error - nextTs is not typed
 import nextTs from 'eslint-config-next/typescript'
+// @ts-expect-error - nextVitals is not typed
+import nextVitals from 'eslint-config-next/core-web-vitals'
 
 
-export default defineConfig(
+export default tseslint.config(
   {
     ignores: [
       '.next',
@@ -23,12 +22,7 @@ export default defineConfig(
   eslintConfigPrettier,
   {
     files: ['**/*.ts', '**/*.tsx'],
-    extends: [
-      ...tseslint.configs.recommended,
-      ...tseslint.configs.recommendedTypeChecked,
-      ...tseslint.configs.stylisticTypeChecked,
-      eslintPluginUnicorn.configs.unopinionated,
-    ],
+    extends: [eslintPluginUnicorn.configs.unopinionated],
     rules: {
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/consistent-type-definitions': 'off',
