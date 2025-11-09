@@ -51,7 +51,7 @@
     "eslint-config-prettier": "10.1.8",
     "image-size": "2.0.2",
     "js-cookie": "3.0.5",
-    "lucide-react": "0.548.0",
+    "lucide-react": "0.553.0",
     "motion": "12.23.24",
     "next": "16.0.1",
     "posthog-js": "1.290.0",
