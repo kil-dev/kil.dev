@@ -23,6 +23,9 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     env: {
+      // Forward required env so Next build/start sees them in CI
+      NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL ?? '',
+      SKIP_ENV_VALIDATION: process.env.SKIP_ENV_VALIDATION ?? 'true',
       NEXT_TELEMETRY_DISABLED: '1',
       NEXT_PUBLIC_POSTHOG_DISABLED: '1',
     },
