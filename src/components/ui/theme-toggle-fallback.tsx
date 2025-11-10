@@ -10,7 +10,13 @@ export function ThemeToggleFallback() {
   })
 
   return (
-    <Button variant="ghost" size="icon" aria-label="Theme toggle" aria-disabled disabled className="relative">
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="Theme toggle"
+      aria-disabled
+      tabIndex={-1}
+      className="relative pointer-events-none cursor-default select-none">
       <span className="relative inline-block align-middle">
         <style>{themeIconCss}</style>
         {themes.map(t => {
