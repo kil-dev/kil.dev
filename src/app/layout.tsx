@@ -1,12 +1,10 @@
-import { Providers } from '@/components/providers/providers'
-import '@/styles/globals.css'
-import { Suspense } from 'react'
-
 import { Background } from '@/components/layout/background'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { Providers } from '@/components/providers/providers'
 import { SecretConsoleLoader } from '@/components/secret-console/secret-console-loader'
 import { PROFILE_IMAGE_ALT_DOMAINS } from '@/lib/alt-domains'
+import '@/styles/globals.css'
 import { buildAllAchievementsPresenceScript } from '@/utils/achievements'
 import {
   PROFILE_IMAGE_VARIANT_DATA_ATTRIBUTE,
@@ -31,6 +29,8 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   variable: '--font-space-grotesk',
+  display: 'swap',
+  preload: true,
 })
 
 const notoSans = Noto_Sans({
@@ -70,22 +70,20 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
-        <Suspense>
-          <PrefetchLinks />
-          <Providers>
-            <div className="relative flex min-h-screen flex-col">
-              <Background />
-              <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
-                <div className="layout-container flex h-full flex-1 flex-col">
-                  <Header />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                </div>
+        <PrefetchLinks />
+        <Providers>
+          <div className="relative flex min-h-screen flex-col">
+            <Background />
+            <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
+              <div className="layout-container flex h-full flex-1 flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
               </div>
             </div>
-            <SecretConsoleLoader />
-          </Providers>
-        </Suspense>
+          </div>
+          <SecretConsoleLoader />
+        </Providers>
       </body>
     </html>
   )

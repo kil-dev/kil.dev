@@ -60,16 +60,26 @@ test.describe('THEME_TAPDANCE Achievement', () => {
     await gotoAndWaitForMain(page, '/')
 
     // Open and close theme menu 6 times
+    // The counter increments when closing without selecting a theme
     for (let i = 0; i < 6; i++) {
       await openThemeMenu(page)
-      await page.waitForTimeout(200)
+      // Wait for menu to be fully open
+      await page.waitForSelector('#theme-options[aria-hidden="false"]', { state: 'attached', timeout: 1000 })
+      await page.waitForTimeout(100) // Small delay to ensure state is stable
       // Close by toggling the button again, which is how the counter increments
       await page.locator('button[aria-controls="theme-options"]').first().click()
-      await page.waitForTimeout(200)
+      // Wait for menu to be fully closed before next iteration
+      await page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 1000 })
+      await page.waitForTimeout(100) // Small delay to ensure state updates are processed
     }
 
-    // Wait for achievement to process
-    await page.waitForTimeout(1500)
+    // Wait for achievement to process - check for data attribute as a reliable indicator
+    await page.waitForFunction(
+      () => {
+        return document.documentElement.dataset.achievementThemeTapdance === 'true'
+      },
+      { timeout: 3000 },
+    )
 
     // Verify achievement is unlocked
     await expectAchievementCookieContains(page, 'THEME_TAPDANCE')

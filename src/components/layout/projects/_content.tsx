@@ -1,10 +1,13 @@
 import { UnlockOnMount } from '@/components/layout/achievements/unlock-on-mount'
+import { ImagesPreload } from '@/components/ui/images-preload'
 import { SectionLabel } from '@/components/ui/section-label'
 import type { AchievementId } from '@/lib/achievements'
 import { projects } from '@/lib/projects'
 import { ProjectsGrid } from './projects-grid'
 
 export function ProjectsContent() {
+  const images = projects.map(project => project.imageSrc)
+
   return (
     <div className="px-10 py-16 md:px-20 lg:px-40">
       <UnlockOnMount id={'PROJECTS_PERUSER' as AchievementId} />
@@ -12,6 +15,7 @@ export function ProjectsContent() {
         <div className="flex flex-col gap-2">
           <SectionLabel as="p">{"Some projects I've worked on"}</SectionLabel>
         </div>
+        <ImagesPreload images={images} dataPreload="projects" />
         <ProjectsGrid items={projects} />
       </div>
     </div>
