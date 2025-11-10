@@ -24,27 +24,24 @@ test.describe('CONFUSED_CLICK Achievement', () => {
     )
 
     // Set hash after page loads to ensure it's detected by useHash hook
-    // This will trigger a hashchange event
+    // Setting location.hash automatically triggers a hashchange event
     await page.evaluate(() => {
       globalThis.window.location.hash = '#YouWereAlreadyHere'
     })
 
     // Wait for hashchange event to be processed and useHash hook to update
-    // Also wait for React to re-render with the new hash value
+    // The useHash hook uses requestAnimationFrame and hashchange listener
+    // We need to wait for React to process the hashchange and re-render
     await page.waitForFunction(
       () => {
         // Check if hash is present
         if (globalThis.window.location.hash !== '#YouWereAlreadyHere') return false
-        // Check if the ProfileImage component has processed the hash
-        // The component sets useConfused when hash === '#YouWereAlreadyHere' and mounted === true
-        // We can't directly check React state, but we can wait a bit for the effect to run
-        return true
+        // Wait for React to process - check if the achievement data attribute is set
+        // This is a reliable indicator that the achievement was unlocked
+        return document.documentElement.dataset.achievementConfusedClick === 'true'
       },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
-
-    // Give React time to process the hashchange and run the useEffect that unlocks the achievement
-    await page.waitForTimeout(100)
 
     // Some clients fire hashchange-based logic post-hydration; poll cookie to avoid flakes
     await waitForAchievementCookie(page, 'CONFUSED_CLICK', 7000)
