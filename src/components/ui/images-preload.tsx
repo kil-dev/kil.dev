@@ -10,7 +10,7 @@ interface ImagesPreloadProps {
 export function ImagesPreload({ images, dataPreload, additionalImages }: ImagesPreloadProps) {
   if (images.length === 0 && (!additionalImages || additionalImages.length === 0)) return null
 
-  const allImages = [...images, ...(additionalImages ?? [])]
+  const allImages = Array.from(new Map([...images, ...(additionalImages ?? [])].map(img => [img.src, img])).values())
 
   return (
     <div
