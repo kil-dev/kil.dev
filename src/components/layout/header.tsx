@@ -4,6 +4,7 @@ import { LinkedInButton } from '@/components/layout/header/linkedin-button'
 import { MobileNav } from '@/components/layout/header/mobile-nav'
 import { NavLava } from '@/components/layout/header/nav-lava'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { ThemeToggleFallback } from '@/components/ui/theme-toggle-fallback'
 import { Suspense } from 'react'
 
 export function Header() {
@@ -20,7 +21,7 @@ export function Header() {
           <NavLava />
         </div>
         <div className="flex items-center gap-3 justify-self-end">
-          <Suspense fallback={null}>
+          <Suspense fallback={<ThemeToggleFallback />}>
             <ThemeToggle />
           </Suspense>
           <GitHubButton />
