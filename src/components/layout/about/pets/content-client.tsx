@@ -37,7 +37,7 @@ export function PetsContentClient({ pets }: PetsContentClientProps) {
         celebratedRef.current = true
 
         if (has('PET_PARADE')) return next
-        unlock('PET_PARADE' as AchievementId)
+        unlock('PET_PARADE' satisfies AchievementId)
         return next
       })
     },
