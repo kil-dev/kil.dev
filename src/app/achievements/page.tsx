@@ -69,6 +69,8 @@ function AchievementImagesPreload({ entries }: AchievementImagesPreloadProps) {
           key={image.src}
           src={image}
           alt=""
+          width={image.width}
+          height={image.height}
           priority
           fetchPriority="high"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -79,6 +81,8 @@ function AchievementImagesPreload({ entries }: AchievementImagesPreloadProps) {
           key={unknownAchievementImage.src}
           src={unknownAchievementImage}
           alt=""
+          width={unknownAchievementImage.width}
+          height={unknownAchievementImage.height}
           priority
           fetchPriority="high"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

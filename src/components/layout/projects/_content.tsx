@@ -38,6 +38,8 @@ function ProjectImagesPreload({ items }: ProjectImagesPreloadProps) {
           key={project.id}
           src={project.imageSrc}
           alt=""
+          width={project.imageSrc.width}
+          height={project.imageSrc.height}
           priority
           fetchPriority="high"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -31,6 +31,8 @@ function PetImagesPreload({ pets }: PetImagesPreloadProps) {
           key={pet.id}
           src={pet.image}
           alt=""
+          width={pet.image.width}
+          height={pet.image.height}
           priority
           fetchPriority="high"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
