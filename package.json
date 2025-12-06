@@ -56,7 +56,7 @@
     "posthog-js": "1.302.2",
     "react": "19.2.1",
     "react-dom": "19.2.1",
-    "react-photo-album": "3.2.1",
+    "react-photo-album": "3.3.0",
     "react-snowfall": "2.4.0",
     "sharp": "0.34.5",
     "sonner": "2.0.7",
