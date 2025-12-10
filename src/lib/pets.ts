@@ -13,17 +13,6 @@ export const PETS: Pet[] = [
     imageAlt: 'Lux the Golden Retriever',
   },
   {
-    id: 'milim',
-    name: 'Milim',
-    breed: 'Golden Retriever',
-    birthday: '2024-03-09',
-    gender: 'Female',
-    description:
-      "Milim is a crazy girl who can't sit still. She runs around like a maniac and loves to play with her sisters.",
-    image: Pets.Milim,
-    imageAlt: 'Milim the Golden Retriever',
-  },
-  {
     id: 'tali',
     name: 'Tali',
     breed: 'Mixed (Basenji/Australian Shepherd)',

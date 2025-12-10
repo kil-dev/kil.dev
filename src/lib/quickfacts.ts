@@ -6,5 +6,5 @@ export const QUICK_FACTS: QuickFact[] = [
   { label: 'Terminal', value: 'Ghostty', href: 'https://ghostty.org' },
   { label: 'Editor', value: 'Cursor', href: 'https://cursor.com' },
   { label: 'OS', value: 'macOS', href: 'https://www.apple.com/macos', note: '(Windows for gaming)' },
-  { label: 'Pets', value: '3 dogs, 3 cats', note: '(Pictured below)' },
+  { label: 'Pets', value: '2 dogs, 3 cats', note: '(Pictured below)' },
 ]

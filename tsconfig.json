@@ -47,8 +47,6 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx",
     "**/*.cjs",
     "**/*.js",
     "**/*.mjs",
