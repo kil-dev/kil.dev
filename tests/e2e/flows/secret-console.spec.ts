@@ -13,8 +13,7 @@ test.describe('Secret Console', () => {
     // Wait for the console key listener to be attached, avoiding brittle networkidle
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -27,8 +26,7 @@ test.describe('Secret Console', () => {
     await page.goto('/')
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     // Open console
@@ -51,8 +49,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -68,8 +65,7 @@ test.describe('Secret Console', () => {
 
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     // Avoid first-open toast stealing focus in tests
@@ -86,8 +82,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -109,8 +104,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -140,8 +134,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -173,8 +166,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     // Open console and run a command
@@ -203,8 +195,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')
@@ -242,8 +233,7 @@ test.describe('Secret Console', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
-      )
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
       .toBe(true)
 
     await page.keyboard.press('`')

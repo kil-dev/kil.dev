@@ -57,8 +57,7 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
           spread: 70,
           origin: { y: 0.6 },
           zIndex: 50,
-        }),
-      ),
+        })),
     )
   }, [])
 
@@ -119,8 +118,7 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
           angle: 270,
           startVelocity: 45,
           zIndex: 50,
-        }),
-      ),
+        })),
     )
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
@@ -141,8 +139,7 @@ export function ConfettiProvider({ children }: { children: React.ReactNode }) {
           origin: { x: 0.5, y: 0.5 },
           startVelocity: 30,
           zIndex: 50,
-        }),
-      ),
+        })),
     )
 
     setTimeout(() => pendingConfettiRef.current.delete(confettiId), 1000)
