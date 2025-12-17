@@ -5,8 +5,10 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import * as React from 'react'
 
-interface LinkButtonProps
-  extends Omit<React.ComponentProps<'button'> & VariantProps<typeof buttonVariants>, 'asChild'> {
+interface LinkButtonProps extends Omit<
+  React.ComponentProps<'button'> & VariantProps<typeof buttonVariants>,
+  'asChild'
+> {
   href: Route
   external?: boolean
   children: React.ReactNode
