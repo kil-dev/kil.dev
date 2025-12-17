@@ -74,7 +74,7 @@
     "@types/node": "24.10.4",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "esbuild": "0.27.1",
+    "esbuild": "0.27.2",
     "knip": "5.74.0",
     "oxlint": "1.33.0",
     "postcss": "8.5.6",
