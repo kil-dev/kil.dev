@@ -61,13 +61,13 @@
       matchDatasources: [
         "node-version"
       ],
-      allowedVersions: "<23",
+      allowedVersions: "<25",
     },
     {
       matchPackageNames: [
         "@types/node"
       ],
-      allowedVersions: "<23",
+      allowedVersions: "<25",
     },
     {
       matchPackageNames: [
