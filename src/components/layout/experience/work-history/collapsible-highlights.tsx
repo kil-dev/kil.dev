@@ -32,7 +32,7 @@ export function CollapsibleHighlights({ item, skillsEntries }: CollapsibleHighli
     <Collapsible className="group/collapsible" open={open} onOpenChange={handleOpenChange}>
       <CollapsibleTrigger asChild>
         <span
-          className="group inline-flex items-center gap-1 text-xs md:text-sm text-muted-foreground hover:text-foreground cursor-pointer select-none -ml-1 mt-1 outline-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          className="group mt-1 -ml-1 inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground outline-hidden select-none hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary md:text-sm"
           aria-label={`Toggle details for ${item.company}`}>
           Highlights and Skills
           <ChevronDown className="size-3 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />

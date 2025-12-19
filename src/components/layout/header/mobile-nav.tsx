@@ -57,29 +57,17 @@ export function MobileNav() {
   const items = useMemo(() => {
     let navigationItems = NAVIGATION
     if (isMounted && allowAchievements) {
-      navigationItems = [
-        ...navigationItems,
-        { label: 'Achievements', href: '/achievements' as Route, icon: Trophy },
-      ]
+      navigationItems = [...navigationItems, { label: 'Achievements', href: '/achievements' as Route, icon: Trophy }]
     }
     if (isMounted && allowPetGallery) {
-      navigationItems = [
-        ...navigationItems,
-        { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
-      ]
+      navigationItems = [...navigationItems, { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint }]
     }
     // Ensure current gated route remains visible while active even if gate toggles off (after mount)
     if (isMounted && pathname === '/achievements' && !allowAchievements) {
-      navigationItems = [
-        ...navigationItems,
-        { label: 'Achievements', href: '/achievements' as Route, icon: Trophy },
-      ]
+      navigationItems = [...navigationItems, { label: 'Achievements', href: '/achievements' as Route, icon: Trophy }]
     }
     if (isMounted && pathname === '/pet-gallery' && !allowPetGallery) {
-      navigationItems = [
-        ...navigationItems,
-        { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint },
-      ]
+      navigationItems = [...navigationItems, { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint }]
     }
     return navigationItems
   }, [isMounted, allowAchievements, allowPetGallery, pathname])
@@ -316,8 +304,8 @@ export function MobileNav() {
             className={cn(
               'size-5 transition-transform ease-out',
               isExpanded
-                ? `duration-[${OPEN_DURATION_MS}ms] rotate-90 scale-90`
-                : `duration-[${OPEN_DURATION_MS}ms] rotate-0 scale-100`,
+                ? `duration-[${OPEN_DURATION_MS}ms] scale-90 rotate-90`
+                : `duration-[${OPEN_DURATION_MS}ms] scale-100 rotate-0`,
             )}
             aria-hidden="true"
           />
@@ -345,7 +333,7 @@ export function MobileNav() {
               <span
                 key={p.id}
                 aria-hidden
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-xs"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-xs"
                 style={particleStyle}
               />
             )
@@ -408,8 +396,8 @@ export function MobileNav() {
         ref={overlayRef}
         {...overlayProps}
         className={cn(
-          'fixed inset-0 nav:hidden transition-opacity duration-200',
-          open ? 'z-105 opacity-100 pointer-events-auto' : 'z-105 opacity-0 pointer-events-none',
+          'fixed inset-0 transition-opacity duration-200 nav:hidden',
+          open ? 'pointer-events-auto z-105 opacity-100' : 'pointer-events-none z-105 opacity-0',
           'bg-black/40 backdrop-blur-sm',
         )}
       />

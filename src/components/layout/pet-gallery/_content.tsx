@@ -68,7 +68,7 @@ export async function PetGalleryContent() {
   }
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in duration-500 fade-in">
       <ClientMounted fallback={<ServerAlbum images={images} />}>
         <GalleryClient images={images} />
       </ClientMounted>

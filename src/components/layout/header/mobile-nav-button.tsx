@@ -38,8 +38,8 @@ export const MobileNavButton = React.forwardRef<HTMLAnchorElement, MobileNavButt
         aria-current={isActive ? 'page' : undefined}
         className={cn(
           open || closing ? 'pointer-events-auto' : 'pointer-events-none',
-          'group grid grid-cols-[2rem_auto] items-center gap-1 rounded-full px-2 py-2 overflow-hidden whitespace-nowrap backface-hidden',
-          'shadow-xs bg-background/95 ring-1 ring-border',
+          'group grid grid-cols-[2rem_auto] items-center gap-1 overflow-hidden rounded-full px-2 py-2 whitespace-nowrap backface-hidden',
+          'bg-background/95 shadow-xs ring-1 ring-border',
           'transition-[transform,opacity,background-color,color] ease-in-out will-change-transform',
           closing ? 'duration-200' : 'duration-300',
           'hover:bg-accent/70 hover:text-accent-foreground focus:bg-accent/70 focus:text-accent-foreground',
@@ -59,7 +59,7 @@ export const MobileNavButton = React.forwardRef<HTMLAnchorElement, MobileNavButt
         <span className="grid h-8 w-8 place-items-center rounded-full bg-accent/20 text-foreground">
           <Icon className="size-4" aria-hidden="true" />
         </span>
-        <span className="text-sm font-medium tracking-wide pr-2">{label}</span>
+        <span className="pr-2 text-sm font-medium tracking-wide">{label}</span>
       </Link>
     </li>
   )

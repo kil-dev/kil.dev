@@ -8,5 +8,5 @@ type SectionLabelProps = {
 
 export function SectionLabel({ children, className = '', as = 'p' }: SectionLabelProps) {
   const Tag = as
-  return <Tag className={cn('text-primary text-lg font-semibold md:text-xl', className)}>{children}</Tag>
+  return <Tag className={cn('text-lg font-semibold text-primary md:text-xl', className)}>{children}</Tag>
 }

@@ -182,13 +182,13 @@ export function FlippingCard({
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       className={cn(
-        'group relative w-full aspect-16/10 cursor-pointer select-none outline-hidden perspective-distant focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary',
+        'group relative aspect-16/10 w-full cursor-pointer outline-hidden select-none perspective-distant focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary',
         className,
       )}>
       <div ref={tiltRef} className="relative h-full w-full will-change-transform">
         <div
           className={cn(
-            'relative z-10 h-full w-full [transform-style:preserve-3d] transition-transform ease-out',
+            'relative z-10 h-full w-full transition-transform ease-out [transform-style:preserve-3d]',
             flipped ? 'rotate-y-180' : '',
           )}
           style={{ transitionDuration: `${flipDurationMs}ms` }}>
@@ -203,19 +203,19 @@ export function FlippingCard({
                 sizes={backgroundSizes ?? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
                 placeholder={typeof backgroundImageSrc === 'string' ? 'empty' : 'blur'}
                 className={cn(
-                  'object-cover ease-out transition-[filter,transform]',
+                  'object-cover transition-[filter,transform] ease-out',
                   'group-data-[flipped=true]:blur-2xs md:group-data-[flipped=true]:blur-sm',
                 )}
                 style={{ transitionDuration: `${flipDurationMs}ms` }}
               />
             </div>
           ) : null}
-          <div className="absolute inset-0 rotate-y-0 [backface-visibility:hidden] overflow-hidden rounded-xl">
+          <div className="absolute inset-0 rotate-y-0 overflow-hidden rounded-xl [backface-visibility:hidden]">
             {front}
             <FlipIndicator labelDesktop={flipLabelFrontDesktop} labelMobile={flipLabelFrontMobile} />
           </div>
 
-          <div className="absolute inset-0 rotate-y-180 [backface-visibility:hidden] overflow-hidden rounded-xl">
+          <div className="absolute inset-0 rotate-y-180 overflow-hidden rounded-xl [backface-visibility:hidden]">
             {back}
             <FlipIndicator labelDesktop={flipLabelBackDesktop} labelMobile={flipLabelBackMobile} />
           </div>

@@ -54,23 +54,23 @@ export function ThemeMenu({
       tabIndex={-1}
       onKeyDown={onKeyDown}
       className={cn(
-        'absolute left-1/2 -translate-x-1/2 top-full mt-2 z-[120]',
+        'absolute top-full left-1/2 z-[120] mt-2 -translate-x-1/2',
         'flex flex-col items-stretch gap-3',
         open ? 'pointer-events-auto' : 'pointer-events-none',
       )}>
       <fieldset
         className={cn(
-          'p-3 pt-8 transition-all duration-200 ease-out relative',
-          open ? 'opacity-100 visible translate-y-0 scale-100' : 'opacity-0 invisible -translate-y-2 scale-95',
+          'relative p-3 pt-8 transition-all duration-200 ease-out',
+          open ? 'visible translate-y-0 scale-100 opacity-100' : 'invisible -translate-y-2 scale-95 opacity-0',
         )}
         style={{ width: `min(92vw, ${optionsWidthCh}ch)` }}>
         <legend className="sr-only">Theme controls</legend>
 
         <div className="flex items-start gap-2">
-          {leftSlot ? <div className="shrink-0 pt-1 relative">{leftSlot}</div> : null}
-          <div className="max-h-[48vh] overflow-hidden flex-1">
+          {leftSlot ? <div className="relative shrink-0 pt-1">{leftSlot}</div> : null}
+          <div className="max-h-[48vh] flex-1 overflow-hidden">
             <motion.div
-              className="overflow-y-auto overflow-x-hidden no-scrollbar pr-1 flex flex-col gap-1"
+              className="flex flex-col gap-1 overflow-x-hidden overflow-y-auto pr-1 no-scrollbar"
               initial="hidden"
               animate={open ? 'show' : 'hidden'}
               variants={menuVariants}>
@@ -86,8 +86,8 @@ export function ThemeMenu({
                     title={opt.label}
                     variant="ghost"
                     size="sm"
-                    className={cn('flex w-full hover:bg-accent/70 justify-start gap-2 rounded-md')}>
-                    <span className="grid size-7 place-items-center shrink-0">
+                    className={cn('flex w-full justify-start gap-2 rounded-md hover:bg-accent/70')}>
+                    <span className="grid size-7 shrink-0 place-items-center">
                       <opt.Icon className="size-4" />
                     </span>
                     <span className="text-sm font-medium text-foreground/90">{opt.label}</span>

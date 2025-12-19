@@ -23,7 +23,7 @@ export function ProjectTechIcons({ skills }: ProjectTechIconsProps) {
                   <span
                     role="img"
                     aria-label={name}
-                    className="inline-flex items-center justify-center size-[28px] rounded-md ring-1 ring-border overflow-hidden">
+                    className="inline-flex size-[28px] items-center justify-center overflow-hidden rounded-md ring-1 ring-border">
                     <span className="relative size-full">
                       <Image
                         src={getSkillIconUrl(icon)}
@@ -53,7 +53,7 @@ export function ProjectTechIcons({ skills }: ProjectTechIconsProps) {
                         e.stopPropagation()
                       }
                     }}
-                    className="inline-flex items-center justify-center focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary rounded-md">
+                    className="inline-flex items-center justify-center rounded-md focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary">
                     {content}
                   </Link>
                 )

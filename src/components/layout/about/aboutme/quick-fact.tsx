@@ -10,7 +10,7 @@ export function QuickFact({ fact }: QuickFactProps) {
   return (
     <div key={fact.label} className="grid grid-cols-[auto_1fr] items-baseline gap-3">
       <dt className="text-muted-foreground">{fact.label}</dt>
-      <dd className="text-primary font-medium">
+      <dd className="font-medium text-primary">
         {fact.label === 'Mode' ? (
           <>
             <ModeToggleLink /> <ModeToggleNote />
@@ -20,7 +20,7 @@ export function QuickFact({ fact }: QuickFactProps) {
             <Link href={fact.href} target="_blank" rel="noopener noreferrer">
               {fact.value}
             </Link>{' '}
-            {fact.note ? <span className="text-muted-foreground text-xs font-normal">{fact.note}</span> : null}
+            {fact.note ? <span className="text-xs font-normal text-muted-foreground">{fact.note}</span> : null}
           </>
         ) : (
           <>
@@ -28,7 +28,7 @@ export function QuickFact({ fact }: QuickFactProps) {
             {fact.note ? (
               <>
                 {' '}
-                <span className="text-muted-foreground text-xs font-normal">{fact.note}</span>
+                <span className="text-xs font-normal text-muted-foreground">{fact.note}</span>
               </>
             ) : null}
           </>

@@ -69,7 +69,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: buildProfileImageVariantScript(PROFILE_IMAGE_ALT_DOMAINS) }}
         />
       </head>
-      <body className="font-sans flex min-h-screen flex-col bg-background text-foreground">
+      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground">
         <PrefetchLinks />
         <Providers>
           <div className="relative flex min-h-screen flex-col">

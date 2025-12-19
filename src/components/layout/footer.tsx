@@ -6,7 +6,7 @@ import { FooterYearFallback } from './footer/footer-year-fallback'
 
 export function Footer() {
   return (
-    <footer className="w-full bg-background/50 border-t border-border">
+    <footer className="w-full border-t border-border bg-background/50">
       <div className="px-10 py-4">
         <div className="text-center text-sm text-muted-foreground">
           <p>

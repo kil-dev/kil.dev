@@ -107,7 +107,7 @@ export function FluxKnob({ onRotateClockwise }: Readonly<FluxKnobProps>) {
       aria-valuemax={359}
       aria-valuenow={Math.round(angle)}
       className={cn(
-        'relative h-24 w-24 rounded-full ring-1 ring-border shadow-md outline-offset-2 focus:outline-none',
+        'relative h-24 w-24 rounded-full shadow-md ring-1 ring-border outline-offset-2 focus:outline-none',
         'bg-[radial-gradient(circle_at_50%_45%,color-mix(in_oklch,white_12%,var(--card)),color-mix(in_oklch,black_10%,var(--card))_70%)]',
       )}
       style={{ transform: `rotate(${angle}deg)` }}
@@ -163,13 +163,13 @@ export function FluxKnob({ onRotateClockwise }: Readonly<FluxKnobProps>) {
           style={{ transform: `rotate(${(360 / pillCount) * i}deg)` }}>
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-2 h-3 w-1 -translate-x-1/2 rounded bg-foreground/40"
+            className="pointer-events-none absolute top-2 left-1/2 h-3 w-1 -translate-x-1/2 rounded bg-foreground/40"
           />
         </span>
       ))}
       <span
         id="flux-knob-handle"
-        className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 h-3 w-1 rounded bg-foreground/70"
+        className="pointer-events-none absolute top-2 left-1/2 h-3 w-1 -translate-x-1/2 rounded bg-foreground/70"
       />
     </button>
   )

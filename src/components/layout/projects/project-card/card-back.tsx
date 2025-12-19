@@ -15,14 +15,14 @@ export function ProjectCardBack({ project }: ProjectCardBackProps) {
   const visitButton = project.href ? <VisitButton href={project.href} title={project.title} id={project.id} /> : null
 
   return (
-    <Card className="absolute inset-0 overflow-hidden p-6 [backface-visibility:hidden] transition-shadow bg-transparent group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
+    <Card className="absolute inset-0 overflow-hidden bg-transparent p-6 transition-shadow [backface-visibility:hidden] group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
       {/* Backdrop overlay over shared background (blur comes from background image on flip) */}
       <div aria-hidden className="absolute inset-0">
-        <div className="absolute inset-0 bg-(--card-backdrop) card-back-shadow rounded-[13px]" />
+        <div className="absolute inset-0 rounded-[13px] bg-(--card-backdrop) card-back-shadow" />
       </div>
 
       <div className="relative z-10 flex h-full flex-col">
-        <div className="mb-3 text-sm text-muted-foreground font-bold">
+        <div className="mb-3 text-sm font-bold text-muted-foreground">
           {project.year ? `${project.year} • ` : ''}
           {project.status === 'wip' ? 'Work in progress' : project.status === 'archived' ? 'Archived' : 'Live'}
         </div>

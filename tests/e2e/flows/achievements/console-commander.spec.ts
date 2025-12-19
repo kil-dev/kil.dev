@@ -12,7 +12,8 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
     await gotoAndWaitForMain(page, '/')
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
       .toBe(true)
 
     // Press backtick to open console
@@ -35,7 +36,8 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
     await gotoAndWaitForMain(page, '/')
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
       .toBe(true)
 
     // Open console
@@ -56,7 +58,8 @@ test.describe('CONSOLE_COMMANDER Achievement', () => {
     await gotoAndWaitForMain(page, '/')
     await expect
       .poll(async () =>
-        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)))
+        page.evaluate(() => Boolean((globalThis as unknown as { kdConsoleReady?: boolean }).kdConsoleReady)),
+      )
       .toBe(true)
 
     // First open

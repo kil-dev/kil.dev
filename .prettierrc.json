@@ -22,10 +22,10 @@
   ],
   "tailwindStylesheet": "./src/styles/globals.css",
   "plugins": [
-    "prettier-plugin-tailwindcss",
     "prettier-plugin-organize-attributes",
     "prettier-plugin-organize-imports",
     "prettier-plugin-packagejson",
-    "prettier-plugin-multiline-arrays"
+    "prettier-plugin-multiline-arrays",
+    "prettier-plugin-tailwindcss"
   ]
 }

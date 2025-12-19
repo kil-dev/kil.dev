@@ -159,10 +159,7 @@ test.describe('Navigation Flow', () => {
       // Use data-testid to target the single interactive anchor
       const achievementsAnchor = page.getByTestId('nav-achievements')
       await expect(achievementsAnchor).toBeVisible()
-      await Promise.all([
-        page.waitForURL(/\/achievements(?:\/?|(\?.*)?)$/),
-        achievementsAnchor.click(),
-      ])
+      await Promise.all([page.waitForURL(/\/achievements(?:\/?|(\?.*)?)$/), achievementsAnchor.click()])
       await page.waitForLoadState('domcontentloaded')
       await expect(page).toHaveURL(/\/achievements(?:\/?|(\?.*)?)$/)
       await expect(page.getByTestId('achievements-page')).toBeVisible({ timeout: 15000 })
@@ -199,10 +196,7 @@ test.describe('Navigation Flow', () => {
     test('should navigate to pet gallery page', async ({ page }) => {
       const petGalleryAnchor = page.getByTestId('nav-pet-gallery')
       await expect(petGalleryAnchor).toBeVisible()
-      await Promise.all([
-        page.waitForURL(/\/pet-gallery(?:\/?|(\?.*)?)$/),
-        petGalleryAnchor.click(),
-      ])
+      await Promise.all([page.waitForURL(/\/pet-gallery(?:\/?|(\?.*)?)$/), petGalleryAnchor.click()])
       await page.waitForLoadState('domcontentloaded')
       await expect(page).toHaveURL(/\/pet-gallery(?:\/?|(\?.*)?)$/)
       await expect(page.getByTestId('pet-gallery-page')).toBeVisible({ timeout: 15000 })

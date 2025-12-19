@@ -7,10 +7,10 @@ export async function FooterYearFallback() {
   const year = await getCurrentYear()
   return (
     <button aria-label="Turn back time" className="hover:opacity-80" aria-disabled disabled>
-      <span aria-hidden="true" className="dotcom:inline hidden">
+      <span aria-hidden="true" className="hidden dotcom:inline">
         1999
       </span>
-      <span aria-hidden="true" className="dotcom:hidden inline">
+      <span aria-hidden="true" className="inline dotcom:hidden">
         {year}
       </span>
     </button>

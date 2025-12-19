@@ -40,11 +40,11 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
           transition={{ type: 'spring', stiffness: 420, damping: 26, mass: 0.3 }}
-          className={`${containerPosClass} text-xs z-10 text-right`}
+          className={`${containerPosClass} z-10 text-right text-xs`}
           aria-hidden={!open}>
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">Theme Options</div>
+          <div className="text-right text-[11px] tracking-wide text-muted-foreground uppercase">Theme Options</div>
           <motion.div
-            className="p-2 flex flex-col gap-2"
+            className="flex flex-col gap-2 p-2"
             initial="hidden"
             animate="show"
             exit="exit"
@@ -56,7 +56,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
             <motion.label
               htmlFor="theme-panel-seasonal-overlays"
               variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
-              className="flex items-center justify-between gap-2 select-none w-full">
+              className="flex w-full items-center justify-between gap-2 select-none">
               <span>Seasonal overlays</span>
               <MotionSwitch
                 id="theme-panel-seasonal-overlays"
@@ -69,7 +69,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
             <motion.label
               htmlFor="theme-panel-headshot"
               variants={{ hidden: { opacity: 0, y: -2 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -2 } }}
-              className="flex items-center justify-between gap-2 select-none w-full">
+              className="flex w-full items-center justify-between gap-2 select-none">
               <span>Themed headshot</span>
               <MotionSwitch
                 id="theme-panel-headshot"
@@ -100,7 +100,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                         show: { opacity: 1, y: 0 },
                         exit: { opacity: 0, y: -2 },
                       }}
-                      className="flex items-center justify-between gap-2 select-none w-full">
+                      className="flex w-full items-center justify-between gap-2 select-none">
                       <span>Snow</span>
                       <MotionSwitch
                         id="theme-panel-snow"
@@ -119,7 +119,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                         show: { opacity: 1, y: 0 },
                         exit: { opacity: 0, y: -2 },
                       }}
-                      className="flex items-center justify-between gap-2 select-none w-full">
+                      className="flex w-full items-center justify-between gap-2 select-none">
                       <span>Code rain</span>
                       <MotionSwitch
                         id="theme-panel-code-rain"
@@ -142,7 +142,7 @@ export function ThemeOptionsPanel({ open, align = 'right' }: { open: boolean; al
                             show: { opacity: 1, y: 0 },
                             exit: { opacity: 0, y: -2 },
                           }}
-                          className="flex items-center justify-between gap-2 select-none w-full">
+                          className="flex w-full items-center justify-between gap-2 select-none">
                           <span>Grid lights</span>
                           <MotionSwitch
                             id="theme-panel-grid-lights"
@@ -186,10 +186,10 @@ export function ThemeOptionsSheet() {
   const currentPreference: Theme = theme ?? 'system'
 
   return (
-    <div className="w-full text-xs text-right">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground text-right">Theme Options</div>
-      <div className="p-2 flex flex-col gap-2">
-        <label htmlFor="theme-seasonal-overlays" className="flex items-center justify-between gap-2 select-none w-full">
+    <div className="w-full text-right text-xs">
+      <div className="text-right text-[11px] tracking-wide text-muted-foreground uppercase">Theme Options</div>
+      <div className="flex flex-col gap-2 p-2">
+        <label htmlFor="theme-seasonal-overlays" className="flex w-full items-center justify-between gap-2 select-none">
           <span>Seasonal overlays</span>
           <MotionSwitch
             id="theme-seasonal-overlays"
@@ -199,7 +199,7 @@ export function ThemeOptionsSheet() {
             size="md"
           />
         </label>
-        <label htmlFor="theme-headshot" className="flex items-center justify-between gap-2 select-none w-full">
+        <label htmlFor="theme-headshot" className="flex w-full items-center justify-between gap-2 select-none">
           <span>Themed headshot</span>
           <MotionSwitch
             id="theme-headshot"
@@ -223,7 +223,7 @@ export function ThemeOptionsSheet() {
           return (
             <>
               {visualTheme === 'christmas' && (
-                <label htmlFor="theme-snow" className="flex items-center justify-between gap-2 select-none w-full">
+                <label htmlFor="theme-snow" className="flex w-full items-center justify-between gap-2 select-none">
                   <span>Snow</span>
                   <MotionSwitch
                     id="theme-snow"
@@ -235,7 +235,7 @@ export function ThemeOptionsSheet() {
                 </label>
               )}
               {visualTheme === 'matrix' && (
-                <label htmlFor="theme-code-rain" className="flex items-center justify-between gap-2 select-none w-full">
+                <label htmlFor="theme-code-rain" className="flex w-full items-center justify-between gap-2 select-none">
                   <span>Code rain</span>
                   <MotionSwitch
                     id="theme-code-rain"
@@ -253,7 +253,7 @@ export function ThemeOptionsSheet() {
                   themeHasGrid && (
                     <label
                       htmlFor="theme-grid-lights"
-                      className="flex items-center justify-between gap-2 select-none w-full">
+                      className="flex w-full items-center justify-between gap-2 select-none">
                       <span>Grid lights</span>
                       <MotionSwitch
                         id="theme-grid-lights"

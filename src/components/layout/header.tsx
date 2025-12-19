@@ -9,8 +9,8 @@ import { Suspense } from 'react'
 
 export function Header() {
   return (
-    <header className="border-solid whitespace-nowrap sticky top-0 z-50 w-full bg-background/90 border-b border-border">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-10 py-6 md:py-8">
+    <header className="sticky top-0 z-50 w-full border-b border-solid border-border bg-background/90 whitespace-nowrap">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-6 md:px-10 md:py-8">
         <div className="justify-self-start">
           <div className="flex items-center gap-2">
             <MobileNav />

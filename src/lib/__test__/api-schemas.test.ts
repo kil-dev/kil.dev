@@ -82,9 +82,7 @@ describe('LeaderboardResponseSchema', () => {
   it('rejects leaderboard entry without name', () => {
     const result = LeaderboardResponseSchema.safeParse({
       success: true,
-      leaderboard: [
-        { score: 100, timestamp: 1234567890, id: 'id1' },
-      ],
+      leaderboard: [{ score: 100, timestamp: 1234567890, id: 'id1' }],
     })
     expect(result.success).toBe(false)
   })
@@ -92,9 +90,7 @@ describe('LeaderboardResponseSchema', () => {
   it('rejects leaderboard entry without score', () => {
     const result = LeaderboardResponseSchema.safeParse({
       success: true,
-      leaderboard: [
-        { name: 'ABC', timestamp: 1234567890, id: 'id1' },
-      ],
+      leaderboard: [{ name: 'ABC', timestamp: 1234567890, id: 'id1' }],
     })
     expect(result.success).toBe(false)
   })
@@ -102,9 +98,7 @@ describe('LeaderboardResponseSchema', () => {
   it('rejects leaderboard entry without timestamp', () => {
     const result = LeaderboardResponseSchema.safeParse({
       success: true,
-      leaderboard: [
-        { name: 'ABC', score: 100, id: 'id1' },
-      ],
+      leaderboard: [{ name: 'ABC', score: 100, id: 'id1' }],
     })
     expect(result.success).toBe(false)
   })
@@ -112,9 +106,7 @@ describe('LeaderboardResponseSchema', () => {
   it('rejects leaderboard entry without id', () => {
     const result = LeaderboardResponseSchema.safeParse({
       success: true,
-      leaderboard: [
-        { name: 'ABC', score: 100, timestamp: 1234567890 },
-      ],
+      leaderboard: [{ name: 'ABC', score: 100, timestamp: 1234567890 }],
     })
     expect(result.success).toBe(false)
   })
@@ -125,9 +117,7 @@ describe('SubmitScoreResponseSchema', () => {
     const result = SubmitScoreResponseSchema.safeParse({
       success: true,
       message: 'Score submitted',
-      leaderboard: [
-        { name: 'ABC', score: 100, timestamp: 1234567890, id: 'id1' },
-      ],
+      leaderboard: [{ name: 'ABC', score: 100, timestamp: 1234567890, id: 'id1' }],
     })
     expect(result.success).toBe(true)
   })

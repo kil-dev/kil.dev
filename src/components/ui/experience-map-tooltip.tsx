@@ -45,7 +45,7 @@ export function ExperienceMapTooltip({ workExperience, children }: ExperienceMap
     <BottomDrawer>
       <BottomDrawerTrigger asChild>{children}</BottomDrawerTrigger>
       <BottomDrawerContent className="pb-4">
-        <BottomDrawerHeader className="p-0 mt-3">
+        <BottomDrawerHeader className="mt-3 p-0">
           <BottomDrawerTitle className="sr-only">
             Work Locations Map: {workLocation.location} and {officeLocation?.location}
           </BottomDrawerTitle>
@@ -53,18 +53,18 @@ export function ExperienceMapTooltip({ workExperience, children }: ExperienceMap
             Interactive map showing work and office locations. Use two fingers to pan and zoom.
           </BottomDrawerDescription>
         </BottomDrawerHeader>
-        <div className="p-0 h-[400px] md:h-[500px]">
-          <MultiMapComponent locations={locations} zoom={6} className="w-full h-full rounded-md" />
+        <div className="h-[400px] p-0 md:h-[500px]">
+          <MultiMapComponent locations={locations} zoom={6} className="h-full w-full rounded-md" />
         </div>
         <div className="px-6 py-4">
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="h-3 w-3 rounded-full bg-blue-500"></div>
               <span>Work Location: {workLocation.location}</span>
             </div>
             {officeLocation && (
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="h-3 w-3 rounded-full bg-red-500"></div>
                 <span>Office Location: {officeLocation.location}</span>
               </div>
             )}

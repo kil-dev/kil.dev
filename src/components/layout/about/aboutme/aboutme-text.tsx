@@ -6,7 +6,7 @@ export function AboutMeText() {
       <div className="flex flex-col gap-2 text-center lg:text-left">
         <SectionLabel>Hi, I&apos;m Kilian</SectionLabel>
       </div>
-      <div className="text-muted-foreground text-base leading-relaxed md:text-lg">
+      <div className="text-base leading-relaxed text-muted-foreground md:text-lg">
         <p className="mb-4">
           I&apos;m a Senior Site Reliability Engineer. I build reliable, scalable platforms and smooth developer
           experiences for teams shipping to the cloud.

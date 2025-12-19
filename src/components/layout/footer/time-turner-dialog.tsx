@@ -98,10 +98,10 @@ export function TimeTurnerDialog({
             }
           }}>
           {/* SSR-safe: render both and toggle with dotcom variant classes */}
-          <span aria-hidden="true" className="dotcom:inline hidden">
+          <span aria-hidden="true" className="hidden dotcom:inline">
             1999
           </span>
-          <span aria-hidden="true" className="dotcom:hidden inline">
+          <span aria-hidden="true" className="inline dotcom:hidden">
             {year}
           </span>
         </button>
@@ -109,25 +109,25 @@ export function TimeTurnerDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           className={cn(
-            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
+            'fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
           )}
         />
         <Dialog.Content
           className={cn(
-            'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-border p-6 shadow-lg duration-200 sm:max-w-lg',
+            'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg',
           )}>
           <div className={cn('flex flex-col gap-2 text-center sm:text-left')}>
             <Dialog.Title className={cn('text-lg font-semibold')}>Turn back time</Dialog.Title>
-            <Dialog.Description className={cn('text-muted-foreground text-sm')}>
+            <Dialog.Description className={cn('text-sm text-muted-foreground')}>
               Spin the flux knob clockwise to charge all three capacitors. When full, press Engage to travel.
             </Dialog.Description>
           </div>
-          <div className="mt-1 text-2xl font-mono text-center" aria-live="polite" aria-atomic>
+          <div className="mt-1 text-center font-mono text-2xl" aria-live="polite" aria-atomic>
             {/* SSR-safe: render both and toggle with dotcom variant classes */}
-            <span aria-hidden="true" className="dotcom:inline hidden">
+            <span aria-hidden="true" className="hidden dotcom:inline">
               1999
             </span>
-            <span aria-hidden="true" className="dotcom:hidden inline">
+            <span aria-hidden="true" className="inline dotcom:hidden">
               {yearDisplay}
             </span>
             {/* Screen-reader only value that matches the visible year */}

@@ -14,10 +14,10 @@ export function FlipIndicator({ labelMobile = 'Tap to flip', labelDesktop = 'Fli
     <div
       aria-hidden
       className={cn(
-        'pointer-events-none absolute right-2 top-2 z-20 inline-flex items-center gap-1 rounded-md bg-background/70 px-2 py-1 text-[10px] font-medium text-foreground/80 ring-1 ring-border opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100 md:group-focus-visible:opacity-100 md:text-xs',
+        'pointer-events-none absolute top-2 right-2 z-20 inline-flex items-center gap-1 rounded-md bg-background/70 px-2 py-1 text-[10px] font-medium text-foreground/80 opacity-100 ring-1 ring-border transition-opacity md:text-xs md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100',
         className,
       )}>
-      <RefreshCcwIcon className="opacity-80 size-3" />
+      <RefreshCcwIcon className="size-3 opacity-80" />
       <span className="md:hidden">{labelMobile}</span>
       <span className="hidden md:inline">{labelDesktop}</span>
     </div>

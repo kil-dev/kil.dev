@@ -12,7 +12,7 @@ export function GitHubButton() {
     <LinkButton
       href={SOCIAL_LINKS.GITHUB}
       external
-      className="bg-secondary hover:bg-accent h-10 min-w-0 rounded-lg px-4 text-sm font-bold text-secondary-foreground hover:ring-accent hover:ring-1 hover:ring-offset-2 ring-offset-background duration-300"
+      className="h-10 min-w-0 rounded-lg bg-secondary px-4 text-sm font-bold text-secondary-foreground ring-offset-background duration-300 hover:bg-accent hover:ring-1 hover:ring-accent hover:ring-offset-2"
       aria-label="Open Kilian's GitHub profile in a new tab"
       onClick={handleClick}>
       <GitHubIcon className="size-5" />
