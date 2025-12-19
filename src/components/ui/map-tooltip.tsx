@@ -28,24 +28,24 @@ export function MapTooltip({
         <BottomDrawerTrigger asChild>
           <button
             type="button"
-            className="text-primary text-lg md:text-xl font-semibold cursor-pointer inline-flex items-center w-fit self-start md:self-start text-center"
+            className="inline-flex w-fit cursor-pointer items-center self-start text-center text-lg font-semibold text-primary md:self-start md:text-xl"
             aria-label={`Open map of ${locationLabel}`}>
             {locationLabel}
           </button>
         </BottomDrawerTrigger>
         <BottomDrawerContent className="pb-4">
-          <BottomDrawerHeader className="p-0 mt-3">
+          <BottomDrawerHeader className="mt-3 p-0">
             <BottomDrawerTitle className="sr-only">Map of {locationLabel}</BottomDrawerTitle>
             <BottomDrawerDescription className="sr-only">
               Embedded map centered on {locationLabel}. Use two fingers to pan and zoom.
             </BottomDrawerDescription>
           </BottomDrawerHeader>
-          <div className="p-0 h-[400px] md:h-[500px]">
+          <div className="h-[400px] p-0 md:h-[500px]">
             <MapComponent
               center={[latitude, longitude]}
               zoom={5}
               label={locationLabel}
-              className="w-full h-full rounded-md"
+              className="h-full w-full rounded-md"
             />
           </div>
         </BottomDrawerContent>

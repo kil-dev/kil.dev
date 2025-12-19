@@ -176,7 +176,7 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
           className={[
             'flex items-center justify-center',
             'transition-opacity duration-150',
-            isCircle ? 'opacity-100 w-14 h-14' : 'opacity-0 w-0 h-0 overflow-hidden',
+            isCircle ? 'h-14 w-14 opacity-100' : 'h-0 w-0 overflow-hidden opacity-0',
           ].join(' ')}>
           <div className="text-2xl" aria-hidden="true">
             {def?.icon ?? '🏆'}
@@ -187,44 +187,44 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
         <div
           className={[
             'grid grid-cols-[auto_1fr] items-center gap-3',
-            isCircle ? 'opacity-0 pointer-events-none h-0 w-0 overflow-hidden' : 'opacity-100',
+            isCircle ? 'pointer-events-none h-0 w-0 overflow-hidden opacity-0' : 'opacity-100',
             'transition-opacity duration-150',
             'h-14',
           ].join(' ')}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-muted)] self-center">
+          <div className="flex h-10 w-10 items-center justify-center self-center rounded-full bg-[var(--color-muted)]">
             <span className="text-xl" aria-hidden="true">
               {def?.icon ?? '🏆'}
             </span>
           </div>
 
-          <div className="min-w-0 h-14 flex flex-col justify-center">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-0 leading-none">
+          <div className="flex h-14 min-w-0 flex-col justify-center">
+            <div className="mb-0 text-[10px] leading-none font-semibold tracking-[0.08em] text-muted-foreground uppercase">
               Achievement Gained
             </div>
             {/* Flip card */}
-            <div className="relative perspective-near h-9">
+            <div className="relative h-9 perspective-near">
               <div
                 className={[
-                  'absolute inset-0 transform-3d transition-transform duration-300',
+                  'absolute inset-0 transition-transform duration-300 transform-3d',
                   phase === 'flip' || phase === 'description' ? 'rotate-x-180' : 'rotate-x-0',
                 ].join(' ')}>
                 <div
                   className={[
-                    'absolute inset-0 backface-hidden flex items-center leading-none transition-opacity duration-300',
+                    'absolute inset-0 flex items-center leading-none transition-opacity duration-300 backface-hidden',
                     phase === 'flip' || phase === 'description' ? 'opacity-0' : 'opacity-100',
                   ].join(' ')}
                   aria-hidden={phase === 'flip' || phase === 'description'}>
-                  <div className="truncate font-semibold text-[15px] leading-none">
+                  <div className="truncate text-[15px] leading-none font-semibold">
                     {def?.title ?? 'Achievement Unlocked'}
                   </div>
                 </div>
                 <div
                   className={[
-                    'absolute inset-0 backface-hidden rotate-x-180 flex items-center leading-none transition-opacity duration-300',
+                    'absolute inset-0 flex rotate-x-180 items-center leading-none transition-opacity duration-300 backface-hidden',
                     phase === 'flip' || phase === 'description' ? 'opacity-100' : 'opacity-0',
                   ].join(' ')}
                   aria-hidden={!(phase === 'flip' || phase === 'description')}>
-                  <div className="truncate text-[13px] text-muted-foreground leading-none">
+                  <div className="truncate text-[13px] leading-none text-muted-foreground">
                     {def?.description ?? ''}
                   </div>
                 </div>

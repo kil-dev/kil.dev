@@ -153,7 +153,7 @@ export function NavLava() {
   )
 
   return (
-    <nav className="hidden nav:flex items-center" aria-label="Primary">
+    <nav className="hidden items-center nav:flex" aria-label="Primary">
       <div
         ref={containerRef}
         className="relative flex items-center gap-1 rounded-lg p-1"
@@ -166,7 +166,7 @@ export function NavLava() {
         <span
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute top-1 bottom-1 z-0 rounded-md bg-primary/40 blur-[1.5px] shadow-sm will-change-[left,width]',
+            'pointer-events-none absolute top-1 bottom-1 z-0 rounded-md bg-primary/40 shadow-sm blur-[1.5px] will-change-[left,width]',
             indicator.animate && 'transition-[left,width,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
             indicator.visible ? 'opacity-100' : 'opacity-0',
           )}
@@ -179,7 +179,7 @@ export function NavLava() {
         <span
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute top-1 bottom-1 z-10 rounded-md bg-primary backdrop-blur-sm shadow-sm will-change-[left,width]',
+            'pointer-events-none absolute top-1 bottom-1 z-10 rounded-md bg-primary shadow-sm backdrop-blur-sm will-change-[left,width]',
             indicator.animate && 'transition-[left,width,opacity] duration-450 ease-[cubic-bezier(0.2,0.8,0.16,1)]',
             indicator.visible ? 'opacity-100' : 'opacity-0',
           )}
@@ -287,7 +287,7 @@ function NavLink(props: NavLinkProps) {
       href={href}
       ref={node => registerRef(href, node)}
       className={cn(
-        'relative z-10 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors',
+        'relative z-10 rounded-md px-3 py-2 text-sm font-medium transition-colors outline-none',
         NAV_TEXT.base,
         NAV_TEXT.hover,
         isActive && (!hoveredKey || hoveredKey === href) ? NAV_TEXT.active : undefined,
@@ -312,11 +312,11 @@ function NavLink(props: NavLinkProps) {
         <>
           <span
             aria-hidden="true"
-            className="absolute top-0 bottom-0 left-1 right-1 z-0 rounded-md bg-primary/40 blur-[1.5px] shadow-sm"
+            className="absolute top-0 right-1 bottom-0 left-1 z-0 rounded-md bg-primary/40 shadow-sm blur-[1.5px]"
           />
           <span
             aria-hidden="true"
-            className="absolute top-0 bottom-0 left-1 right-1 z-0 rounded-md bg-primary backdrop-blur-sm shadow-sm"
+            className="absolute top-0 right-1 bottom-0 left-1 z-0 rounded-md bg-primary shadow-sm backdrop-blur-sm"
           />
         </>
       )}

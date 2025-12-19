@@ -4,7 +4,7 @@ import { ProjectCard } from './project-card/_content'
 export function ProjectsGrid({ items }: { items: Project[] }) {
   if (items?.length === 0) {
     return (
-      <div className="text-muted-foreground mx-auto max-w-xl text-center">
+      <div className="mx-auto max-w-xl text-center text-muted-foreground">
         <p>No projects yet. Check back soon.</p>
       </div>
     )

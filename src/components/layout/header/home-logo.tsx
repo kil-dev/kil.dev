@@ -30,23 +30,23 @@ export function HomeLogo() {
       onBlur={handleBlur}>
       <div>
         {/* Default logo */}
-        <h2 className="relative text-xl leading-tight font-bold text-foreground whitespace-nowrap logo-default">
+        <h2 className="logo-default relative text-xl leading-tight font-bold whitespace-nowrap text-foreground">
           <span aria-hidden="true" className="inline-block -translate-y-[0.125rem]">
             {'{ '}
           </span>
           <span
             aria-hidden="true"
-            className="inline-block align-top overflow-hidden transition-[max-width] duration-250 ease-out relative max-w-[30ch]">
+            className="relative inline-block max-w-[30ch] overflow-hidden align-top transition-[max-width] duration-250 ease-out">
             <span className="inline-block align-top">
               <span className="relative inline-block align-top">
                 <span aria-hidden="true" className="invisible">
                   K
                 </span>
                 <span aria-hidden="true" className="absolute inset-0">
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-out opacity-100 group-hover:opacity-0 translate-y-0 group-hover:-translate-y-0.5">
+                  <span className="absolute top-0 left-0 translate-y-0 opacity-100 transition-all duration-500 ease-out group-hover:-translate-y-0.5 group-hover:opacity-0">
                     k
                   </span>
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0">
+                  <span className="absolute top-0 left-0 translate-y-0.5 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                     K
                   </span>
                 </span>
@@ -54,7 +54,7 @@ export function HomeLogo() {
               <span aria-hidden="true">il</span>
               <span
                 aria-hidden="true"
-                className="inline-block align-top overflow-hidden max-w-0 group-hover:max-w-[3ch] group-focus-visible:max-w-[3ch] transition-[max-width] duration-500 ease-out">
+                className="inline-block max-w-0 overflow-hidden align-top transition-[max-width] duration-500 ease-out group-hover:max-w-[3ch] group-focus-visible:max-w-[3ch]">
                 <span>ian</span>
               </span>
             </span>
@@ -65,10 +65,10 @@ export function HomeLogo() {
                   D
                 </span>
                 <span aria-hidden="true" className="absolute inset-0">
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-out opacity-100 group-hover:opacity-0 translate-y-0 group-hover:-translate-y-0.5">
+                  <span className="absolute top-0 left-0 translate-y-0 opacity-100 transition-all duration-500 ease-out group-hover:-translate-y-0.5 group-hover:opacity-0">
                     d
                   </span>
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0">
+                  <span className="absolute top-0 left-0 translate-y-0.5 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                     D
                   </span>
                 </span>
@@ -76,7 +76,7 @@ export function HomeLogo() {
               <span aria-hidden="true">ev</span>
               <span
                 aria-hidden="true"
-                className="inline-block align-top overflow-hidden max-w-0 group-hover:max-w-[3ch] group-focus-visible:max-w-[3ch] transition-[max-width] duration-500 ease-out">
+                className="inline-block max-w-0 overflow-hidden align-top transition-[max-width] duration-500 ease-out group-hover:max-w-[3ch] group-focus-visible:max-w-[3ch]">
                 <span>Ops</span>
               </span>
             </span>
@@ -89,13 +89,13 @@ export function HomeLogo() {
         </h2>
 
         {/* Alt-domain Amongus logo: shows on html[data-profile-image-variant="amongus"] */}
-        <h2 className="relative text-xl leading-tight font-bold text-foreground whitespace-nowrap logo-amongus hidden">
+        <h2 className="logo-amongus relative hidden text-xl leading-tight font-bold whitespace-nowrap text-foreground">
           <span aria-hidden="true" className="inline-block -translate-y-[0.125rem]">
             {'{ '}
           </span>
           <span
             aria-hidden="true"
-            className="inline-block align-top overflow-hidden transition-[max-width] duration-250 ease-out relative max-w-[30ch]">
+            className="relative inline-block max-w-[30ch] overflow-hidden align-top transition-[max-width] duration-250 ease-out">
             <span className="inline-block align-top">
               {/* First character swaps: ඞ -> a */}
               <span className="relative inline-block align-top">
@@ -103,10 +103,10 @@ export function HomeLogo() {
                   a
                 </span>
                 <span aria-hidden="true" className="absolute inset-0">
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-(--ease-fluid) opacity-100 group-hover:opacity-0 translate-y-0 group-hover:-translate-y-0.5">
+                  <span className="absolute top-0 left-0 translate-y-0 opacity-100 transition-all duration-500 ease-(--ease-fluid) group-hover:-translate-y-0.5 group-hover:opacity-0">
                     ඩ
                   </span>
-                  <span className="absolute left-0 top-0 transition-all duration-500 ease-(--ease-fluid) opacity-0 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0">
+                  <span className="absolute top-0 left-0 translate-y-0.5 opacity-0 transition-all duration-500 ease-(--ease-fluid) group-hover:translate-y-0 group-hover:opacity-100">
                     a
                   </span>
                 </span>
@@ -114,7 +114,7 @@ export function HomeLogo() {
               {/* Remainder reveals: mongus */}
               <span
                 aria-hidden="true"
-                className="inline-block align-top overflow-hidden max-w-0 group-hover:max-w-[6ch] group-focus-visible:max-w-[6ch] transition-[max-width] duration-500 ease-(--ease-fluid)">
+                className="inline-block max-w-0 overflow-hidden align-top transition-[max-width] duration-500 ease-(--ease-fluid) group-hover:max-w-[6ch] group-focus-visible:max-w-[6ch]">
                 <span>mongus</span>
               </span>
             </span>

@@ -20,10 +20,10 @@ type ScoreBadgeProps = {
 function ScoreBadge({ top, left, score }: ScoreBadgeProps) {
   return (
     <div
-      className="absolute z-50 bg-black/40 text-white px-4 py-2 rounded-lg border border-green-500/30 shadow-lg"
+      className="absolute z-50 rounded-lg border border-green-500/30 bg-black/40 px-4 py-2 text-white shadow-lg"
       style={{ top: `${top}px`, left: `${left}px` }}>
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <div className="h-2 w-2 animate-pulse rounded-full bg-green-400"></div>
         <span className="text-lg font-bold text-green-400" style={{ fontFamily: 'VT323, monospace' }}>
           SCORE: <span className="text-white">{score}</span>
         </span>

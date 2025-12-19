@@ -17,13 +17,8 @@ export const WORK_HISTORY: WorkExperience[] = [
     from: '2025-07-01',
     to: undefined,
     summary: 'QGenda bought New Innovations and I joined as a Senior Site Reliability Engineer.',
-    highlights: [
-      'Transitioned from New Innovations to QGenda',
-    ],
-    skills: [
-      'Kubernetes',
-      'FluxCD',
-    ],
+    highlights: ['Transitioned from New Innovations to QGenda'],
+    skills: ['Kubernetes', 'FluxCD'],
     companyUrl: 'https://www.qgenda.com',
     companyLogoSrc: Logos.QGendaLogo,
     companyLogoAlt: 'QGenda logo',
@@ -183,11 +178,7 @@ export const WORK_HISTORY: WorkExperience[] = [
     from: '2008-03-17',
     to: '2013-03-31',
     summary: 'Unrelated roles and companies',
-    highlights: [
-      'Apple Retail',
-      'Microcenter',
-      "Play 'N Trade",
-    ],
+    highlights: ['Apple Retail', 'Microcenter', "Play 'N Trade"],
   },
 ]
 

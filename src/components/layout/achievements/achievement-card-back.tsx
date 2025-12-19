@@ -12,8 +12,8 @@ export function AchievementCardBack({
   footer?: string
 }) {
   return (
-    <div className="absolute inset-0 overflow-hidden p-0 m-0 bg-transparent [backface-visibility:hidden] transition-shadow group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background rounded-xl">
-      <div aria-hidden className="absolute inset-0 bg-(--card-backdrop) card-back-shadow rounded-xl" />
+    <div className="absolute inset-0 m-0 overflow-hidden rounded-xl bg-transparent p-0 transition-shadow [backface-visibility:hidden] group-hover:shadow-md group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
+      <div aria-hidden className="absolute inset-0 rounded-xl bg-(--card-backdrop) card-back-shadow" />
       <ScrollArea className="relative z-10 h-full">
         <div className="flex flex-col pr-2">
           <h3 className="p-6 text-lg font-semibold">{title}</h3>

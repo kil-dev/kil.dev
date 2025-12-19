@@ -126,9 +126,7 @@ describe('tab completion', () => {
           ]
         }
         if (n === '/home/docs') {
-          return [
-            { name: 'readme.md', isDir: false },
-          ]
+          return [{ name: 'readme.md', isDir: false }]
         }
         return []
       },

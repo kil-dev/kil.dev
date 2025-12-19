@@ -22,17 +22,16 @@ type BottomDrawerContentProps = React.ComponentPropsWithoutRef<typeof DrawerCont
   showHandle?: boolean
 }
 
-const BottomDrawerContent = React.forwardRef<React.ElementRef<typeof DrawerContent>, BottomDrawerContentProps>((
-  { className, showHandle = true, ...props },
-  ref,
-) => (
-  <DrawerContent
-    ref={ref}
-    showHandle={showHandle}
-    className={cn('sm:max-w-2xl mx-auto rounded-t-xl !border-t-0', className)}
-    {...props}
-  />
-))
+const BottomDrawerContent = React.forwardRef<React.ElementRef<typeof DrawerContent>, BottomDrawerContentProps>(
+  ({ className, showHandle = true, ...props }, ref) => (
+    <DrawerContent
+      ref={ref}
+      showHandle={showHandle}
+      className={cn('mx-auto rounded-t-xl !border-t-0 sm:max-w-2xl', className)}
+      {...props}
+    />
+  ),
+)
 BottomDrawerContent.displayName = 'BottomDrawerContent'
 
 export {

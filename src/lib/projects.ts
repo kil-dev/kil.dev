@@ -41,12 +41,7 @@ export const projects: Project[] = [
     id: 'kubernetes',
     title: 'Home Kubernetes Cluster',
     description: 'A Kubernetes cluster for my home. Large server rack in my basement.',
-    tags: [
-      'Kubernetes',
-      'FluxCD',
-      'Talos',
-      '1Password',
-    ],
+    tags: ['Kubernetes', 'FluxCD', 'Talos', '1Password'],
     repo: 'https://github.com/shamubernetes/home-k8s',
     year: 2021,
     status: 'live',

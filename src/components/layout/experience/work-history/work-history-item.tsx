@@ -15,27 +15,27 @@ export function WorkHistoryItem({ item }: { item: WorkExperience }) {
   const skillsEntries = item.skills ? resolveSkills(item.skills) : []
 
   return (
-    <li className="relative pl-6 py-4 last:pb-0">
+    <li className="relative py-4 pl-6 last:pb-0">
       <CompanyMarker item={item} />
       <div className="relative overflow-hidden rounded-3xl bg-transparent p-6 shadow-none backdrop-blur-2xs">
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline gap-2 -mt-2">
-            <h3 className="text-sm md:text-base font-semibold">{item.role}</h3>
-            <span className="text-muted-foreground text-sm">@ {item.company}</span>
+          <div className="-mt-2 flex flex-wrap items-baseline gap-2">
+            <h3 className="text-sm font-semibold md:text-base">{item.role}</h3>
+            <span className="text-sm text-muted-foreground">@ {item.company}</span>
           </div>
-          <div className="text-muted-foreground text-xs md:text-sm flex flex-col md:flex-row md:items-center">
+          <div className="flex flex-col text-xs text-muted-foreground md:flex-row md:items-center md:text-sm">
             <span>{when}</span>
             <ExperienceMapTooltip workExperience={item}>
               <button
                 type="button"
-                className="md:ml-2 md:before:content-['·'] md:before:mx-2 md:before:text-inherit text-primary"
+                className="text-primary md:ml-2 md:before:mx-2 md:before:text-inherit md:before:content-['·']"
                 aria-label={`Open map of ${item.workLocation.location} and ${item.officeLocation?.location}`}
                 title={`View map: ${item.workLocation.location} and ${item.officeLocation?.location}`}>
                 {item.workLocation.location} {item.officeLocation ? `[${item.officeLocation.location}]` : ''}
               </button>
             </ExperienceMapTooltip>
           </div>
-          <p className="text-sm md:text-base leading-relaxed">{item.summary}</p>
+          <p className="text-sm leading-relaxed md:text-base">{item.summary}</p>
 
           {(item.highlights && item.highlights.length > 0) || skillsEntries.length > 0 ? (
             <CollapsibleHighlights item={item} skillsEntries={skillsEntries} />

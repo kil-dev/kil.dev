@@ -27,7 +27,7 @@ export function CompanyMarker({ item }: { item: WorkExperience }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Open ${item.company} homepage`}
-          className="absolute -left-[14px] top-5 block rounded-md overflow-hidden ring-2 ring-background focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          className="absolute top-5 -left-[14px] block overflow-hidden rounded-md ring-2 ring-background focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           onClick={() => captureCompanyLogoClicked(item.id, href)}>
           {logo}
         </Link>
@@ -35,13 +35,13 @@ export function CompanyMarker({ item }: { item: WorkExperience }) {
     }
 
     return (
-      <span className="absolute -left-[14px] top-5 block rounded-md overflow-hidden ring-2 ring-background">
+      <span className="absolute top-5 -left-[14px] block overflow-hidden rounded-md ring-2 ring-background">
         {logo}
       </span>
     )
   }
 
   return (
-    <span aria-hidden className="absolute -left-[5px] top-5 size-2.5 rounded-full bg-primary ring-2 ring-background" />
+    <span aria-hidden className="absolute top-5 -left-[5px] size-2.5 rounded-full bg-primary ring-2 ring-background" />
   )
 }

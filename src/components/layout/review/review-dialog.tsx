@@ -45,7 +45,7 @@ const Star = React.forwardRef<HTMLButtonElement, StarProps>(function Star({ valu
       onKeyDown={handleKeyDown}
       className={cn(
         buttonVariants({ variant: 'ghost', size: 'icon' }),
-        'h-10 w-10 text-2xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring',
+        'h-10 w-10 text-2xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden',
         active ? 'text-yellow-500' : 'text-muted-foreground',
       )}>
       {active ? '★' : '☆'}

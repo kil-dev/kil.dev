@@ -110,9 +110,7 @@ describe('deriveThresholdFromMemory', () => {
   })
 
   it('returns base threshold if lowest score is below it', () => {
-    const leaderboard: LeaderboardEntry[] = [
-      { name: 'AAA', score: 50, timestamp: 1, id: '1' },
-    ]
+    const leaderboard: LeaderboardEntry[] = [{ name: 'AAA', score: 50, timestamp: 1, id: '1' }]
     const result = deriveThresholdFromMemory(leaderboard)
     expect(result).toBe(SCORE_QUALIFICATION_THRESHOLD)
   })
@@ -140,9 +138,7 @@ describe('deriveThresholdFromMemory', () => {
   })
 
   it('handles single entry leaderboard', () => {
-    const leaderboard: LeaderboardEntry[] = [
-      { name: 'AAA', score: 200, timestamp: 1, id: '1' },
-    ]
+    const leaderboard: LeaderboardEntry[] = [{ name: 'AAA', score: 200, timestamp: 1, id: '1' }]
     const result = deriveThresholdFromMemory(leaderboard)
     expect(result).toBe(201)
   })

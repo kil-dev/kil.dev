@@ -160,7 +160,7 @@ export function ProfileImage() {
   return (
     <button
       type="button"
-      className={`group relative order-1 mx-auto w-full max-w-md lg:order-2 lg:mx-0 select-none ${getAnimationClass(isAnimating, hasAnimated, isReturning)}`}
+      className={`group relative order-1 mx-auto w-full max-w-md select-none lg:order-2 lg:mx-0 ${getAnimationClass(isAnimating, hasAnimated, isReturning)}`}
       aria-pressed={isGrumpy}
       aria-label="Toggle grumpy profile image"
       onClick={handleClick}
@@ -168,7 +168,7 @@ export function ProfileImage() {
       onPointerLeave={handlePointerLeave}
       onMouseLeave={handlePointerLeave}
       onBlur={handlePointerLeave}>
-      <div className="border-primary absolute -top-4 -left-4 h-full w-full -rotate-3 group-hover:scale-110 group-hover:translate-y-3 group-hover:translate-x-4 rounded-lg border-4 transition-transform duration-500 ease-(--ease-fluid) group-hover:rotate-0" />
+      <div className="absolute -top-4 -left-4 h-full w-full -rotate-3 rounded-lg border-4 border-primary transition-transform duration-500 ease-(--ease-fluid) group-hover:translate-x-4 group-hover:translate-y-3 group-hover:scale-110 group-hover:rotate-0" />
       <div
         className="relative aspect-square w-full rounded-lg bg-cover bg-center bg-no-repeat shadow-2xl"
         aria-busy={mounted && isEnvDrivenVariant && !isImageLoaded}>
@@ -179,7 +179,7 @@ export function ProfileImage() {
             alt={imageAlt}
             src={getThemeHeadshot(t.name)}
             data-theme={t.name}
-            className="profile-img rounded-lg transition-transform duration-500 ease-(--ease-fluid) translate-y-0 scale-100 transform-gpu group-hover:-translate-y-1 group-hover:scale-105"
+            className="profile-img translate-y-0 scale-100 transform-gpu rounded-lg transition-transform duration-500 ease-(--ease-fluid) group-hover:-translate-y-1 group-hover:scale-105"
             loading={t.name === 'light' || t.name === 'dark' ? 'eager' : 'lazy'}
             priority={t.name === 'light' || t.name === 'dark'}
             fill
@@ -191,7 +191,7 @@ export function ProfileImage() {
           <Image
             alt={imageAlt}
             src={imageSrc}
-            className={`${isEnvDrivenVariant && !isImageLoaded ? 'opacity-0' : 'opacity-100'} rounded-lg transition-transform duration-500 ease-(--ease-fluid) translate-y-0 scale-100 transform-gpu group-hover:-translate-y-1 group-hover:scale-105`}
+            className={`${isEnvDrivenVariant && !isImageLoaded ? 'opacity-0' : 'opacity-100'} translate-y-0 scale-100 transform-gpu rounded-lg transition-transform duration-500 ease-(--ease-fluid) group-hover:-translate-y-1 group-hover:scale-105`}
             loading="eager"
             priority
             fill
@@ -204,7 +204,7 @@ export function ProfileImage() {
         <Image
           alt={`${HOME_CONTENT.NAME} amongus`}
           src={Headshots.Amongus}
-          className="amongus-img hidden rounded-lg transition-transform duration-500 ease-(--ease-fluid) translate-y-0 scale-100 transform-gpu group-hover:-translate-y-1 group-hover:scale-105"
+          className="amongus-img hidden translate-y-0 scale-100 transform-gpu rounded-lg transition-transform duration-500 ease-(--ease-fluid) group-hover:-translate-y-1 group-hover:scale-105"
           loading="eager"
           priority
           fill

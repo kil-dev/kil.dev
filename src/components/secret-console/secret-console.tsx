@@ -398,7 +398,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
     <dialog
       open
       aria-label="Developer console"
-      className="fixed left-0 right-0 top-0 z-50 bg-transparent border-0 p-0 m-0 outline-hidden w-full max-w-none"
+      className="fixed top-0 right-0 left-0 z-50 m-0 w-full max-w-none border-0 bg-transparent p-0 outline-hidden"
       style={{ fontFamily: 'var(--font-vt323)' }}>
       <div
         onMouseDown={e => {
@@ -419,20 +419,20 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
         onTransitionEnd={e => {
           if (isClosing && e.target === e.currentTarget) onRequestClose()
         }}
-        className={`${isClosing ? 'translate-y-[-100%]' : 'translate-y-0'} bg-black/80 text-green-400 border-x border-b border-green-500/30 backdrop-blur-sm shadow-sm starting:translate-y-[-100%] transition-transform duration-300 ease-out rounded-b-xl overflow-hidden mx-2 sm:mx-4`}
+        className={`${isClosing ? 'translate-y-[-100%]' : 'translate-y-0'} mx-2 overflow-hidden rounded-b-xl border-x border-b border-green-500/30 bg-black/80 text-green-400 shadow-sm backdrop-blur-sm transition-transform duration-300 ease-out sm:mx-4 starting:translate-y-[-100%]`}
         style={{ height: `${height}vh` }}>
         <div
           ref={scrollRef}
-          className="overflow-y-auto no-scrollbar p-4 flex flex-col justify-end gap-1"
+          className="flex flex-col justify-end gap-1 overflow-y-auto p-4 no-scrollbar"
           style={{ height: `calc(${height}vh - 4rem)` }}>
           {entries.map((e, i) => (
-            <div key={i} className={e.type === 'in' ? 'text-green-300' : 'text-green-400 whitespace-pre-wrap'}>
+            <div key={i} className={e.type === 'in' ? 'text-green-300' : 'whitespace-pre-wrap text-green-400'}>
               {e.type === 'in' ? `${formatPrompt(e.cwd ?? '/home/kil')} $ ${e.text}` : e.text}
             </div>
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="h-12 border-t border-green-500/20 flex items-center gap-2 px-4">
+        <form onSubmit={handleSubmit} className="flex h-12 items-center gap-2 border-t border-green-500/20 px-4">
           <span aria-hidden className="text-green-300">
             {formatPrompt(cwd)} $
           </span>
@@ -441,7 +441,7 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            className="bg-transparent text-green-400 outline-hidden flex-1 placeholder:text-green-700"
+            className="flex-1 bg-transparent text-green-400 outline-hidden placeholder:text-green-700"
             aria-label="Console input"
             autoCapitalize="off"
             autoCorrect="off"
@@ -453,9 +453,9 @@ export function SecretConsole({ onRequestClose }: { onRequestClose: () => void }
         <div
           data-resize-handle
           onMouseDown={handleDragStart}
-          className="h-4 flex items-center justify-center cursor-ns-resize group hover:bg-green-500/10 transition-colors border-t border-green-500/20"
+          className="group flex h-4 cursor-ns-resize items-center justify-center border-t border-green-500/20 transition-colors hover:bg-green-500/10"
           aria-label="Resize console">
-          <div className="w-12 h-1 rounded-full bg-green-500/30 group-hover:bg-green-500/50 transition-colors" />
+          <div className="h-1 w-12 rounded-full bg-green-500/30 transition-colors group-hover:bg-green-500/50" />
         </div>
       </div>
     </dialog>

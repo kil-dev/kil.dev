@@ -91,12 +91,7 @@ describe('createInMemoryLimiter', () => {
     const limiter = createInMemoryLimiter(3, 60000, 1000, 300000)
     const key = 'concurrent-key'
 
-    const results = [
-      limiter.check(key),
-      limiter.check(key),
-      limiter.check(key),
-      limiter.check(key),
-    ]
+    const results = [limiter.check(key), limiter.check(key), limiter.check(key), limiter.check(key)]
 
     expect(results.filter(Boolean).length).toBe(3) // Only 3 should pass
     expect(results[3]).toBe(false) // Fourth should fail

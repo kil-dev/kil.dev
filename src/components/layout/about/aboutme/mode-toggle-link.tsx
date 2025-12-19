@@ -20,7 +20,7 @@ export function ModeToggleNote() {
   }, [])
 
   return (
-    <span className="text-muted-foreground text-xs font-normal">
+    <span className="text-xs font-normal text-muted-foreground">
       <style>{noteCss}</style>
       {themes.map(t => (
         <span className="mode-note" data-theme={t.name} key={t.name}>

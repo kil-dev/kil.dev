@@ -16,7 +16,7 @@ export function ThemeToggleFallback() {
       aria-label="Theme toggle"
       aria-disabled
       tabIndex={-1}
-      className="relative pointer-events-none cursor-default select-none">
+      className="pointer-events-none relative cursor-default select-none">
       <span className="relative inline-block align-middle">
         <style>{themeIconCss}</style>
         {themes.map(t => {

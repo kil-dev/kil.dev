@@ -26,12 +26,12 @@ export function MapComponent({ center, zoom = 5, label, className = 'w-full h-fu
   const embedMapUrl = `https://maps.google.com/maps?q=${latitude},${longitude}&z=${zoom}&output=embed`
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
+    <div className={`relative h-full w-full ${className}`}>
       {/* Embedded Google Maps with built-in marker */}
       <iframe
         src={embedMapUrl}
         title={`Map of ${label}`}
-        className="w-full h-full rounded-md border-0"
+        className="h-full w-full rounded-md border-0"
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
@@ -46,11 +46,11 @@ export function MultiMapComponent({ locations, zoom = 5, className = 'w-full h-f
   const embedMapUrl = `https://maps.google.com/maps?q=${locationLabels}&z=${zoom}&output=embed`
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
+    <div className={`relative h-full w-full ${className}`}>
       <iframe
         src={embedMapUrl}
         title={`Map showing ${locations.length} locations`}
-        className="w-full h-full rounded-md border-0"
+        className="h-full w-full rounded-md border-0"
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"

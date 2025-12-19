@@ -279,9 +279,9 @@ export function ThemeToggle() {
             }}
             onKeyDown={handleTriggerKeyDown}
             className={cn(
-              'relative hover:ring-accent hover:ring-1 hover:ring-offset-2 ring-offset-background',
+              'relative ring-offset-background hover:ring-1 hover:ring-accent hover:ring-offset-2',
               isClient ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
-              open ? 'z-120 ring-1 ring-accent ring-offset-2 scale-95 rotate-3' : 'z-70',
+              open ? 'z-120 scale-95 rotate-3 ring-1 ring-accent ring-offset-2' : 'z-70',
             )}>
             <span className="relative inline-block align-middle">
               <style>{themeIconCss}</style>
@@ -300,7 +300,7 @@ export function ThemeToggle() {
               })}
               <span
                 className={cn(
-                  'absolute inset-0 grid place-items-center pointer-events-none transition-opacity duration-200 ease-out',
+                  'pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-200 ease-out',
                   showSystemOverlay ? 'opacity-100' : 'opacity-0',
                 )}>
                 <SystemIcon className={cn('h-[1.2rem] w-[1.2rem]', showSystemOverlay && 'theme-system-overlay-anim')} />
@@ -326,8 +326,8 @@ export function ThemeToggle() {
         {...overlayProps}
         className={cn(
           'fixed inset-0 z-115 transition-opacity duration-200',
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-          'backdrop-blur-sm bg-black/15 dark:bg-black/40',
+          open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
+          'bg-black/15 backdrop-blur-sm dark:bg-black/40',
         )}
       />
 
@@ -353,7 +353,7 @@ export function ThemeToggle() {
                 className="h-7 w-7">
                 <Settings className="size-4" />
               </Button>
-              <div className="absolute right-0 top-full hidden sm:block">
+              <div className="absolute top-full right-0 hidden sm:block">
                 <ThemeOptionsPanel open={showOptions} align="right" />
               </div>
             </>
