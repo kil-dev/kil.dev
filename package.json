@@ -71,7 +71,7 @@
     "@tailwindcss/postcss": "4.1.18",
     "@types/canvas-confetti": "1.9.0",
     "@types/js-cookie": "3.0.6",
-    "@types/node": "24.10.6",
+    "@types/node": "24.10.7",
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
     "esbuild": "0.27.2",
