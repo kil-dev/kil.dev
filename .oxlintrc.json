@@ -5,7 +5,6 @@
     "typescript",
     "unicorn"
   ],
-  "tsconfigPath": "tsconfig.json",
   "categories": {
     "correctness": "off"
   },
