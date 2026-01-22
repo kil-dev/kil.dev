@@ -22,7 +22,7 @@ concurrency:
 jobs:
   playwright-tests:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     env:
       SKIP_ENV_VALIDATION: "1"
       BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
@@ -62,7 +62,7 @@ jobs:
   merge-reports:
     if: ${{ always() && !cancelled() }}
     needs: [playwright-tests]
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
