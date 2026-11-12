@@ -16,7 +16,10 @@ const COLLAPSE_DURATION = 350
 const EXIT_DURATION = 250
 const COMPLETE_DELAY = 150
 
-/** Lobes on the edge of the splat, then droplets that landed clear of it. Sizes in px, places in %. */
+/**
+ * Lobes on the edge of the splat, then droplets that landed clear of it. Sizes in px, places in %.
+ * Nothing reaches more than 2rem past the panel: the panel's width leaves 2.5rem a side for it.
+ */
 const SPLAT: React.CSSProperties[] = [
   { left: -15, top: '18%', width: 30, height: 30 },
   { left: '10%', top: -11, width: 28, height: 28 },
@@ -27,9 +30,9 @@ const SPLAT: React.CSSProperties[] = [
   { left: '20%', bottom: -12, width: 30, height: 30 },
   { left: '53%', bottom: -8, width: 22, height: 22 },
   { left: '81%', bottom: -13, width: 28, height: 28 },
-  { left: -40, top: '62%', width: 14, height: 14 },
+  { left: -30, top: '62%', width: 14, height: 14 },
   { left: '29%', top: -31, width: 13, height: 13 },
-  { right: -36, top: '4%', width: 12, height: 12 },
+  { right: -28, top: '4%', width: 12, height: 12 },
   { left: '63%', bottom: -33, width: 14, height: 14 },
   { right: '12%', bottom: -29, width: 11, height: 11 },
 ]
@@ -152,13 +155,13 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
         break
       }
       case 'expand': {
-        base.push('w-[min(92vw,560px)] h-14 px-4 opacity-100 translate-y-0')
+        base.push('w-[min(calc(100vw-5rem),560px)] h-14 px-4 opacity-100 translate-y-0')
         break
       }
       case 'title':
       case 'flip':
       case 'description': {
-        base.push('w-[min(92vw,560px)] h-14 px-4 opacity-100 translate-y-0')
+        base.push('w-[min(calc(100vw-5rem),560px)] h-14 px-4 opacity-100 translate-y-0')
         break
       }
       case 'collapse': {

@@ -61,9 +61,9 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
   const { setTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [level, setLevel] = useState<Level>(LEVELS[0])
-  const COLUMNS = level.columns
   const MINES = level.mines
   const [board, setBoard] = useState(() => createBoard(LEVELS[0].columns, LEVELS[0].rows))
+  const COLUMNS = board.width
   const [focused, setFocused] = useState(0)
   const [losses, setLosses] = useState(0)
   // The helper can be popped to send it away; the next lost game brings it back
@@ -81,7 +81,10 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
   const [flaggedForYou, setFlaggedForYou] = useState(false)
   const newGame = (next: Level = level) => {
     setLevel(next)
-    setBoard(createBoard(next.columns, next.rows))
+    // A board wider than it is tall (Expert) is turned on its side on a portrait screen, so it
+    // fits the width and the window scrolls down instead of sideways
+    const turned = next.columns > next.rows && globalThis.innerWidth < globalThis.innerHeight
+    setBoard(turned ? createBoard(next.rows, next.columns) : createBoard(next.columns, next.rows))
     setFocused(0)
     setFlaggedForYou(false)
   }
@@ -148,7 +151,7 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <Dialog.Content className="win98-window fixed top-[50%] left-[50%] z-50 w-fit max-w-[calc(100%-1rem)] translate-x-[-50%] translate-y-[-50%] duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0">
+        <Dialog.Content className="win98-window fixed top-[50%] left-[50%] z-50 max-h-[calc(100dvh-1rem)] w-fit max-w-[calc(100%-1rem)] translate-x-[-50%] translate-y-[-50%] overflow-y-auto duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0">
           <div className="win98-titlebar">
             <Dialog.Title>Minesweeper</Dialog.Title>
             <Dialog.Close
@@ -227,7 +230,7 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
                   gridTemplateColumns: `repeat(${COLUMNS}, var(--cell))`,
                   // Cells shrink so a big board fits the window, but never below a size you can hit;
                   // past that the board scrolls sideways
-                  '--cell': `clamp(20px, min(calc((100vw - 3rem) / ${COLUMNS}), calc((100svh - 17rem) / ${level.rows})), 30px)`,
+                  '--cell': `clamp(16px, min(calc((100vw - 3rem) / ${COLUMNS}), calc((100svh - 17rem) / ${board.height})), 30px)`,
                 } as React.CSSProperties
               }
               onContextMenu={event => event.preventDefault()}

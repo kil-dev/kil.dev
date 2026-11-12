@@ -303,6 +303,32 @@
   }
 }
 
+/* On a phone a dialog or toast is nearly as wide as the screen, so the splat keeps to the top and
+   bottom edges: lobes and droplets off the sides would be cut off by the screen. */
+@media (max-width: 639px) {
+  .slime-splat-frame::before {
+    box-shadow:
+      74px 3px 0 -4px var(--primary),
+      168px -2px 0 3px var(--primary),
+      44px -26px 0 -8px var(--primary);
+  }
+  .slime-splat-frame::after {
+    box-shadow:
+      -86px 4px 0 -3px var(--primary),
+      -188px -1px 0 2px var(--primary),
+      -132px 30px 0 -8px var(--primary);
+  }
+  [data-sonner-toast] [data-content]::before {
+    box-shadow:
+      96px 4px 0 -4px var(--primary),
+      214px -2px 0 2px var(--primary),
+      30px 60px 0 -3px var(--primary),
+      150px 62px 0 1px var(--primary),
+      66px -26px 0 -8px var(--primary),
+      212px 84px 0 -8px var(--primary) !important;
+  }
+}
+
 /* Notifications are splats of slime: the same lobes and droplets, sized for the toast's fixed width.
    They hang off the toast's content element, because the toast library moves the toast's own
    ::before and ::after around while a toast is pressed or swiped. It is placed against the toast. */
