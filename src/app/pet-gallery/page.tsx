@@ -1,5 +1,5 @@
 import { PetGalleryContent } from '@/components/layout/pet-gallery/_content'
-import { SectionLabel } from '@/components/ui/section-label'
+import { PageShell } from '@/components/ui/page-shell'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
@@ -27,19 +27,11 @@ function GalleryLoadingSkeleton() {
 
 export default function PetGalleryPage() {
   return (
-    <div className="px-10 py-16 md:px-20 lg:px-40" data-testid="pet-gallery-page">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        {/* Show header immediately - no waiting */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold md:text-3xl">Pet Gallery</h1>
-          <SectionLabel as="p">Pet gallery</SectionLabel>
-        </div>
-
-        {/* Stream in the heavy image loading */}
-        <Suspense fallback={<GalleryLoadingSkeleton />}>
-          <PetGalleryContent />
-        </Suspense>
-      </div>
-    </div>
+    <PageShell title="Pet Gallery" data-testid="pet-gallery-page">
+      {/* The heading renders immediately; the heavy image loading streams in */}
+      <Suspense fallback={<GalleryLoadingSkeleton />}>
+        <PetGalleryContent />
+      </Suspense>
+    </PageShell>
   )
 }

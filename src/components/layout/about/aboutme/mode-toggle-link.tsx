@@ -67,12 +67,13 @@ export function ModeToggleLink() {
     }
   }
 
+  // An easter egg: it looks like plain text, and clicking it switches to the dark theme
   return (
     <Button
       type="button"
       variant="ghostLink"
       size="sm"
-      className="h-auto p-0 px-0"
+      className="h-auto cursor-default p-0 px-0 font-sans text-base font-medium tracking-normal text-foreground normal-case"
       onClick={handleClick}
       onKeyDown={handleKeyDown}>
       Dark mode

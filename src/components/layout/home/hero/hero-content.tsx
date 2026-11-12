@@ -1,7 +1,6 @@
 'use client'
 
 import { useKonamiAnimation } from '@/components/providers/konami-animation-provider'
-import { LinkButton } from '@/components/ui/link-button'
 import { MapTooltip } from '@/components/ui/map-tooltip'
 import { HOME_CONTENT } from '@/lib/content'
 
@@ -17,30 +16,13 @@ export function HeroContent() {
 
   return (
     <div
-      className={`order-2 flex flex-col gap-6 lg:order-1 ${getKonamiClasses(isAnimating, hasAnimated, isReturning)}`}>
+      className={`order-2 -m-4 flex flex-col gap-10 rounded-3xl p-4 backdrop-blur-2xs min-[560px]:order-1 ${getKonamiClasses(isAnimating, hasAnimated, isReturning)}`}>
       <div className="flex flex-col gap-2">
-        <h1 className="text-5xl leading-tight font-black tracking-tight text-foreground md:text-6xl">
+        <h1 className="text-4xl leading-tight font-black tracking-tight text-foreground sm:text-5xl md:text-6xl">
           {HOME_CONTENT.NAME}
         </h1>
         <p className="text-lg font-semibold text-primary md:text-xl">{HOME_CONTENT.TITLE}</p>
-        <MapTooltip />
-      </div>
-      <div className="flex flex-wrap justify-center gap-4 lg:flex-nowrap lg:justify-start">
-        <LinkButton
-          href="/experience"
-          className="h-12 min-w-[140px] gap-2 rounded-md bg-primary px-6 text-base font-bold text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-primary/90 hover:shadow-xl"
-          aria-label="View Experience">
-          <span className="md:hidden">Experience</span>
-          <span className="hidden md:inline">View Experience</span>
-        </LinkButton>
-        <LinkButton
-          href="/projects"
-          variant="secondary"
-          className="h-12 min-w-[140px] rounded-md bg-secondary px-6 text-base font-bold text-secondary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-secondary/80 hover:shadow-xl"
-          aria-label="Open projects page">
-          <span className="truncate md:hidden">Projects</span>
-          <span className="hidden md:inline">View Projects</span>
-        </LinkButton>
+        <MapTooltip className="font-medium text-foreground underline decoration-border decoration-2 underline-offset-4 hover:decoration-primary" />
       </div>
     </div>
   )

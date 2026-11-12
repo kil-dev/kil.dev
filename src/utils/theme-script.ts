@@ -269,7 +269,13 @@ export function initTheme(config: ThemeScriptConfig): void {
     const overlayChanged = (overlay ?? '') !== oldOverlay
     const appliedAfter = explicit ?? baseClass ?? ''
     const appliedChanged = appliedAfter !== oldApplied
-    const shouldAnimate = pref === 'system' ? overlayChanged : appliedChanged
+    // The React theme provider also switches themes, and it does not update the data attributes
+    // read above. If the page already wears exactly the target classes there is nothing to
+    // animate: re-applying only brings those attributes up to date.
+    const alreadyWearing =
+      targetClasses.every(cls => root.classList.contains(cls)) &&
+      known.every(cls => targetClasses.includes(cls) || !root.classList.contains(cls))
+    const shouldAnimate = !alreadyWearing && (pref === 'system' ? overlayChanged : appliedChanged)
 
     const usedTransition =
       allowAnimation && shouldAnimate
@@ -280,7 +286,9 @@ export function initTheme(config: ThemeScriptConfig): void {
           })
         : false
     if (!usedTransition) {
-      const disable = addDisableTransitionStyle()
+      // Only suppress transitions when the theme really changes. Re-applying the same theme
+      // (every window focus) must not restart running CSS animations.
+      const disable = !alreadyWearing && (overlayChanged || appliedChanged) ? addDisableTransitionStyle() : null
       applyDomChanges()
       removeElementSoon(disable)
     }

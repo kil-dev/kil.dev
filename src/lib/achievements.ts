@@ -168,6 +168,17 @@ export const ACHIEVEMENTS = {
     unlockHint: 'Sometimes, the best rating is the only rating.',
     confetti: true,
   },
+  BUBBLE_BURSTER: {
+    id: 'BUBBLE_BURSTER',
+    title: 'Bubble Burster',
+    description: 'You popped 50 bubbles.',
+    icon: '🫧',
+    imageSrc: Images.BubbleBursterAchievement,
+    imageAlt: 'Bubble Burster',
+    cardDescription: 'Fifty bubbles of slime, gone. They will be back. They always come back.',
+    unlockHint: 'Those bubbles drifting up the page look awfully poppable.',
+    confetti: true,
+  },
   PERFECT_PLATINUM: {
     id: 'PERFECT_PLATINUM',
     title: 'Perfect Platinum',

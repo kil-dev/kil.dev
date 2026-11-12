@@ -3,7 +3,7 @@ import {
   expectAchievementCookieContains,
   expectAchievementPopup,
   expectConfettiLikely,
-  flipAllPetCards,
+  viewAllPets,
   waitForAchievementCookie,
 } from '../../fixtures/achievement-helpers'
 import { abortNoise, clearState, gotoAndWaitForMain } from '../../fixtures/test-helpers'
@@ -26,8 +26,8 @@ test.describe('PET_PARADE Achievement', () => {
     })
   })
 
-  test('should unlock PET_PARADE after flipping all pet cards', async ({ page }) => {
-    await flipAllPetCards(page)
+  test('should unlock PET_PARADE after viewing every pet', async ({ page }) => {
+    await viewAllPets(page)
 
     // Wait for popup (confetti triggers when popup becomes visible)
     await expectAchievementPopup(page, 'Pet Parade')
@@ -40,11 +40,11 @@ test.describe('PET_PARADE Achievement', () => {
   })
 
   test('should make pet gallery nav link visible after PET_PARADE', async ({ page }) => {
-    if ((page.viewportSize()?.width ?? 0) < 920) {
+    if ((page.viewportSize()?.width ?? 0) < 1240) {
       test.skip(true, 'Desktop topbar is hidden below the nav breakpoint')
     }
 
-    await flipAllPetCards(page)
+    await viewAllPets(page)
 
     await waitForAchievementCookie(page, 'PET_PARADE')
 
@@ -57,7 +57,7 @@ test.describe('PET_PARADE Achievement', () => {
   })
 
   test('should set data-has-pet-gallery attribute after unlock', async ({ page }) => {
-    await flipAllPetCards(page)
+    await viewAllPets(page)
 
     await waitForAchievementCookie(page, 'PET_PARADE')
 
@@ -68,7 +68,7 @@ test.describe('PET_PARADE Achievement', () => {
     expect(hasAttribute).toBe(true)
   })
 
-  test('should require all pets to be flipped', async ({ page }) => {
+  test('should require every pet to be viewed', async ({ page }) => {
     await gotoAndWaitForMain(page, '/about')
 
     // Scroll to pets section
@@ -76,15 +76,13 @@ test.describe('PET_PARADE Achievement', () => {
     await petsSection.scrollIntoViewIfNeeded()
     await page.waitForTimeout(300)
 
-    // Flip only some pet cards (not all)
-    const petCards = page.locator('[aria-label*="Toggle details for"]')
-    const count = await petCards.count()
+    // View only some pets (not all)
+    const pets = page.getByRole('group', { name: 'Choose a pet' }).getByRole('radio')
+    const count = await pets.count()
 
-    // Flip only half
+    // View only half
     for (let i = 0; i < Math.floor(count / 2); i++) {
-      const card = petCards.nth(i)
-      await card.scrollIntoViewIfNeeded()
-      await card.click()
+      await pets.nth(i).check({ force: true })
       await page.waitForTimeout(400)
     }
 

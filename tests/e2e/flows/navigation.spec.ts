@@ -21,18 +21,18 @@ test.describe('Navigation Flow', () => {
 
       // Navigate to About
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
-      await clickAndWaitForURLThenMain(page, aboutLink, /\/about(?:\/?|(\?.*)?)$/)
-      await expect(page).toHaveURL('/about')
+      await clickAndWaitForURLThenMain(page, aboutLink, /\/#about$/)
+      await expect(page).toHaveURL('/#about')
 
       // Navigate to Experience
       const experienceLink = page.getByRole('menuitem', { name: 'Experience' })
-      await clickAndWaitForURLThenMain(page, experienceLink, /\/experience(?:\/?|(\?.*)?)$/)
-      await expect(page).toHaveURL('/experience')
+      await clickAndWaitForURLThenMain(page, experienceLink, /\/#experience$/)
+      await expect(page).toHaveURL('/#experience')
 
       // Navigate to Projects
       const projectsLink = page.getByRole('menuitem', { name: 'Projects' })
-      await clickAndWaitForURLThenMain(page, projectsLink, /\/projects(?:\/?|(\?.*)?)$/)
-      await expect(page).toHaveURL('/projects')
+      await clickAndWaitForURLThenMain(page, projectsLink, /\/#projects$/)
+      await expect(page).toHaveURL('/#projects')
 
       // Navigate back to Home
       const homeLink = page.getByRole('menuitem', { name: 'Home' })
@@ -40,8 +40,8 @@ test.describe('Navigation Flow', () => {
       await expect(page).toHaveURL('/')
     })
 
-    test('should show active state for current page', async ({ page }) => {
-      await gotoAndWaitForMain(page, '/about')
+    test('should show active state for the section in view', async ({ page }) => {
+      await gotoAndWaitForMain(page, '/#about')
 
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
       await expect(aboutLink).toHaveAttribute('aria-current', 'page')
@@ -51,8 +51,8 @@ test.describe('Navigation Flow', () => {
       await gotoAndWaitForMain(page, '/')
 
       // Navigate forward
-      await clickAndWaitForURLThenMain(page, page.getByRole('menuitem', { name: 'About' }), /\/about(?:\/?|(\?.*)?)$/)
-      await expect(page).toHaveURL('/about')
+      await clickAndWaitForURLThenMain(page, page.getByRole('menuitem', { name: 'About' }), /\/#about$/)
+      await expect(page).toHaveURL('/#about')
 
       // Navigate back
       await page.goBack()
@@ -62,7 +62,7 @@ test.describe('Navigation Flow', () => {
       // Navigate forward again
       await page.goForward()
       await waitForDomContentAndMain(page)
-      await expect(page).toHaveURL('/about')
+      await expect(page).toHaveURL('/#about')
     })
   })
 
@@ -97,14 +97,14 @@ test.describe('Navigation Flow', () => {
 
       // Click About in mobile menu
       const aboutLink = page.getByRole('menuitem', { name: 'About' })
-      await clickAndWaitForURLThenMain(page, aboutLink, /\/about(?:\/?|(\?.*)?)$/)
-      await expect(page).toHaveURL('/about')
+      await clickAndWaitForURLThenMain(page, aboutLink, /\/#about$/)
+      await expect(page).toHaveURL('/#about')
     })
   })
 
   test.describe('Logo Navigation', () => {
     test('should navigate to home when clicking logo', async ({ page }) => {
-      await gotoAndWaitForMain(page, '/about')
+      await gotoAndWaitForMain(page, '/418')
 
       // Click on logo/home button
       const homeLogo = page.getByRole('link', { name: '{ kil.dev }' })

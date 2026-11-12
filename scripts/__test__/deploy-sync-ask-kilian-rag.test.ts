@@ -90,7 +90,7 @@ describe('deploySyncAskKilianRag', () => {
       },
       keys: {
         created: ['project:new'],
-        changed: ['pet:lux', 'pet:tali'],
+        changed: ['pet:lux', 'pet:gwen'],
         unchanged: ['career:qgenda'],
         retired: ['pet:old'],
         ignoredAdmin: ['admin:note'],

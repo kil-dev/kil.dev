@@ -14,18 +14,6 @@ export const PETS: Pet[] = [
     imageAlt: 'Lux the Golden Retriever',
   },
   {
-    id: 'tali',
-    name: 'Tali',
-    type: 'dog',
-    breed: 'Mixed (Basenji/Australian Shepherd)',
-    birthday: '2015-09-24',
-    gender: 'Female',
-    description:
-      "Tali has a spinal cord injury but she doesn't let it slow her down. She loves to chase her sisters around the back yard and bark when they go too fast for her. She also loves to sleep on the couch.",
-    image: Pets.Tali,
-    imageAlt: 'Tali the Mixed Breed (Basenji/Australian Shepherd)',
-  },
-  {
     id: 'gwen',
     name: 'Gwen',
     type: 'dog',

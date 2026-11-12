@@ -37,29 +37,21 @@ These instructions apply to the whole repository.
 - For UI or route behavior, run `bun run test:e2e` or targeted Playwright specs.
 - Before claiming the site is production-ready, run `bun run build`.
 
-## Linear Tracking
+## Kanvil Tracking
 
-- Track code, content, configuration, bug, feature, and maintenance work in the Linear project `kil.dev`.
-- Project URL: https://linear.app/ktyler/project/kildev-617c75ebaf38
-- Team: `Ktyler` (`KTY`).
-- When the user names or pastes a Linear issue ID or URL, fetch the issue from Linear immediately and use its description, comments, child issues, and linked documents as the working context.
-- Before starting a repository change, search for an existing matching Linear issue in the `kil.dev` project. If none exists, create one with the relevant label and milestone.
-- Reference the Linear issue identifier in branch names, commits, and PRs when practical.
-- Keep issue scope concrete: one bug, feature, cleanup, or verification task per issue unless the user explicitly asks for a broader tracking bucket.
-- Use the existing project labels where they fit: `Frontend`, `Convex`, `Generated assets`, `Analytics`, `Ops`, plus `Bug`, `Feature`, or `Improvement`.
-- Use the existing milestones where they fit: `Experience and content`, `Runtime and data`, `Production confidence`, and `Baseline tracking`.
-- If the Linear plugin is unavailable, continue the work and call out that tracking could not be updated.
+- Track repository work in the Kanvil project `KIL`. The `kanvil` skill owns ticket creation, labels, readiness, and status.
+- When the user names a `KIL-<n>` key, fetch the ticket and use its description, acceptance criteria, comments, and relations as the working context.
+- Before starting a repository change, search `KIL` for a matching ticket. If none exists, create one.
+- Reference the bare key (`KIL-12`) in branch names, commits, and PRs. Kanvil URLs stay out of Git and GitHub.
+- Keep ticket scope concrete: one bug, feature, cleanup, or verification task per ticket unless the user explicitly asks for a broader tracking bucket.
+- If the Kanvil tools are unavailable, continue the work and call out that tracking could not be updated.
 
-## Specs, Plans, and Linear Documents
+## Specs and Plans
 
-- Do not commit brainstorming specs, design docs, PRDs, implementation plans, or exploratory planning documents to this repository unless the user explicitly asks for a committed artifact.
-- For Linear-backed brainstorming and implementation planning, treat Linear as the durable home for approved specs, plans, and implementation breakdowns.
-- After the user approves a brainstormed design, create or update a Linear document linked to the parent issue with the approved spec.
-- After the user approves an implementation plan, create or update a Linear document linked to the parent or child issue with the approved plan.
-- If a local Markdown spec or plan is useful while drafting, keep it untracked and sync the durable copy into the Linear document after approval.
-- Do not leave approved specs or implementation plans only in chat or only in local scratch; put them in Linear so future agents can fetch the issue and continue from the linked document.
-- After the approved spec is in Linear, create narrow Linear child issues or related issues for implementation passes, parented under the original issue when possible.
-- Add a parent issue comment linking the Linear spec document and listing the child issue map.
+- Commit brainstorming specs, design docs, PRDs, and implementation plans only when the user explicitly asks for a committed artifact.
+- Approved specs and plans live on the Kanvil ticket: in its description, or in a comment for a later revision, so the next agent can fetch the ticket and continue.
+- Split implementation passes into narrow child tickets parented under the original ticket.
+- Draft locally under `.plans/`, untracked, with concrete file paths and exit criteria.
 
 ## Frontend Conventions
 
@@ -83,8 +75,3 @@ These instructions apply to the whole repository.
 - Never invent or hardcode PostHog keys. Use values from local env files.
 - Keep feature flag names centralized when they are used from more than one place.
 - Ask before renaming existing analytics events, properties, or feature flags unless the requested task explicitly includes that rename.
-
-## Planning Artifacts
-
-- Keep scratch implementation plans out of commits unless requested.
-- If a local plan is useful, put it under `.plans/` and keep it agent-executable with concrete file paths and exit criteria, but do not commit it unless explicitly requested. Sync approved plans into Linear documents for durable tracking.

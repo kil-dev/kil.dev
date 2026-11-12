@@ -256,7 +256,7 @@ export function ThemeToggle() {
         <TooltipTrigger asChild>
           <Button
             ref={triggerRef}
-            variant="ghost"
+            variant="onPrimary"
             size="icon"
             aria-haspopup="menu"
             aria-expanded={open}
@@ -286,9 +286,9 @@ export function ThemeToggle() {
             }}
             onKeyDown={handleTriggerKeyDown}
             className={cn(
-              'relative ring-offset-background hover:ring-1 hover:ring-accent hover:ring-offset-2',
+              'relative ring-offset-primary hover:ring-1 hover:ring-primary-foreground hover:ring-offset-2',
               isClient ? 'transition-[transform,opacity] duration-200 will-change-transform' : 'transition-none',
-              open ? 'z-120 scale-95 rotate-3 ring-1 ring-accent ring-offset-2' : 'z-70',
+              open ? 'z-120 scale-95 rotate-3 ring-1 ring-primary-foreground ring-offset-2' : 'z-70',
             )}>
             <span className="relative inline-block align-middle">
               <style>{themeIconCss}</style>

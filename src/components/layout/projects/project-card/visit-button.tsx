@@ -1,3 +1,5 @@
+'use client'
+
 import { LinkButton } from '@/components/ui/link-button'
 import { captureProjectVisitClicked } from '@/hooks/posthog'
 import type { Route } from 'next'
@@ -13,11 +15,9 @@ export function VisitButton({ href, title, id }: VisitButtonProps) {
     <LinkButton
       href={href}
       external={href.startsWith('http')}
-      variant="default"
-      className="h-9 rounded-md px-3 text-xs font-semibold"
+      size="sm"
       aria-label={`Open ${title} website`}
-      onClick={e => {
-        e.stopPropagation()
+      onClick={() => {
         captureProjectVisitClicked(id, href)
       }}>
       Visit

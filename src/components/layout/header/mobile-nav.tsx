@@ -3,6 +3,7 @@
 import { MobileNavButton } from '@/components/layout/header/mobile-nav-button'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
+import { useActivePath } from '@/hooks/use-active-path'
 import { useIsClient } from '@/hooks/use-is-client'
 import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
 import { usePresenceGates } from '@/hooks/use-presence-gates'
@@ -16,6 +17,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export function MobileNav() {
   const pathname = usePathname()
+  const activePath = useActivePath()
   const router = useRouter()
   const { startTransition } = useThemeTransition()
   const [open, setOpen] = useState(false)
@@ -140,7 +142,7 @@ export function MobileNav() {
   // Prevent background scroll on small screens when menu is open
   useEffect(() => {
     if (typeof globalThis === 'undefined') return
-    const isSm = !globalThis.matchMedia('(min-width: 920px)').matches
+    const isSm = !globalThis.matchMedia('(min-width: 1240px)').matches
     if (!isSm) return
     if (open) {
       const prev = document.documentElement.style.overflow
@@ -279,7 +281,7 @@ export function MobileNav() {
       <div className="relative inline-block nav:hidden">
         <Button
           ref={triggerRef}
-          variant="ghost"
+          variant="onPrimary"
           size="icon"
           aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           aria-haspopup="menu"
@@ -357,7 +359,7 @@ export function MobileNav() {
             transition: 'opacity 120ms ease-out',
           }}>
           {items.map((item, idx) => {
-            const isActive = !item.href.startsWith('#') && item.href === pathname
+            const isActive = !item.href.startsWith('#') && item.href === activePath
             const Icon = item.icon
             const { x, y } = positions[idx] ?? { x: 0, y: 0 }
             return (

@@ -35,8 +35,5 @@
   --sidebar-accent-foreground: oklch(80% 0.03 290);
   --sidebar-border: oklch(32% 0.08 15);
   --sidebar-ring: oklch(60% 0.18 45);
-  --card-backdrop: oklch(0 0 0 / 0.6);
   color-scheme: dark;
-  --card-back-shadow: drop-shadow(0 0 6px oklch(60% 0.18 45 / 0.4)) drop-shadow(0 0 10px oklch(40% 0.2 15 / 0.3))
-    drop-shadow(0 0 14px oklch(55% 0.12 160 / 0.2));
 }

@@ -62,4 +62,31 @@ test.describe('FIVE_STAR_FAN Achievement', () => {
     // This will be true after giving a review
     expect(typeof hasReviewState).toBe('boolean')
   })
+
+  test('should open with the intro on a first visit and a "welcome back" line on the next', async ({ page }) => {
+    await gotoAndWaitForMain(page, '/')
+    // Seven achievements is the threshold that brings the rating dialog up
+    await page.evaluate(() => {
+      const earned = [
+        'ABOUT_AMBLER',
+        'EXPERIENCE_EXPLORER',
+        'PROJECTS_PERUSER',
+        'GRUMPY_GLIMPSE',
+        'RECURSIVE_REWARD',
+        'PET_PARADE',
+        'KONAMI_KILLER',
+      ]
+      const unlocked = Object.fromEntries(earned.map(id => [id, '2026-01-01T00:00:00.000Z']))
+      localStorage.setItem('kil.dev/achievements/v1', JSON.stringify(unlocked))
+    })
+    const dialog = page.getByRole('alertdialog', { name: 'Rate your experience' })
+    const intro = "This definitely isn't a desperate plea for validation."
+
+    await page.reload()
+    await expect(dialog).toContainText(intro)
+
+    await page.reload()
+    await expect(dialog).toBeVisible()
+    await expect(dialog).not.toContainText(intro)
+  })
 })

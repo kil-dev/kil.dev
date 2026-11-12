@@ -24,3 +24,42 @@
 @import './view-transitions.css';
 @import './konami.css';
 @import './utilities.css';
+
+/* The home page is paged: each section snaps into place under the sticky header,
+   and nav links glide to their section. Sections taller than the window scroll freely inside. */
+/* The frame: the sticky header above and the fixed footer pool below. Everything that has to
+   stay clear of them (page height, scroll padding, the footer itself) reads these two.
+   --frame-top is the header's height, which has less padding below the md breakpoint. */
+:root {
+  --frame-top: 4rem;
+  --frame-bottom: 4.25rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --frame-top: 4.5rem;
+  }
+}
+html {
+  scroll-snap-type: y mandatory;
+  scroll-padding-block: var(--frame-top) var(--frame-bottom);
+}
+/* A folded phone on its side is about 370px tall: too short to page through, and too short to
+   give a third of the screen to the frame. The footer shrinks and the page scrolls freely. */
+@media (max-height: 500px) {
+  :root {
+    --frame-bottom: 3rem;
+  }
+  html {
+    scroll-snap-type: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Selected text is dipped in slime */
+::selection {
+  background: color-mix(in oklch, var(--primary) 55%, transparent);
+}

@@ -57,16 +57,6 @@ export function captureThemeChanged(theme: string) {
   })
 }
 
-export function captureProjectCardFlipped(projectId: string, flippedTo: string) {
-  if (!canCapture) return
-  void getPostHog().then(posthog => {
-    posthog?.capture('project_card_flipped', {
-      [PostHogEventProperties.PROJECT_ID]: projectId,
-      [PostHogEventProperties.FLIPPED_TO]: flippedTo,
-    })
-  })
-}
-
 export function captureProjectSourceClicked(projectId: string, source: Route) {
   if (!canCapture) return
   void getPostHog().then(posthog => {

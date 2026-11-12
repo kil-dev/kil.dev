@@ -1,4 +1,5 @@
 export { default as AboutAmblerAchievement } from './about-ambler.webp'
+export { default as BubbleBursterAchievement } from './bubble-burster.webp'
 export { default as ConfusedClickAchievement } from './confused-click.webp'
 export { default as ConsoleCommanderAchievement } from './console-commander.webp'
 export { default as ExperienceExplorerAchievement } from './experience-explorer.webp'

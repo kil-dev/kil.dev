@@ -44,7 +44,7 @@ test.describe('RECURSIVE_REWARD Achievement', () => {
   })
 
   test('should make achievements nav link visible after RECURSIVE_REWARD', async ({ page }) => {
-    if ((page.viewportSize()?.width ?? 0) < 920) {
+    if ((page.viewportSize()?.width ?? 0) < 1240) {
       test.skip(true, 'Desktop topbar is hidden below the nav breakpoint')
     }
 
@@ -71,7 +71,7 @@ test.describe('RECURSIVE_REWARD Achievement', () => {
   })
 
   test('should animate desktop nav layout when achievements link appears', async ({ page }) => {
-    if ((page.viewportSize()?.width ?? 0) < 920) {
+    if ((page.viewportSize()?.width ?? 0) < 1240) {
       test.skip(true, 'Desktop topbar is hidden below the nav breakpoint')
     }
 
@@ -96,7 +96,7 @@ test.describe('RECURSIVE_REWARD Achievement', () => {
         if (!indicator) throw new Error('Missing nav indicator')
 
         const achievements = rectOf('.js-achievements-nav')
-        const projects = rectOf('nav[aria-label="Primary"] a[href="/projects"]')
+        const projects = rectOf('nav[aria-label="Primary"] a[href="/#projects"]')
         const indicatorRect = indicator.getBoundingClientRect()
 
         return {

@@ -1,3 +1,5 @@
+'use client'
+
 import { GitHubIcon } from '@/components/icons/github'
 import { LinkButton } from '@/components/ui/link-button'
 import { captureProjectSourceClicked } from '@/hooks/posthog'
@@ -15,10 +17,9 @@ export function RepoButton({ repo, title, id }: RepoButtonProps) {
       href={repo}
       external
       variant="secondary"
-      className="h-9 rounded-md px-3 text-xs font-semibold"
+      size="sm"
       aria-label={`Open ${title} repository on GitHub`}
-      onClick={e => {
-        e.stopPropagation()
+      onClick={() => {
         captureProjectSourceClicked(id, repo)
       }}>
       <GitHubIcon />

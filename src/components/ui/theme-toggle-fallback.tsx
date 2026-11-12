@@ -11,7 +11,7 @@ export function ThemeToggleFallback() {
 
   return (
     <Button
-      variant="ghost"
+      variant="onPrimary"
       size="icon"
       aria-label="Theme toggle"
       aria-disabled

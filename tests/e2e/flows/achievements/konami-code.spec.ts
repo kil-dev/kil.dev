@@ -54,8 +54,8 @@ test.describe('KONAMI_KILLER Achievement', () => {
   })
 
   test('should only work on home page', async ({ page }) => {
-    // Try Konami code on About page (should not work)
-    await gotoAndWaitForMain(page, '/about')
+    // Try Konami code on a page other than home (should not work)
+    await gotoAndWaitForMain(page, '/418')
     // Ensure page is interactive
     await page.waitForLoadState('domcontentloaded')
 

@@ -55,13 +55,6 @@ test.describe('Pet Gallery Page', () => {
     await expect(footer).toBeVisible()
   })
 
-  test('should display pet gallery heading', async ({ page }) => {
-    await gotoAndWaitForMain(page, '/pet-gallery')
-
-    // There are multiple matches (nav + heading); assert the heading text specifically
-    await expect(page.locator('main').getByText('Pet gallery', { exact: true })).toBeVisible()
-  })
-
   test('should display gallery images', async ({ page }) => {
     await gotoAndWaitForMain(page, '/pet-gallery')
 

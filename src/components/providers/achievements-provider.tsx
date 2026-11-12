@@ -380,22 +380,28 @@ export function AchievementsProvider({
       )}
       <Toaster
         position="bottom-right"
+        // Clear of the fixed footer pool and the pop counter
+        offset={{ bottom: '5.5rem' }}
+        mobileOffset={{ bottom: '6.5rem' }}
         theme={sonnerTheme}
         closeButton
         duration={4000}
         richColors={false}
         toastOptions={{
+          // Notifications are blobs of the same slime as the header and footer
           style: {
-            background: 'var(--color-popover)',
-            color: 'var(--color-popover-foreground)',
-            border: '1px solid var(--color-border)',
+            background: 'var(--color-primary)',
+            color: 'var(--color-primary-foreground)',
+            border: 'none',
+            borderRadius: '1.5rem',
+            boxShadow: '0 14px 30px -14px var(--color-primary)',
           },
           classNames: {
-            toast: 'rounded-lg shadow-2xl z-50',
+            toast: 'z-50',
             title: 'text-base font-semibold',
-            description: 'text-sm text-muted-foreground',
+            description: 'text-sm text-primary-foreground/85',
             icon: 'text-base',
-            closeButton: 'text-muted-foreground hover:text-foreground',
+            closeButton: 'text-primary hover:text-primary',
             actionButton: 'bg-primary text-primary-foreground hover:bg-primary/90',
             cancelButton: 'bg-muted text-foreground hover:bg-muted/80',
             success: 'bg-primary text-primary-foreground',

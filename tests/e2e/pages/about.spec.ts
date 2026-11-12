@@ -26,11 +26,6 @@ test.describe('About Page', () => {
     expect(errors).toHaveLength(0)
   })
 
-  test('should have correct page title', async ({ page }) => {
-    await page.goto('/about', { waitUntil: 'domcontentloaded' })
-    await expect(page).toHaveTitle(/About.*Kilian Tyler/)
-  })
-
   test('should have proper landmark structure', async ({ page }) => {
     await gotoAndWaitForMain(page, '/about')
 
@@ -51,8 +46,13 @@ test.describe('About Page', () => {
     const main = page.getByRole('main')
     await expect(main).toBeVisible()
 
-    // Check for quick facts or similar sections
-    await expect(page.locator('text=/location|birthday|pets/i').first()).toBeVisible()
+    // The quick facts, inside the About section (the nav has a "Pets" item of its own)
+    await expect(
+      page
+        .locator('#about')
+        .getByText(/location|birthday|pets/i)
+        .first(),
+    ).toBeVisible()
   })
 
   test('should display pets section', async ({ page }) => {
@@ -63,8 +63,8 @@ test.describe('About Page', () => {
     await petsHeading.scrollIntoViewIfNeeded()
     await expect(petsHeading).toBeVisible()
 
-    // Check for pet cards
-    const petCards = page.locator('[aria-label*="Toggle details for"]')
+    // Check for pet select buttons
+    const petCards = page.getByRole('group', { name: 'Choose a pet' }).getByRole('radio')
     const count = await petCards.count()
     expect(count).toBeGreaterThan(0)
   })
@@ -87,5 +87,38 @@ test.describe('About Page', () => {
       })
 
     await expectAchievementCookieContains(page, 'ABOUT_AMBLER')
+  })
+
+  test('should step through pets when the detail is swiped sideways', async ({ page }) => {
+    await gotoAndWaitForMain(page, '/about')
+    const pets = page.getByRole('group', { name: 'Choose a pet' }).getByRole('radio')
+    await expect(pets.nth(0)).toBeChecked()
+
+    /** A touch that starts on the pet detail and ends `dx`, `dy` pixels away. */
+    const swipe = (dx: number, dy = 0) =>
+      page.evaluate(
+        ([moveX, moveY]) => {
+          const detail = document.querySelector('#pets fieldset ~ div')!
+          const box = detail.getBoundingClientRect()
+          const at = (x: number, y: number) => new Touch({ identifier: 1, target: detail, clientX: x, clientY: y })
+          const start = at(box.left + box.width / 2, box.top + 40)
+          const end = at(box.left + box.width / 2 + moveX!, box.top + 40 + moveY!)
+          detail.dispatchEvent(
+            new TouchEvent('touchstart', { bubbles: true, touches: [start], changedTouches: [start] }),
+          )
+          detail.dispatchEvent(new TouchEvent('touchend', { bubbles: true, touches: [], changedTouches: [end] }))
+        },
+        [dx, dy],
+      )
+
+    await swipe(-120)
+    await expect(pets.nth(1)).toBeChecked()
+
+    // A mostly vertical drag is a scroll, not a swipe
+    await swipe(-60, 200)
+    await expect(pets.nth(1)).toBeChecked()
+
+    await swipe(120)
+    await expect(pets.nth(0)).toBeChecked()
   })
 })

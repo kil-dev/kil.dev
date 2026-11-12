@@ -1,22 +1,18 @@
 import { MapTooltip } from '@/components/ui/map-tooltip'
 import { QUICK_FACTS } from '@/lib/quickfacts'
-import { QuickFact } from './quick-fact'
+import { QuickFact, QuickFactRow } from './quick-fact'
 
 export function AboutMeQuickFacts() {
+  // Where the facts sit under the text and the screen is small, they are a page of their own:
+  // the text fills one screen and the facts snap in as the next
   return (
-    <div className="order-1 flex flex-col gap-6 lg:order-2">
-      <div>
-        <p className="text-sm tracking-wide text-muted-foreground uppercase">Location</p>
-        <MapTooltip />
-      </div>
-      <div>
-        <p className="text-sm tracking-wide text-muted-foreground uppercase">Quick facts</p>
-        <dl className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
-          {QUICK_FACTS.map(fact => (
-            <QuickFact key={fact.label} fact={fact} />
-          ))}
-        </dl>
-      </div>
-    </div>
+    <dl className="grid content-start gap-x-10 sm:grid-cols-2 lg:grid-cols-1 lg:border-l-2 lg:border-border lg:pl-10 max-lg:compact:min-h-[calc(100dvh-var(--frame-top)-var(--frame-bottom))] max-lg:compact:snap-start max-lg:compact:content-center">
+      <QuickFactRow label="Location">
+        <MapTooltip className="text-foreground transition-colors hover:text-primary" />
+      </QuickFactRow>
+      {QUICK_FACTS.map(fact => (
+        <QuickFact key={fact.label} fact={fact} />
+      ))}
+    </dl>
   )
 }
