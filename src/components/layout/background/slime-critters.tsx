@@ -31,7 +31,11 @@ export function CritterBody({ hanging = false, arrow = false, className, blinkDe
       className={cn('slime-critter text-primary', hanging ? 'origin-top' : 'origin-bottom', className)}>
       <path
         fill="currentColor"
-        d={hanging ? 'M4 0C4 40 22 72 50 72S96 40 96 0Z' : 'M4 80C4 40 22 8 50 8s46 32 46 72Z'}
+        // The sitting body carries on below its box into a rounded underside. It stays out of sight
+        // until a critter in the pool jumps clear of the slime (see .critter-seat in utilities.css).
+        d={
+          hanging ? 'M4 0C4 40 22 72 50 72S96 40 96 0Z' : 'M4 80C4 40 22 8 50 8s46 32 46 72c0 12-20 18-46 18S4 92 4 80Z'
+        }
       />
       <ellipse
         cx="27"
