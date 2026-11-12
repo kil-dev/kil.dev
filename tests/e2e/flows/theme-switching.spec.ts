@@ -226,25 +226,21 @@ test.describe('Theme Switching', () => {
     }
   })
 
-  test('should handle keyboard navigation in theme menu', async ({ page }) => {
+  test('should open with the keyboard, focus the first theme, and close on Enter', async ({ page }) => {
     await gotoAndWaitForMain(page, '/')
-
-    await openThemeMenu(page)
-
-    // Tab to first theme option
-    await page.keyboard.press('Tab')
-    // Small delay for focus to settle
-    await page.waitForTimeout(50)
-
-    // Should be able to select with Enter
-    await page.keyboard.press('Enter')
-    // Wait for menu to close
-    await page.waitForSelector('#theme-options[aria-hidden="true"]', { state: 'attached', timeout: 2000 })
-
-    // Menu should close
+    const trigger = page.locator('button[aria-controls="theme-options"]').first()
     const themeMenu = page.locator('#theme-options')
-    const isHidden = await themeMenu.getAttribute('aria-hidden')
-    expect(isHidden).toBe('true')
+
+    // Opening with the keyboard moves focus to the first theme. (A Tab press is not part of this:
+    // where Tab lands depends on the overlay's tabindex, which is set a moment after opening.)
+    await trigger.focus()
+    await page.keyboard.press('Enter')
+    await expect(themeMenu).toHaveAttribute('aria-hidden', 'false')
+    await expect(themeMenu.getByRole('menuitem').first()).toBeFocused()
+
+    // Enter picks that theme and closes the menu
+    await page.keyboard.press('Enter')
+    await expect(themeMenu).toHaveAttribute('aria-hidden', 'true')
   })
 
   test('should close theme menu on Escape key', async ({ page }) => {

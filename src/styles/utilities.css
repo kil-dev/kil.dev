@@ -437,6 +437,36 @@ button.win98-raised:active {
     animation: kd-breathe 4s ease-in-out infinite;
   }
 }
+/* Critter moods, set on <html> by SlimeCritters */
+.critter-seat {
+  transition: translate 0.3s var(--ease-jelly);
+}
+html[data-critter-mood='duck'] .critter-seat {
+  translate: 0 75%;
+}
+html[data-critter-mood='duck'] .critter-seat-hanging {
+  translate: 0 -75%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-critter-mood='cheer'] .slime-critter {
+    animation: kd-critter-cheer 0.7s var(--ease-jelly) 2;
+  }
+}
+html[data-critter-mood='startled'] .slime-critter-eye {
+  scale: 1.3;
+  animation: none;
+}
+@keyframes kd-critter-cheer {
+  35% {
+    translate: 0 -45%;
+    scale: 0.92 1.12;
+  }
+  70% {
+    translate: 0 0;
+    scale: 1.1 0.9;
+  }
+}
+
 .slime-critter-eye {
   transform-box: fill-box;
   transform-origin: center;

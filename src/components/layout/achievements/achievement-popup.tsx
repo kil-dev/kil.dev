@@ -85,7 +85,11 @@ export function AchievementPopup({ id, onVisible, onDone }: AchievementPopupProp
       {
         phase: 'expand',
         delay: HOLD_DURATION,
-        callback: () => onVisibleRef.current?.(),
+        callback: () => {
+          onVisibleRef.current?.()
+          // The critters cheer when an achievement appears
+          globalThis.dispatchEvent(new Event('kd:achievement-shown'))
+        },
       },
       { phase: 'title', delay: EXPAND_DURATION },
       { phase: 'flip', delay: TITLE_DURATION },

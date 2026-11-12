@@ -1,6 +1,6 @@
 'use client'
 
-import { recordBubblePop } from '@/utils/bubble-pops'
+import { BUBBLE_POPPED_EVENT, recordBubblePop } from '@/utils/bubble-pops'
 import { cn } from '@/utils/utils'
 import { useEffect, useRef, useState } from 'react'
 
@@ -77,7 +77,11 @@ function PoppableCritter({ className, ...body }: CritterBodyProps) {
 
   return (
     <span
-      className={cn('pointer-events-auto absolute cursor-pointer', className)}
+      className={cn(
+        'critter-seat pointer-events-auto absolute cursor-pointer',
+        body.hanging && 'critter-seat-hanging',
+        className,
+      )}
       onClick={pop}
       onAnimationEnd={event => {
         if (event.animationName === 'kd-critter-regrow') setState('idle')
@@ -97,7 +101,8 @@ function PoppableCritter({ className, ...body }: CritterBodyProps) {
 
 /**
  * The fun in the background: a few slime critters poke out of the footer pool and hang off the
- * header. Their eyes follow the mouse; they blink, breathe, wobble when hovered and pop when clicked.
+ * header. Their eyes follow the mouse; they blink, breathe, wobble when hovered, pop when clicked,
+ * duck while the page scrolls, jump for achievements and startle at popped bubbles.
  */
 export function SlimeCritters() {
   // Every critter on the page, including the scroll cue in the footer, looks at the pointer
@@ -125,6 +130,34 @@ export function SlimeCritters() {
     return () => {
       cancelAnimationFrame(raf)
       globalThis.removeEventListener('pointermove', onPointerMove)
+    }
+  }, [])
+
+  // Moods: the critters duck while the page scrolls, jump when an achievement appears, and
+  // go wide-eyed when a bubble pops. The mood is a data attribute on <html>, so the scroll cue
+  // critter in the footer reacts too; CSS does the rest.
+  useEffect(() => {
+    const root = document.documentElement
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const feel = (mood: 'duck' | 'cheer' | 'startled', ms: number) => {
+      // Ducking never interrupts a cheer
+      if (mood === 'duck' && root.dataset.critterMood === 'cheer') return
+      root.dataset.critterMood = mood
+      clearTimeout(timer)
+      timer = setTimeout(() => delete root.dataset.critterMood, ms)
+    }
+    const onScroll = () => feel('duck', 260)
+    const onAchievement = () => feel('cheer', 1400)
+    const onPop = () => feel('startled', 450)
+    globalThis.addEventListener('scroll', onScroll, { passive: true })
+    globalThis.addEventListener('kd:achievement-shown', onAchievement)
+    globalThis.addEventListener(BUBBLE_POPPED_EVENT, onPop)
+    return () => {
+      clearTimeout(timer)
+      delete root.dataset.critterMood
+      globalThis.removeEventListener('scroll', onScroll)
+      globalThis.removeEventListener('kd:achievement-shown', onAchievement)
+      globalThis.removeEventListener(BUBBLE_POPPED_EVENT, onPop)
     }
   }, [])
 

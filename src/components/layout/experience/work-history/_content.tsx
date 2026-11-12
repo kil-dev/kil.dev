@@ -3,7 +3,7 @@
 import { ExperienceMapTooltip } from '@/components/ui/experience-map-tooltip'
 import { Picker } from '@/components/ui/picker'
 import { SkillIcons } from '@/components/ui/skill-icons'
-import { captureCompanyLogoClicked, captureWorkHighlightsToggled } from '@/hooks/posthog'
+import { captureCompanyLogoClicked, captureWorkExperienceSelected } from '@/hooks/posthog'
 import { WORK_HISTORY } from '@/lib/experience'
 import type { WorkExperience } from '@/types/work-experience'
 import { resolveSkills } from '@/utils/skillicons'
@@ -31,7 +31,7 @@ export function WorkHistory() {
           job.company.charAt(0)
         )
       }
-      onSelect={job => captureWorkHighlightsToggled(job.id, true)}>
+      onSelect={job => captureWorkExperienceSelected(job.id)}>
       {job => <Job item={job} />}
     </Picker>
   )

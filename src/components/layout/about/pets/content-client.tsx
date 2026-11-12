@@ -2,7 +2,7 @@
 
 import { useAchievements } from '@/components/providers/achievements-provider'
 import { Picker } from '@/components/ui/picker'
-import { capturePetCardFlipped } from '@/hooks/posthog'
+import { capturePetSelected } from '@/hooks/posthog'
 import type { AchievementId } from '@/lib/achievements'
 import type { Pet } from '@/types/pets'
 import { formatAgeLabel, formatDateFull } from '@/utils/utils'
@@ -19,7 +19,7 @@ export function PetsContentClient({ pets }: PetsContentClientProps) {
   const viewedRef = useRef(new Set(pets[0] ? [pets[0].id] : []))
 
   function handleSelect(pet: Pet) {
-    capturePetCardFlipped(pet.id, 'back')
+    capturePetSelected(pet.id)
     viewedRef.current.add(pet.id)
     if (viewedRef.current.size === pets.length && !has('PET_PARADE')) {
       unlock('PET_PARADE' satisfies AchievementId)

@@ -8,7 +8,8 @@
   --popover: oklch(24.325% 0.05053 264.952);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.6991 0.157 238.99);
-  --primary-foreground: oklch(0.9288 0.0126 255.51);
+  /* Dark text: the slime is bright, and pale text on it only reached 2.1:1 */
+  --primary-foreground: oklch(0.2077 0.0398 265.75);
   --secondary: oklch(0.2795 0.0368 260.03);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);

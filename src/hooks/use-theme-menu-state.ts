@@ -62,13 +62,20 @@ export function useThemeMenuState(): UseThemeMenuStateResult {
     }
   }, [open])
 
-  // focus first option when opening via keyboard
+  // Focus the first option when opening via keyboard. The menu fades in from `visibility: hidden`,
+  // and a hidden element cannot take focus, so keep trying for a few frames until it does.
   useEffect(() => {
-    if (!open) return
-    const id = globalThis.setTimeout(() => {
-      if (openedViaKeyboard) optionRefs.current[0]?.focus()
-    }, 0)
-    return () => globalThis.clearTimeout(id)
+    if (!open || !openedViaKeyboard) return
+    let frame = 0
+    let tries = 0
+    const focusFirst = () => {
+      const first = optionRefs.current[0]
+      first?.focus()
+      tries += 1
+      if (document.activeElement !== first && tries < 30) frame = requestAnimationFrame(focusFirst)
+    }
+    frame = requestAnimationFrame(focusFirst)
+    return () => cancelAnimationFrame(frame)
   }, [open, openedViaKeyboard])
 
   const handleTriggerKeyDown = useCallback(

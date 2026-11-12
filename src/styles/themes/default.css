@@ -5,7 +5,8 @@
   --card-foreground: oklch(0.195 0.02 255);
   --popover: oklch(0.99 0.008 255);
   --popover-foreground: oklch(0.195 0.02 255);
-  --primary: oklch(60% 0.15 240);
+  /* Dark enough for white text on it to reach 4.5:1 */
+  --primary: oklch(53% 0.15 240);
   --primary-foreground: oklch(0.985 0.005 255);
   --secondary: oklch(0.945 0.02 245);
   --secondary-foreground: oklch(0.26 0.04 255);

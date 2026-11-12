@@ -15,7 +15,6 @@ enum PostHogEventProperties {
   HREF = 'href',
   THEME = 'theme',
   PROJECT_ID = 'projectId',
-  FLIPPED_TO = 'flippedTo',
   SOURCE = 'source',
   INTERACTION = 'interaction',
   NEW_STATE = 'newState',
@@ -23,7 +22,6 @@ enum PostHogEventProperties {
   PET_ID = 'petId',
   USER_AGENT = 'userAgent',
   COMPANY_ID = 'companyId',
-  EXPANDED = 'expanded',
   ACHIEVEMENT_ID = 'achievementId',
 }
 
@@ -95,12 +93,12 @@ export function captureDarkModeEasterEgg() {
   })
 }
 
-export function capturePetCardFlipped(petId: string, flippedTo: string) {
+/** A pet was picked in the Pets list. Replaces `pet_card_flipped` from the flip-card design. */
+export function capturePetSelected(petId: string) {
   if (!canCapture) return
   void getPostHog().then(posthog => {
-    posthog?.capture('pet_card_flipped', {
+    posthog?.capture('pet_selected', {
       [PostHogEventProperties.PET_ID]: petId,
-      [PostHogEventProperties.FLIPPED_TO]: flippedTo,
     })
   })
 }
@@ -114,12 +112,12 @@ export function captureLadybirdDetected(userAgent: string) {
   })
 }
 
-export function captureWorkHighlightsToggled(companyId: string, expanded: boolean) {
+/** A job was picked in the Experience list. Replaces `work_highlights_toggled` from the collapsible timeline. */
+export function captureWorkExperienceSelected(companyId: string) {
   if (!canCapture) return
   void getPostHog().then(posthog => {
-    posthog?.capture('work_highlights_toggled', {
+    posthog?.capture('work_experience_selected', {
       [PostHogEventProperties.COMPANY_ID]: companyId,
-      [PostHogEventProperties.EXPANDED]: expanded,
     })
   })
 }
