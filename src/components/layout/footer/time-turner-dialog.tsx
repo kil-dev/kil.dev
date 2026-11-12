@@ -151,7 +151,7 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <Dialog.Content className="win98-window fixed top-[50%] left-[50%] z-50 max-h-[calc(100dvh-1rem)] w-fit max-w-[calc(100%-1rem)] translate-x-[-50%] translate-y-[-50%] overflow-y-auto duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0">
+        <Dialog.Content className="win98-window fixed top-[50%] left-[50%] z-50 w-fit max-w-[calc(100%-1rem)] translate-x-[-50%] translate-y-[-50%] duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0">
           <div className="win98-titlebar">
             <Dialog.Title>Minesweeper</Dialog.Title>
             <Dialog.Close
@@ -202,7 +202,9 @@ export function TimeTurnerDialog({ year }: Readonly<{ year: number }>) {
             ))}
           </div>
 
-          <div className="win98-raised m-1.5 flex flex-col gap-1.5 p-1.5">
+          {/* A board too tall for the screen scrolls here. The window itself must not clip: the helper
+              critter stands on top of it. */}
+          <div className="win98-raised m-1.5 flex max-h-[calc(100dvh-7rem)] flex-col gap-1.5 overflow-y-auto p-1.5">
             <div className="win98-sunken flex items-center justify-between p-1">
               <span className="win98-led" role="status" aria-label={`${Math.max(0, MINES - flags)} mines left to flag`}>
                 {String(Math.max(0, MINES - flags)).padStart(3, '0')}
