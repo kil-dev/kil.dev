@@ -326,3 +326,11 @@
     letter-spacing: 0;
   }
 }
+
+/* The window panels add borders and padding around each page, and the fallback font runs wider,
+   so the Experience highlights box leaves more room for what surrounds it */
+@media (min-width: 640px) {
+  .dotcom {
+    --highlights-reserve: 24rem;
+  }
+}

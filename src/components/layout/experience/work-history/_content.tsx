@@ -37,8 +37,8 @@ export function WorkHistory() {
   )
 }
 
-// On a phone a long list of highlights scrolls inside its own box, so the role, dates and skills
-// around it stay on screen.
+// Below desktop width a long list of highlights scrolls inside its own box, so the role, dates
+// and skills around it stay on screen whatever the theme's font does to the line count.
 function Job({ item }: { item: WorkExperience }) {
   const skills = item.skills ? resolveSkills(item.skills) : []
   const href = item.companyUrl
@@ -76,7 +76,7 @@ function Job({ item }: { item: WorkExperience }) {
       </div>
       {item.summary ? <p className="leading-relaxed text-muted-foreground compact:text-sm">{item.summary}</p> : null}
       {item.highlights?.length ? (
-        <ul className="flex flex-col gap-1.5 text-sm max-sm:max-h-[max(6rem,calc(100svh-var(--frame-top)-var(--frame-bottom)-19.5rem))] max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:pr-1 md:text-base compact:text-sm! compact:sm:block compact:sm:columns-2 compact:sm:gap-x-8 [&>li]:break-inside-avoid compact:sm:[&>li]:mb-1.5">
+        <ul className="flex flex-col gap-1.5 text-sm max-lg:max-h-[max(6rem,calc(100svh-var(--frame-top)-var(--frame-bottom)-var(--highlights-reserve,20.5rem)))] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pr-1 md:text-base compact:text-sm! compact:sm:block compact:sm:columns-2 compact:sm:gap-x-8 [&>li]:break-inside-avoid compact:sm:[&>li]:mb-1.5">
           {item.highlights.map(highlight => (
             <li
               key={highlight}
