@@ -54,7 +54,8 @@ export function ThemeMenu({
       tabIndex={-1}
       onKeyDown={onKeyDown}
       className={cn(
-        'absolute top-full left-1/2 z-[120] mt-2 -translate-x-1/2',
+        // The menu hangs below the header but is not on its slime, so it takes the page's text colour
+        'absolute top-full left-1/2 z-[120] mt-2 -translate-x-1/2 text-foreground',
         'flex flex-col items-stretch gap-3',
         open ? 'pointer-events-auto' : 'pointer-events-none',
       )}>

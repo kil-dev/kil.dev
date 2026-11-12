@@ -198,7 +198,10 @@ export function ThemeToggle() {
       const resolvedIcon: IconComponent = iconByTheme[t] ?? getThemeIcon(t, SystemIcon)
       return { label, value: t, Icon: resolvedIcon }
     })
-  }, [iconByTheme, themeTapdanceUnlocked])
+    // `open` is a dependency on purpose: Matrix and DotCom are unlocked elsewhere on the page and
+    // recorded in localStorage, so the list is rebuilt each time the menu opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iconByTheme, themeTapdanceUnlocked, open])
 
   // Compute dynamic width based on the longest theme label (in ch units)
   const menuWidthCh = useMemo(() => {
