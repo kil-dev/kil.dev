@@ -478,6 +478,25 @@ html[data-critter-mood='duck'] .critter-seat-hanging {
     animation: kd-critter-cheer 0.7s var(--ease-jelly) 2;
   }
 }
+/* A critter in the pool jumps clear of it, so its rounded underside shows; at rest that part
+   merges into the pool under it. */
+.critter-seat .slime-critter {
+  overflow: visible;
+}
+/* The scroll cue sits right under the achievement popup, with no room to jump: it stretches. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-critter-mood='cheer'] .scroll-cue .slime-critter {
+    animation-name: kd-critter-stretch;
+  }
+}
+@keyframes kd-critter-stretch {
+  35% {
+    scale: 0.94 1.12;
+  }
+  70% {
+    scale: 1.06 0.92;
+  }
+}
 html[data-critter-mood='startled'] .slime-critter-eye {
   scale: 1.3;
   animation: none;
@@ -560,7 +579,7 @@ html[data-critter-mood='startled'] .slime-critter-eye {
     right: 0.75rem !important;
     left: auto !important;
     width: 3.5rem !important;
-    height: 3rem !important;
+    height: 3.25rem !important;
     margin-left: 0 !important;
   }
 }
@@ -602,7 +621,7 @@ html[data-snake] :is(.slime-bubbles, .slime-pop-count, .slime-critters),
   bottom: calc(100% - 3px);
   left: 50%;
   width: 5rem;
-  height: 4.25rem;
+  height: 4.75rem;
   margin-left: -2.5rem;
   overflow: hidden;
   pointer-events: none;

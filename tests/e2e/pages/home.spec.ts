@@ -94,3 +94,36 @@ test.describe('Home Page', () => {
     await expect(linkedinLink).toBeVisible()
   })
 })
+
+test.describe('Home Page critters', () => {
+  test('should keep the cheering scroll cue critter whole and under the achievement popup', async ({ page }) => {
+    await clearState(page)
+    await disableSeasonalOverlays(page)
+    await abortNoise(page)
+    await gotoAndWaitForMain(page, '/')
+    await expect(page.locator('.scroll-cue[data-sunk="false"]')).toBeVisible()
+
+    // An achievement appears: hold the critter at the top of its cheer and measure it
+    const { critterTop, wellTop, popupBottom } = await page.evaluate(async () => {
+      document.documentElement.dataset.critterMood = 'cheer'
+      const critter = document.querySelector('.scroll-cue .slime-critter')!
+      // Let it finish rising out of the pool first
+      await Promise.all(critter.parentElement!.getAnimations().map(animation => animation.finished))
+      await new Promise(requestAnimationFrame)
+      for (const animation of critter.getAnimations()) {
+        animation.pause()
+        animation.currentTime = 245
+      }
+      const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+      return {
+        critterTop: critter.getBoundingClientRect().top,
+        wellTop: document.querySelector('.scroll-cue-well')!.getBoundingClientRect().top,
+        // The popup sits 7.75rem above the bottom of the screen
+        popupBottom: innerHeight - 7.75 * rem,
+      }
+    })
+
+    expect(critterTop).toBeGreaterThanOrEqual(wellTop)
+    expect(critterTop).toBeGreaterThanOrEqual(popupBottom)
+  })
+})
