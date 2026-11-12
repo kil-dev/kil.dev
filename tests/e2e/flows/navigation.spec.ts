@@ -73,11 +73,11 @@ test.describe('Navigation Flow', () => {
       await gotoAndWaitForMain(page, '/')
 
       // Open mobile menu (button toggles aria-label between Open/Close)
-      const menuButton = page.locator('button[aria-controls="mobile-nav-arc"]')
+      const menuButton = page.locator('button[aria-controls="mobile-nav"]')
       await expect(menuButton).toBeVisible()
 
       // Wait for menu items to appear after clicking (more reliable than checking aria-expanded)
-      const mobileNav = page.locator('#mobile-nav-arc[role="menu"]')
+      const mobileNav = page.locator('#mobile-nav[role="menu"]')
       await menuButton.click()
 
       // Wait for menu to be visible - this ensures React has updated the DOM
@@ -87,18 +87,34 @@ test.describe('Navigation Flow', () => {
       await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
     })
 
-    test('should navigate using mobile menu', async ({ page }) => {
+    test('should close the menu and scroll to the section chosen in it', async ({ page }) => {
       await gotoAndWaitForMain(page, '/')
 
-      // Open mobile menu
-      const menuButton = page.locator('button[aria-controls="mobile-nav-arc"]')
+      const menuButton = page.locator('button[aria-controls="mobile-nav"]')
       await menuButton.click()
-      await page.waitForTimeout(500)
+      await page.getByRole('menuitem', { name: 'About' }).click()
 
-      // Click About in mobile menu
-      const aboutLink = page.getByRole('menuitem', { name: 'About' })
-      await clickAndWaitForURLThenMain(page, aboutLink, /\/#about$/)
       await expect(page).toHaveURL('/#about')
+      await expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+      await expect(page.locator('#about')).toBeInViewport()
+    })
+
+    test('should hold the theme and social buttons in the menu on a phone', async ({ page }) => {
+      await gotoAndWaitForMain(page, '/')
+
+      const themeButton = page.locator('button[aria-controls="theme-options"]')
+      const githubLink = page.getByRole('banner').getByRole('link', { name: /github/i })
+      await expect(themeButton).toBeHidden()
+      await expect(githubLink).toBeHidden()
+
+      const menuButton = page.locator('button[aria-controls="mobile-nav"]')
+      await menuButton.click()
+      await expect(githubLink).toBeVisible()
+
+      // Opening the theme list from inside the menu leaves the menu open behind it
+      await themeButton.click()
+      await expect(page.getByRole('menuitem', { name: 'Light' })).toBeVisible()
+      await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
     })
   })
 

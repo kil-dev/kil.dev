@@ -1,406 +1,171 @@
 'use client'
 
-import { MobileNavButton } from '@/components/layout/header/mobile-nav-button'
+import { CritterBody } from '@/components/layout/background/slime-critters'
 import { Button } from '@/components/ui/button'
 import { useThemeTransition } from '@/components/ui/theme-toggle'
 import { useActivePath } from '@/hooks/use-active-path'
 import { useIsClient } from '@/hooks/use-is-client'
-import { useOverlayDismiss } from '@/hooks/use-overlay-dismiss'
 import { usePresenceGates } from '@/hooks/use-presence-gates'
 import { NAVIGATION } from '@/lib/navmenu'
+import type { NavigationItem } from '@/types/navigation-item'
 import { cn } from '@/utils/utils'
 import { injectCircleBlurTransitionStyles } from '@/utils/view-transition'
 import { MenuIcon, PawPrint, Trophy } from 'lucide-react'
 import type { Route } from 'next'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+const ACHIEVEMENTS: NavigationItem = { label: 'Achievements', href: '/achievements' as Route, icon: Trophy }
+const PET_GALLERY: NavigationItem = { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint }
+
+/**
+ * The menu below the nav breakpoint: a critter in the header slime opens a sheet of the same
+ * slime that stretches down out of the header. On a phone the header's theme and social buttons
+ * sit in the sheet's first row (see `.header-actions`).
+ */
 export function MobileNav() {
   const pathname = usePathname()
   const activePath = useActivePath()
   const router = useRouter()
   const { startTransition } = useThemeTransition()
-  const [open, setOpen] = useState(false)
-  const [closing, setClosing] = useState(false)
-  const [openedViaKeyboard, setOpenedViaKeyboard] = useState(false)
-  const isMounted = useIsClient()
-  const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const itemRefs = useRef<Array<HTMLAnchorElement | null>>([])
-  type Particle = {
-    id: number
-    tx: number
-    ty: number
-    durationMs: number
-    delayMs: number
-    sizePx: number
-    tone: 'primary' | 'accent'
-  }
-  const [particles, setParticles] = useState<Particle[]>([])
-  const [particleAnim, setParticleAnim] = useState<'burst' | 'implode'>('burst')
-  // Animation constants
-  const STAGGER_MS = 35
-  const OPEN_DURATION_MS = 300
-  const CLOSE_DURATION_MS = 200
-  const isExpanded = open && !closing
-
-  const overlayRef = useRef<HTMLDivElement | null>(null)
-  const {
-    setOpen: setOverlayOpen,
-    containerRef,
-    overlayProps,
-  } = useOverlayDismiss({
-    enabled: true,
-    onRequestClose: () => {
-      closeWithAnimation()
-    },
-  })
-
+  const isClient = useIsClient()
   const { allowAchievements, allowPetGallery } = usePresenceGates()
-  const items = useMemo(() => {
-    let navigationItems = NAVIGATION
-    if (isMounted && allowAchievements) {
-      navigationItems = [...navigationItems, { label: 'Achievements', href: '/achievements' as Route, icon: Trophy }]
-    }
-    if (isMounted && allowPetGallery) {
-      navigationItems = [...navigationItems, { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint }]
-    }
-    // Ensure current gated route remains visible while active even if gate toggles off (after mount)
-    if (isMounted && pathname === '/achievements' && !allowAchievements) {
-      navigationItems = [...navigationItems, { label: 'Achievements', href: '/achievements' as Route, icon: Trophy }]
-    }
-    if (isMounted && pathname === '/pet-gallery' && !allowPetGallery) {
-      navigationItems = [...navigationItems, { label: 'Pet Gallery', href: '/pet-gallery' as Route, icon: PawPrint }]
-    }
-    return navigationItems
-  }, [isMounted, allowAchievements, allowPetGallery, pathname])
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const openedWithKeyboard = useRef(false)
 
-  const injectCircleBlur = useCallback((originXPercent: number, originYPercent: number) => {
-    injectCircleBlurTransitionStyles(originXPercent, originYPercent, 'nav-transition')
-  }, [])
+  // A gated page stays listed while it is the page being viewed
+  const items = [
+    ...NAVIGATION,
+    ...(isClient && (allowAchievements || pathname === '/achievements') ? [ACHIEVEMENTS] : []),
+    ...(isClient && (allowPetGallery || pathname === '/pet-gallery') ? [PET_GALLERY] : []),
+  ]
 
-  const triggerOpenFx = useCallback(() => {
-    setParticleAnim('burst')
-    const particleCount = 12
-    const nextParticles: Particle[] = []
-    for (let i = 0; i < particleCount; i++) {
-      const angle = ((20 + Math.random() * 100) * Math.PI) / 180
-      const distance = 40 + Math.random() * 100
-      const tx = Math.cos(angle) * distance
-      const ty = Math.sin(angle) * distance
-      const durationMs = 420 + Math.round(Math.random() * 220)
-      const delayMs = Math.round(Math.random() * 100)
-      const sizePx = 4 + Math.round(Math.random() * 6)
-      const tone: Particle['tone'] = Math.random() > 0.5 ? 'primary' : 'accent'
-      nextParticles.push({ id: i, tx, ty, durationMs, delayMs, sizePx, tone })
-    }
-    setParticles(nextParticles)
-    globalThis.setTimeout(() => setParticles([]), 900)
-  }, [])
-
-  const triggerCloseFx = useCallback(() => {
-    setParticleAnim('implode')
-    const particleCount = 10
-    const nextParticles: Particle[] = []
-    for (let i = 0; i < particleCount; i++) {
-      const angle = ((20 + Math.random() * 100) * Math.PI) / 180
-      const distance = 50 + Math.random() * 80
-      const tx = Math.cos(angle) * distance
-      const ty = Math.sin(angle) * distance
-      const durationMs = 360 + Math.round(Math.random() * 180)
-      const delayMs = Math.round(Math.random() * 80)
-      const sizePx = 3 + Math.round(Math.random() * 6)
-      const tone: Particle['tone'] = Math.random() > 0.5 ? 'primary' : 'accent'
-      nextParticles.push({ id: i, tx, ty, durationMs, delayMs, sizePx, tone })
-    }
-    setParticles(nextParticles)
-    globalThis.setTimeout(() => setParticles([]), 800)
-  }, [])
-
-  // Unified close (optionally navigate after animation)
-  const closeWithAnimation = useCallback(
-    (navigateHref?: string, perItemIdx?: number) => {
-      setClosing(true)
-      setOpen(false)
-      setOpenedViaKeyboard(false)
-      triggerCloseFx()
-      const total = CLOSE_DURATION_MS + (items.length - 1) * STAGGER_MS
-      const navigateDelay =
-        typeof perItemIdx === 'number' ? CLOSE_DURATION_MS + (items.length - 1 - perItemIdx) * STAGGER_MS : total
-      globalThis.setTimeout(() => {
-        if (navigateHref) {
-          startTransition(() => {
-            router.push(navigateHref as Route)
-          })
-        }
-        setClosing(false)
-        triggerRef.current?.focus()
-      }, navigateDelay)
-    },
-    [router, startTransition, triggerCloseFx, items.length],
-  )
-
-  // Prevent background scroll on small screens when menu is open
-  useEffect(() => {
-    if (typeof globalThis === 'undefined') return
-    const isSm = !globalThis.matchMedia('(min-width: 1240px)').matches
-    if (!isSm) return
-    if (open) {
-      const prev = document.documentElement.style.overflow
-      document.documentElement.style.overflow = 'hidden'
-      return () => {
-        document.documentElement.style.overflow = prev
-      }
-    }
-  }, [open])
-
-  // Keep overlay hook state in sync with local open state
-  useEffect(() => {
-    setOverlayOpen(open)
-  }, [open, setOverlayOpen])
-
-  // Focus first item when opening via keyboard
   useEffect(() => {
     if (!open) return
-    const id = globalThis.setTimeout(() => {
-      if (openedViaKeyboard) itemRefs.current[0]?.focus()
-    }, 0)
-    return () => globalThis.clearTimeout(id)
-  }, [open, openedViaKeyboard])
+    if (openedWithKeyboard.current) listRef.current?.querySelector('a')?.focus()
 
-  // Ensure focus is never left on the overlay when closing
-  useEffect(() => {
-    if (open) return
-    if (document.activeElement === overlayRef.current) {
-      overlayRef.current?.blur()
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
+    root.style.overflow = 'hidden'
+
+    const close = () => setOpen(false)
+    const onKeyDown = (event: KeyboardEvent) => {
+      // Escape closes the theme menu first when that is open on top of this one
+      if (event.key !== 'Escape' || document.querySelector('#theme-options[aria-hidden="false"]')) return
+      close()
+      triggerRef.current?.focus()
     }
-    triggerRef.current?.focus()
-  }, [open])
-
-  const handleTriggerKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      setOpen(o => !o)
-      setOpenedViaKeyboard(true)
-      return
-    }
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-      e.preventDefault()
-      setOpen(true)
-      setOpenedViaKeyboard(true)
-    }
-  }, [])
-
-  const handleMenuKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLUListElement>) => {
-      const activeEl = document.activeElement
-      const currentIndex = activeEl instanceof HTMLAnchorElement ? itemRefs.current.indexOf(activeEl) : -1
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault()
-        const next = currentIndex === -1 ? 0 : Math.min(items.length - 1, currentIndex + 1)
-        itemRefs.current[next]?.focus()
-        return
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault()
-        const prev = currentIndex < 0 ? 0 : Math.max(0, currentIndex - 1)
-        itemRefs.current[prev]?.focus()
-        return
-      }
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        setOpen(false)
-        setOpenedViaKeyboard(false)
-        triggerRef.current?.focus()
-      }
-    },
-    [items.length],
-  )
-
-  // Ladder layout tuning
-  const [ladderXOffset, setLadderXOffset] = useState(28)
-  const [ladderYOffset, setLadderYOffset] = useState(28)
-  const [ladderStepX] = useState(14)
-  const [ladderStepY] = useState(10)
-  const [anchor, setAnchor] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
-
-  // Pre-compute ladder positions shooting down-right from the trigger
-  type LadderPoint = { x: number; y: number }
-  const positions = useMemo<LadderPoint[]>(() => {
-    return items.map((_, idx) => ({ x: ladderXOffset + idx * ladderStepX, y: ladderYOffset + idx * ladderStepY }))
-  }, [items, ladderXOffset, ladderYOffset, ladderStepX, ladderStepY])
-
-  // Anchor the ladder to the actual button center (viewport coordinates)
-  useEffect(() => {
-    if (typeof globalThis === 'undefined') return
-    const update = () => {
-      const rect = triggerRef.current?.getBoundingClientRect()
-      if (!rect) return
-      setAnchor({ x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) })
-    }
-    update()
-    globalThis.addEventListener('resize', update, { passive: true })
-    globalThis.addEventListener('scroll', update, { passive: true, capture: true })
+    // The menu does not exist on a wide window, so it cannot stay open (and scroll-locked) there
+    const wide = globalThis.matchMedia('(min-width: 1240px)')
+    globalThis.addEventListener('keydown', onKeyDown)
+    wide.addEventListener('change', close)
     return () => {
-      globalThis.removeEventListener('resize', update)
-      globalThis.removeEventListener('scroll', update, true)
+      root.style.overflow = previousOverflow
+      globalThis.removeEventListener('keydown', onKeyDown)
+      wide.removeEventListener('change', close)
     }
-  }, [])
-
-  // Reset offsets on each open to avoid cumulative drift across openings
-  useEffect(() => {
-    if (!open) return
-    const id = requestAnimationFrame(() => {
-      setLadderXOffset(-12)
-      setLadderYOffset(22)
-    })
-    return () => cancelAnimationFrame(id)
   }, [open])
 
-  // Nudge first item fully into view on open (single pass)
-  useEffect(() => {
-    if (!open) return
-    const adjust = () => {
-      const firstEl = itemRefs.current[0]
-      if (!firstEl) return
-      const rect = firstEl.getBoundingClientRect()
-      const topMargin = 40
-      const leftMargin = 16
-      if (rect.top < topMargin) {
-        setLadderYOffset(prev => prev + Math.ceil(topMargin - rect.top))
-      }
-      if (rect.left < leftMargin) {
-        setLadderXOffset(prev => prev + Math.ceil(leftMargin - rect.left))
-      }
+  function handleListKeyDown(event: React.KeyboardEvent<HTMLUListElement>) {
+    const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
+    if (!step) return
+    event.preventDefault()
+    const links = Array.from(event.currentTarget.querySelectorAll('a'))
+    const next = links.indexOf(document.activeElement as HTMLAnchorElement) + step
+    links[Math.max(0, Math.min(links.length - 1, next))]?.focus()
+  }
+
+  function handleSelect(event: React.MouseEvent<HTMLAnchorElement>, href: Route) {
+    setOpen(false)
+    // A section of the page already open: the link scrolls there by itself
+    if (pathname === '/' && (href === '/' || href.startsWith('/#'))) return
+    event.preventDefault()
+    const button = triggerRef.current?.getBoundingClientRect()
+    if (button) {
+      injectCircleBlurTransitionStyles(
+        ((button.left + button.width / 2) / globalThis.innerWidth) * 100,
+        ((button.top + button.height / 2) / globalThis.innerHeight) * 100,
+        'nav-transition',
+      )
     }
-    const id = globalThis.requestAnimationFrame(adjust)
-    return () => globalThis.cancelAnimationFrame(id)
-  }, [open])
+    startTransition(() => router.push(href))
+  }
 
   return (
-    <div ref={containerRef as React.RefObject<HTMLDivElement | null>} className="relative">
-      <div className="relative inline-block nav:hidden">
-        <Button
-          ref={triggerRef}
-          variant="onPrimary"
-          size="icon"
-          aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-haspopup="menu"
-          aria-expanded={open}
-          aria-controls="mobile-nav-arc"
-          className="relative z-106"
-          onClick={() => {
-            setOpen(prev => {
-              const next = !prev
-              setOpenedViaKeyboard(false)
-              if (next) {
-                setClosing(false)
-                triggerOpenFx()
-              } else {
-                closeWithAnimation()
-              }
-              return next
-            })
-          }}
-          onKeyDown={handleTriggerKeyDown}>
-          <MenuIcon
-            className={cn(
-              'size-5 transition-transform ease-out',
-              isExpanded
-                ? `duration-[${OPEN_DURATION_MS}ms] scale-90 rotate-90`
-                : `duration-[${OPEN_DURATION_MS}ms] scale-100 rotate-0`,
-            )}
-            aria-hidden="true"
-          />
-        </Button>
-
-        <span
-          aria-hidden
-          className="pointer-events-none fixed z-109"
-          style={{ left: `${anchor.x}px`, top: `${anchor.y}px` }}>
-          {particles.map(p => {
-            const particleStyle: React.CSSProperties & { ['--tx']?: string; ['--ty']?: string } = {
-              width: `${p.sizePx}px`,
-              height: `${p.sizePx}px`,
-              color: `var(${p.tone === 'primary' ? '--primary' : '--accent'})`,
-              backgroundColor: 'currentColor',
-              filter:
-                'drop-shadow(0 0 3px color-mix(in oklch,currentColor 55%, transparent)) drop-shadow(0 0 7px color-mix(in oklch,currentColor 35%, transparent))',
-              animation: `${particleAnim === 'burst' ? 'kd-burst' : 'kd-implosion'} ${p.durationMs}ms ${
-                particleAnim === 'burst' ? 'ease-out' : 'ease-in'
-              } ${p.delayMs}ms forwards`,
-              '--tx': `${Math.round(p.tx)}px`,
-              '--ty': `${Math.round(p.ty)}px`,
-            }
-            return (
-              <span
-                key={p.id}
-                aria-hidden
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-xs"
-                style={particleStyle}
-              />
-            )
-          })}
+    <div className="nav:hidden">
+      <Button
+        ref={triggerRef}
+        id="mobile-nav-trigger"
+        variant="onPrimary"
+        size="icon"
+        aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls="mobile-nav"
+        className="size-10"
+        onClick={event => {
+          // A click with no pointer behind it came from Enter or Space
+          openedWithKeyboard.current = event.detail === 0
+          setOpen(previous => !previous)
+        }}
+        onKeyDown={event => {
+          if (event.key !== 'ArrowDown') return
+          event.preventDefault()
+          openedWithKeyboard.current = true
+          setOpen(true)
+        }}>
+        {/* A face in the header slime: two bars for a mouth, which opens when the menu does */}
+        <span className="mobile-nav-critter block origin-[50%_72%] scale-150">
+          <CritterBody className="size-9" blinkDelay="-2.3s">
+            <g className="text-primary-foreground" stroke="currentColor" strokeWidth="5" strokeLinecap="round">
+              <path className="mobile-nav-bar" d="M36 63h28" />
+              <path className="mobile-nav-bar" d="M36 73h28" />
+              <ellipse className="mobile-nav-mouth" cx="50" cy="68" rx="9" ry="7" fill="currentColor" stroke="none" />
+            </g>
+          </CritterBody>
         </span>
-        {/* Ladder menu shooting down-right from the trigger (anchored at button center) */}
-        <ul
-          id="mobile-nav-arc"
-          role="menu"
-          aria-label="Mobile navigation"
-          aria-orientation="vertical"
-          suppressHydrationWarning
-          onKeyDown={handleMenuKeyDown}
-          className={cn(
-            'pointer-events-none fixed nav:hidden',
-            open || closing ? 'z-110 opacity-100' : 'z-110 opacity-0',
-          )}
-          style={{
-            left: `${anchor.x}px`,
-            top: `${anchor.y}px`,
-            transition: 'opacity 120ms ease-out',
-          }}>
-          {items.map((item, idx) => {
-            const isActive = !item.href.startsWith('#') && item.href === activePath
-            const Icon = item.icon
-            const { x, y } = positions[idx] ?? { x: 0, y: 0 }
-            return (
-              <MobileNavButton
-                key={item.href}
-                ref={el => {
-                  itemRefs.current[idx] = el
-                }}
-                href={item.href}
-                label={item.label}
-                Icon={Icon}
-                isActive={isActive}
-                open={open}
-                closing={closing}
-                position={{ x, y }}
-                transitionDelayMs={(closing ? items.length - 1 - idx : idx) * STAGGER_MS}
-                onClick={() => {
-                  const btnRect = triggerRef.current?.getBoundingClientRect()
-                  if (btnRect) {
-                    const vw = globalThis.innerWidth || 1
-                    const vh = globalThis.innerHeight || 1
-                    const originXPercent = Math.max(0, Math.min(100, ((btnRect.left + btnRect.width / 2) / vw) * 100))
-                    const originYPercent = Math.max(0, Math.min(100, ((btnRect.top + btnRect.height / 2) / vh) * 100))
-                    injectCircleBlur(originXPercent, originYPercent)
-                  }
-                  closeWithAnimation(item.href, idx)
-                }}
-              />
-            )
-          })}
-        </ul>
+        {/* Windows 98 has no critters */}
+        <MenuIcon className="mobile-nav-plain size-5" aria-hidden />
+      </Button>
+
+      <div className={cn('mobile-nav-sheet', open && 'is-open')} inert={!open}>
+        <div className="mobile-nav-goo">
+          <ul
+            ref={listRef}
+            id="mobile-nav"
+            role="menu"
+            aria-label="Mobile navigation"
+            onKeyDown={handleListKeyDown}
+            className="grid max-h-[calc(100dvh-var(--frame-top)-2rem)] grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-1 overflow-y-auto px-3 pt-2 pb-3 max-sm:pt-13 sm:px-6 [@media(max-width:639px)_and_(min-height:501px)]:grid-cols-1">
+            {items.map(item => (
+              <li key={item.href} role="none">
+                <Link
+                  role="menuitem"
+                  href={item.href}
+                  aria-current={item.href === activePath ? 'page' : undefined}
+                  onClick={event => handleSelect(event, item.href)}
+                  className="slime-wobble flex min-h-11 items-center gap-3 rounded-full px-4 text-sm display-text text-primary-foreground outline-none hover:bg-primary-foreground/15 focus-visible:bg-primary-foreground/15 aria-[current=page]:bg-background aria-[current=page]:text-foreground">
+                  <item.icon className="size-4 shrink-0" aria-hidden />
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <svg aria-hidden className="absolute top-full left-0 h-5 w-full text-primary">
+            <rect width="100%" height="20" fill="url(#header-drip)" />
+          </svg>
+        </div>
       </div>
 
-      {/* Backdrop to emphasize the menu and allow closing */}
       <div
-        ref={overlayRef}
-        {...overlayProps}
+        aria-hidden
+        onClick={() => setOpen(false)}
         className={cn(
-          'fixed inset-0 transition-opacity duration-200 nav:hidden',
-          open ? 'pointer-events-auto z-105 opacity-100' : 'pointer-events-none z-105 opacity-0',
-          'bg-black/40 backdrop-blur-sm',
+          'absolute inset-x-0 top-full -z-10 h-dvh bg-black/40 backdrop-blur-sm transition-opacity duration-200',
+          open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
     </div>

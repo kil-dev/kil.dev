@@ -37,11 +37,14 @@ export function Header() {
         </div>
         <div className="flex items-center gap-1 justify-self-end sm:gap-2">
           <AchievementScore />
-          <Suspense fallback={<ThemeToggleFallback />}>
-            <ThemeToggle />
-          </Suspense>
-          <GitHubButton />
-          <LinkedInButton />
+          {/* On a phone these sit in the first row of the menu sheet instead of the bar */}
+          <div className="header-actions flex items-center gap-1 sm:gap-2">
+            <Suspense fallback={<ThemeToggleFallback />}>
+              <ThemeToggle />
+            </Suspense>
+            <GitHubButton />
+            <LinkedInButton />
+          </div>
         </div>
       </div>
     </header>

@@ -5,6 +5,7 @@ import {
   disableAnimations,
   disableSeasonalOverlays,
   gotoAndWaitForMain,
+  showHeaderActions,
 } from '../fixtures/test-helpers'
 
 test.describe('Home Page', () => {
@@ -79,6 +80,7 @@ test.describe('Home Page', () => {
 
   test('should display theme toggle button', async ({ page }) => {
     await gotoAndWaitForMain(page, '/')
+    await showHeaderActions(page)
 
     const themeToggle = page.getByRole('button', { name: /toggle theme menu/i })
     await expect(themeToggle).toBeVisible()
@@ -86,6 +88,7 @@ test.describe('Home Page', () => {
 
   test('should display social links', async ({ page }) => {
     await gotoAndWaitForMain(page, '/')
+    await showHeaderActions(page)
 
     const githubLink = page.getByRole('banner').getByRole('link', { name: /github/i })
     await expect(githubLink).toBeVisible()
