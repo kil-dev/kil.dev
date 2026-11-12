@@ -314,3 +314,15 @@
   border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight);
   box-shadow: none;
 }
+
+/* iOS has no Tahoma, so this theme falls back to Verdana there, which is wider. On a phone the
+   logo and score are set smaller so the bevelled buttons still fit across the title bar. */
+@media (max-width: 430px) {
+  .dotcom header.sticky h2 {
+    font-size: 1rem;
+  }
+  .dotcom .js-achievements-score {
+    padding-inline: 0.125rem;
+    letter-spacing: 0;
+  }
+}
