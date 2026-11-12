@@ -206,6 +206,20 @@ html[data-has-pet-gallery='true'][data-pet-gallery-just-unlocked='true'] .js-pet
 [aria-expanded='true'] .mobile-nav-bar {
   opacity: 0;
 }
+/* The corner critters are drawn above the page, and so above the menu's backdrop: they fade out
+   with the page instead of staying lit */
+.slime-critters {
+  transition:
+    opacity 0.2s,
+    visibility 0s;
+}
+html:has(#mobile-nav-trigger[aria-expanded='true']) .slime-critters {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0s 0.2s;
+}
 
 /* On a phone the theme and social buttons leave the bar for the first row of the menu sheet */
 @media (max-width: 639px) {
