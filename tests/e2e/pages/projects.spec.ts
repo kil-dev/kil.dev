@@ -26,11 +26,6 @@ test.describe('Projects Page', () => {
     expect(errors).toHaveLength(0)
   })
 
-  test('should have correct page title', async ({ page }) => {
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page).toHaveTitle(/Projects.*Kilian Tyler/)
-  })
-
   test('should have proper landmark structure', async ({ page }) => {
     await gotoAndWaitForMain(page, '/projects')
 

@@ -1,14 +1,14 @@
 'use client'
 
-import { AchievementCardBack } from '@/components/layout/achievements/achievement-card-back'
-import { AchievementCardFront } from '@/components/layout/achievements/achievement-card-front'
 import { useAchievements } from '@/components/providers/achievements-provider'
-import { FlippingCard } from '@/components/ui/flipping-card'
 import unknownAchievementImage from '@/images/achievements/unknown.webp'
 import { ACHIEVEMENTS, type AchievementId } from '@/lib/achievements'
 import { isLadybirdUA } from '@/utils/ladybird'
+import { cn } from '@/utils/utils'
 import { format, isValid as isValidDate, parseISO } from 'date-fns'
+import type { StaticImageData } from 'next/image'
 import { useEffect, useState } from 'react'
+import { AchievementBadge } from './achievement-badge'
 
 function toKebabCase(input: string): string {
   return input.toLowerCase().replaceAll('_', '-')
@@ -67,47 +67,58 @@ html[data-achievement-${kebabId}="true"] #ach-card-${kebabId} .card-${kebabId}-u
 `
 
   return (
-    <div id={`ach-card-${kebabId}`} className="relative">
+    <div id={`ach-card-${kebabId}`}>
       <style dangerouslySetInnerHTML={{ __html: styleRules }} />
 
       {/* Unlocked variant (hidden by default until data attribute is present) */}
       <div className={`card-${kebabId}-unlocked hidden`}>
-        <FlippingCard
-          front={<AchievementCardFront />}
-          back={<AchievementCardBack title={def.title} description={unlockedDescription} footer={unlockedFooter} />}
-          backgroundImageSrc={def.imageSrc}
-          backgroundImageAlt={def.imageAlt}
-          backgroundSizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          ariaLabel={`Achievement: ${def.title}`}
-          className="rounded-xl"
-          flipLabelFrontDesktop="View details"
-          flipLabelFrontMobile="Tap for details"
-          flipLabelBackDesktop="Go back"
-          flipLabelBackMobile="Tap to go back"
+        <AchievementRow
+          image={def.imageSrc}
+          imageAlt={def.imageAlt}
+          title={def.title}
+          description={unlockedDescription}
+          footer={unlockedFooter}
         />
       </div>
 
       {/* Locked variant (visible by default; hidden when data attribute is present) */}
       <div className={`card-${kebabId}-locked block`}>
-        <FlippingCard
-          front={<AchievementCardFront />}
-          back={
-            <AchievementCardBack
-              title="Hidden achievement"
-              description={lockedDescription}
-              footer="Keep exploring the site!"
-            />
-          }
-          backgroundImageSrc={unknownAchievementImage}
-          backgroundImageAlt="Unknown achievement"
-          backgroundSizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          ariaLabel="Hidden achievement"
-          className="rounded-xl"
-          flipLabelFrontDesktop="View a hint"
-          flipLabelFrontMobile="Tap for a hint"
-          flipLabelBackDesktop="Go back"
-          flipLabelBackMobile="Tap to go back"
+        <AchievementRow
+          image={unknownAchievementImage}
+          imageAlt="Unknown achievement"
+          title="Hidden achievement"
+          description={lockedDescription}
+          locked
         />
+      </div>
+    </div>
+  )
+}
+
+function AchievementRow({
+  image,
+  imageAlt,
+  title,
+  description,
+  footer,
+  locked = false,
+}: {
+  image: StaticImageData
+  imageAlt: string
+  title: string
+  description: string
+  footer?: string
+  locked?: boolean
+}) {
+  return (
+    <div className="grid grid-cols-[5rem_1fr] items-center gap-4 sm:grid-cols-[6rem_1fr] sm:gap-5">
+      <AchievementBadge image={image} alt={imageAlt} size={96} locked={locked} />
+      <div className="flex flex-col gap-1">
+        <h2 className={cn('text-lg leading-tight font-black tracking-tight', locked && 'text-muted-foreground')}>
+          {title}
+        </h2>
+        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+        {footer ? <p className="text-xs display-text text-coin">{footer}</p> : null}
       </div>
     </div>
   )

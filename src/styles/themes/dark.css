@@ -8,7 +8,8 @@
   --popover: oklch(24.325% 0.05053 264.952);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.6991 0.157 238.99);
-  --primary-foreground: oklch(0.9288 0.0126 255.51);
+  /* Dark text: the slime is bright, and pale text on it only reached 2.1:1 */
+  --primary-foreground: oklch(0.2077 0.0398 265.75);
   --secondary: oklch(0.2795 0.0368 260.03);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -35,8 +36,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --card-backdrop: oklch(0 0 0 / 0.5);
   color-scheme: dark;
-  --card-back-shadow: drop-shadow(0.9px 1.6px 1.4px rgba(0, 0, 0, 0.6)) drop-shadow(1.6px 3px 2.2px rgba(0, 0, 0, 0.3))
-    drop-shadow(-0.6px -0.6px 0.6px rgba(255, 255, 255, 0.1));
+}
+
+/* Every dark-based theme shares the bright coin accent */
+.dark,
+.cyberpunk,
+.matrix,
+.st-patricks,
+.pride,
+.halloween,
+.thanksgiving,
+.christmas,
+.april-fools {
+  --coin: oklch(0.85 0.16 88);
 }

@@ -87,10 +87,10 @@ test.describe('Home Page', () => {
   test('should display social links', async ({ page }) => {
     await gotoAndWaitForMain(page, '/')
 
-    const githubLink = page.getByRole('link', { name: /github/i })
+    const githubLink = page.getByRole('banner').getByRole('link', { name: /github/i })
     await expect(githubLink).toBeVisible()
 
-    const linkedinLink = page.getByRole('link', { name: /linkedin/i })
+    const linkedinLink = page.getByRole('banner').getByRole('link', { name: /linkedin/i })
     await expect(linkedinLink).toBeVisible()
   })
 })

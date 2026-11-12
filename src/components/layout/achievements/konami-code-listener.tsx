@@ -49,12 +49,21 @@ export function KonamiCodeListener() {
       sequenceRef.current = sequenceRef.current.slice(-konamiSequence.length)
     }
 
+    // Once the code is under way (up, up, down…), stop its arrow keys from scrolling the page
+    for (let length = Math.min(sequenceRef.current.length, konamiSequence.length); length >= 3; length -= 1) {
+      if (sequenceRef.current.slice(-length).every((k, index) => k === konamiSequence[index])) {
+        e.preventDefault()
+        break
+      }
+    }
+
     // Compare
     if (sequenceRef.current.length === konamiSequence.length) {
       const isMatch = sequenceRef.current.every((k, index) => k === konamiSequence[index])
       if (isMatch) {
         sequenceRef.current = []
         const id: AchievementId = 'KONAMI_KILLER'
+        window.scrollTo({ top: 0 })
         triggerAnimation()
         if (!has(id)) unlock(id)
       }

@@ -199,9 +199,9 @@ export async function getUnlockedAchievementCount(page: Page): Promise<number> {
 }
 
 /**
- * Flip all pet cards on the About page to trigger PET_PARADE achievement
+ * View every pet on the About page to trigger PET_PARADE achievement
  */
-export async function flipAllPetCards(page: Page) {
+export async function viewAllPets(page: Page) {
   // Navigate to about page
   await gotoAndWaitForMain(page, '/about')
 
@@ -211,24 +211,14 @@ export async function flipAllPetCards(page: Page) {
   // Wait for section to be visible
   await expect(petsSection).toBeVisible({ timeout: 1000 })
 
-  // Find all pet cards and flip them
-  const petCards = page.locator('[aria-label*="Toggle details for"]')
-  const count = await petCards.count()
+  // Select each pet in turn
+  // The radios are visually hidden inside their labels, so force the check
+  const pets = page.getByRole('group', { name: 'Choose a pet' }).getByRole('radio')
+  const count = await pets.count()
 
   for (let i = 0; i < count; i++) {
-    const card = petCards.nth(i)
-    await card.scrollIntoViewIfNeeded()
-    await expect(card).toBeVisible({ timeout: 3000 })
-
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      if ((await card.getAttribute('aria-pressed')) === 'true') break
-      await card.click({ force: true })
-      await expect(card)
-        .toHaveAttribute('aria-pressed', 'true', { timeout: 1000 })
-        .catch(() => {})
-    }
-
-    await expect(card).toHaveAttribute('aria-pressed', 'true', { timeout: 1000 })
+    await pets.nth(i).check({ force: true })
+    await expect(pets.nth(i)).toBeChecked({ timeout: 1000 })
   }
 
   // Wait for achievement to be processed

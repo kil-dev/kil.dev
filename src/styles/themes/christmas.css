@@ -8,7 +8,7 @@
   --popover: oklch(22% 0.05 160);
   --popover-foreground: oklch(98% 0 0);
   --primary: oklch(62.8% 0.257 29.2);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(13% 0.04 160);
   --secondary: oklch(70% 0.22 145);
   --secondary-foreground: oklch(12% 0.03 160);
   --muted: oklch(26% 0.02 160);
@@ -35,8 +35,5 @@
   --sidebar-accent-foreground: oklch(92% 0.02 160);
   --sidebar-border: oklch(34% 0.02 160);
   --sidebar-ring: oklch(62.8% 0.257 29.2);
-  --card-backdrop: oklch(0 0 0 / 0.6);
   color-scheme: dark;
-  --card-back-shadow: drop-shadow(0 0 6px oklch(62.8% 0.257 29.2 / 0.45))
-    drop-shadow(0 0 10px oklch(70% 0.22 145 / 0.35)) drop-shadow(0 0 14px oklch(92% 0.03 160 / 0.25));
 }

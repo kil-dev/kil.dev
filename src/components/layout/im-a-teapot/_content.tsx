@@ -1,16 +1,16 @@
 import Image from 'next/image'
 import teapot from '../../../images/teapot.webp'
 import { LinkButton } from '../../ui/link-button'
+import { PAGE_GUTTER } from '../../ui/page-shell'
 
 export function ImATeapotContent() {
   return (
-    <div className="flex flex-1 items-center justify-center px-10 py-20 md:px-20 lg:px-40">
+    <div className={`flex flex-1 items-center justify-center py-20 ${PAGE_GUTTER}`}>
       <div className="w-full text-center">
         <div className="flex flex-col items-center gap-8">
           {/* Teapot Illustration */}
           <div className="group relative">
-            <div className="relative h-52 w-52 transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105 md:h-72 md:w-72 lg:h-96 lg:w-96">
-              <div className="absolute inset-0 -rotate-3 rounded-lg border-4 border-primary transition-transform duration-500 group-hover:rotate-0" />
+            <div className="relative h-52 w-52 md:h-72 md:w-72 lg:h-96 lg:w-96">
               <Image
                 src={teapot}
                 alt="A playful teapot illustration"
@@ -24,7 +24,9 @@ export function ImATeapotContent() {
 
           {/* Message */}
           <div className="flex max-w-2xl flex-col gap-4">
-            <h2 className="text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">I&apos;m a Teapot</h2>
+            <h2 className="text-3xl font-black tracking-tight text-foreground md:text-4xl lg:text-5xl">
+              I&apos;m a Teapot
+            </h2>
             <p className="text-lg font-medium text-primary md:text-xl">
               This server is a teapot and refuses to brew coffee.
             </p>
@@ -32,19 +34,16 @@ export function ImATeapotContent() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
-            <LinkButton
-              href="/"
-              className="h-12 min-w-[160px] gap-2 rounded-md bg-primary px-6 text-base font-bold text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-primary/90 hover:shadow-xl"
-              aria-label="Return to home page">
-              <span>Go Home</span>
+            <LinkButton href="/" size="lg" aria-label="Return to home page">
+              Go Home
             </LinkButton>
             <LinkButton
               href="https://good.store/collections/keats-and-co-loose-leaf-tea-and-coffee"
               external
               variant="secondary"
-              className="h-12 min-w-[160px] gap-2 rounded-md px-6 text-base font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              size="lg"
               aria-label="Open Keats & Co loose-leaf tea and coffee collection in a new tab">
-              <span>Shop Tea</span>
+              Shop Tea
             </LinkButton>
           </div>
         </div>

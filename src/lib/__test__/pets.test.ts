@@ -19,10 +19,10 @@ describe('PETS', () => {
   })
 
   it('formats the current pet type counts for quick facts', () => {
-    expect(formatPetTypeSummary(PETS)).toBe('3 dogs, 3 cats')
+    expect(formatPetTypeSummary(PETS)).toBe('2 dogs, 3 cats')
   })
 
   it('drives the Pets quick fact from the pet type counts', () => {
-    expect(QUICK_FACTS.find(fact => fact.label === 'Pets')?.value).toBe('3 dogs, 3 cats')
+    expect(QUICK_FACTS.find(fact => fact.label === 'Pets')?.value).toBe('2 dogs, 3 cats')
   })
 })

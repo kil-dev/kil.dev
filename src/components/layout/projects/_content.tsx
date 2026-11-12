@@ -1,23 +1,14 @@
 import { UnlockOnMount } from '@/components/layout/achievements/unlock-on-mount'
-import { ImagesPreload } from '@/components/ui/images-preload'
-import { SectionLabel } from '@/components/ui/section-label'
+import { PageShell } from '@/components/ui/page-shell'
 import type { AchievementId } from '@/lib/achievements'
 import { projects } from '@/lib/projects'
-import { ProjectsGrid } from './projects-grid'
+import { ProjectsList } from './projects-list'
 
 export function ProjectsContent() {
-  const images = projects.map(project => project.imageSrc)
-
   return (
-    <div className="px-10 py-16 md:px-20 lg:px-40">
+    <PageShell section="projects" title="Projects" description="Some projects I've worked on">
       <UnlockOnMount id={'PROJECTS_PERUSER' as AchievementId} />
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        <div className="flex flex-col gap-2">
-          <SectionLabel as="p">{"Some projects I've worked on"}</SectionLabel>
-        </div>
-        <ImagesPreload images={images} dataPreload="projects" />
-        <ProjectsGrid items={projects} />
-      </div>
-    </div>
+      <ProjectsList items={projects} />
+    </PageShell>
   )
 }

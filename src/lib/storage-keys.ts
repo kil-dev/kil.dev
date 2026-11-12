@@ -16,6 +16,7 @@ export const LOCAL_STORAGE_KEYS = {
   MATRIX_THEME_SELECTED: 'kd_matrix_theme_selected',
   DOTCOM_THEME_UNLOCKED: 'kd_dotcom_theme_unlocked',
   CONSOLE_OPENED: 'kd_console_opened',
+  BUBBLES_POPPED: 'kd_bubbles_popped',
 
   // Theme Preferences
   SEASONAL_OVERLAYS_ENABLED: 'seasonalOverlaysEnabled',

@@ -21,13 +21,14 @@ export function ReviewProvider({ children }: { children: React.ReactNode }) {
         const state = readReviewState()
         if (!state.triggeredAt) markTriggered()
 
-        // Compute snark BEFORE incrementing so first-time in a session shows no snark
-        const rc = state.reminderCount ?? 0
-        const arr = REVIEW_CONFIG.copy.snarkOnReturn
-        const nextSnark = rc > 0 && arr.length > 0 ? arr[rc % arr.length] : undefined
-        setSnark(nextSnark)
-
+        // Pick the opening line once per visit, from the count as it stood before this visit.
+        // This check runs more than once (it is scheduled twice, and again whenever an
+        // achievement unlocks); re-picking after the count was bumped showed a "welcome back"
+        // line to someone seeing the dialog for the first time.
         if (!reminderShownRef.current) {
+          const seenBefore = state.reminderCount ?? 0
+          const returning = REVIEW_CONFIG.copy.snarkOnReturn
+          setSnark(seenBefore > 0 && returning.length > 0 ? returning[seenBefore % returning.length] : undefined)
           incrementReminderCount()
           reminderShownRef.current = true
         }

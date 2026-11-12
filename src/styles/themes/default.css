@@ -5,7 +5,8 @@
   --card-foreground: oklch(0.195 0.02 255);
   --popover: oklch(0.99 0.008 255);
   --popover-foreground: oklch(0.195 0.02 255);
-  --primary: oklch(60% 0.15 240);
+  /* Dark enough for white text on it to reach 4.5:1 */
+  --primary: oklch(53% 0.15 240);
   --primary-foreground: oklch(0.985 0.005 255);
   --secondary: oklch(0.945 0.02 245);
   --secondary-foreground: oklch(0.26 0.04 255);
@@ -18,6 +19,7 @@
   --border: oklch(0.9 0.01 255);
   --input: oklch(0.9 0.01 255);
   --ring: oklch(0.6 0.16 239);
+  --coin: oklch(0.6 0.14 75);
   --grid-color: oklch(47.394% 0.03894 256.855 / 0.071);
   --grid-light: oklch(0.74 0.19 240);
   --chart-1: oklch(0.6 0.17 264.376);
@@ -33,8 +35,5 @@
   --sidebar-accent-foreground: oklch(0.26 0.04 255);
   --sidebar-border: oklch(0.9 0.01 255);
   --sidebar-ring: oklch(0.6 0.16 239);
-  --card-backdrop: oklch(1 0 0 / 0.6);
   --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
-  --card-back-shadow: drop-shadow(0.6px 1.2px 1px rgba(0, 0, 0, 0.28)) drop-shadow(1px 1.6px 1.4px rgba(0, 0, 0, 0.15))
-    drop-shadow(-0.6px -0.6px 0.6px rgba(255, 255, 255, 0.4));
 }

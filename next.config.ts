@@ -42,6 +42,14 @@ const config: NextConfig = {
       },
     ],
   },
+  // About, Experience and Projects are sections of the single-page home; old links keep working.
+  async redirects() {
+    return ['about', 'experience', 'projects'].map(section => ({
+      source: `/${section}`,
+      destination: `/#${section}`,
+      permanent: true,
+    }))
+  },
   async rewrites() {
     return [
       {

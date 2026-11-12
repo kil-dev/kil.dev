@@ -217,7 +217,6 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
                     '- Dark mode is not optional anymore\n' +
                     '- Testing in production (carefully!)\n\n' +
                     '## TODO\n' +
-                    '- Finish Questnest\n' +
                     '- Update dotfiles wiki',
                 },
               },
@@ -344,36 +343,6 @@ export const SECRET_CONSOLE_VFS: VfsNode = {
                         '- Repo: https://github.com/shamubernetes/home-k8s\n\n' +
                         'Status: Live (since 2021)\n\n' +
                         '# Fun fact: This powers all my home services!\n',
-                    },
-                  },
-                },
-                questnest: {
-                  type: 'dir',
-                  children: {
-                    'README.md': {
-                      type: 'file',
-                      content:
-                        '# Questnest\n\n' +
-                        'A web app for managing chores through gamification. Very WIP.\n\n' +
-                        '## Description\n' +
-                        'Turn household chores into quests! A gamified task management\n' +
-                        'system that makes chores more engaging through RPG-like mechanics.\n\n' +
-                        '## Tech Stack\n' +
-                        '- Next.js\n' +
-                        '- TypeScript\n' +
-                        '- Tailwind CSS\n' +
-                        '- shadcn/ui\n' +
-                        '- Drizzle ORM\n' +
-                        '- React\n' +
-                        '- Vercel\n\n' +
-                        '## Planned Features\n' +
-                        '- Quest-based task system\n' +
-                        '- XP and leveling mechanics\n' +
-                        '- Reward system\n' +
-                        '- Family/household management\n' +
-                        '- Achievement tracking\n\n' +
-                        'Status: Work in Progress (2025)\n\n' +
-                        '// TODO: Actually finish this project\n',
                     },
                   },
                 },

@@ -33,6 +33,15 @@ html[data-has-pet-gallery='true'] .js-pet-gallery-nav,
   visibility: visible;
 }
 
+/* HUD score: same pre-hydration gate as the Achievements nav link */
+.js-achievements-score {
+  display: none;
+}
+
+html[data-has-achievements='true'] .js-achievements-score {
+  display: inline-flex;
+}
+
 /* Always keep visible while on the current page to avoid nav lava glitches */
 .js-achievements-nav[aria-current='page'],
 .js-pet-gallery-nav[aria-current='page'] {

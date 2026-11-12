@@ -351,6 +351,17 @@ export function BackgroundSnakeGame() {
   )
 
   // Body class for grid lights
+  // Arrow keys steer the snake, so the page stays locked in place while this screen is up.
+  // data-snake brings back the grid the board is aligned to.
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.dataset.snake = '1'
+    return () => {
+      document.documentElement.style.overflow = ''
+      delete document.documentElement.dataset.snake
+    }
+  }, [])
+
   useEffect(() => {
     document.body.classList.toggle('snake-game-active', isPlaying)
     return () => document.body.classList.remove('snake-game-active')

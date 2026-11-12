@@ -55,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${spaceGrotesk.variable} ${notoSans.variable} ${vt323.variable}`}
       suppressHydrationWarning>
       <head>
@@ -71,14 +72,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="flex min-h-screen flex-col bg-background font-sans text-foreground">
-        <PrefetchLinks />
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Background />
-            <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-hidden">
+            <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-clip">
               <div className="layout-container flex h-full flex-1 flex-col">
                 <Header />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 pb-(--frame-bottom)">{children}</main>
                 <Footer />
               </div>
             </div>
@@ -87,16 +87,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Providers>
       </body>
     </html>
-  )
-}
-
-// Prefetch critical routes for faster navigation
-function PrefetchLinks() {
-  return (
-    <>
-      <link rel="prefetch" href="/about" as="document" />
-      <link rel="prefetch" href="/experience" as="document" />
-      <link rel="prefetch" href="/projects" as="document" />
-    </>
   )
 }

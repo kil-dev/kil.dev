@@ -6,6 +6,7 @@ export interface Project {
   id: string
   title: string
   description: string
+  /** What it is built with. Not shown on the page; Ask Kilian uses it to answer questions. */
   tags: SkillName[]
   href?: Route
   repo?: Route

@@ -1,1 +1,10 @@
-@variant nav (@media (min-width: 920px));
+/* The full nav needs about this much room once Achievements and Pet Gallery are unlocked.
+   Narrower windows, including an unfolded foldable, get the menu button. */
+@variant nav (@media (min-width: 1240px));
+
+/* A phone, or any screen too short to stack a list beside its detail (a foldable on its side) */
+@custom-variant compact {
+  @media (max-width: 639px), (max-height: 700px) {
+    @slot;
+  }
+}

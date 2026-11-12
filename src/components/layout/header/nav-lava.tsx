@@ -1,5 +1,6 @@
 'use client'
 
+import { useActivePath } from '@/hooks/use-active-path'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -13,9 +14,9 @@ import { cn } from '@/utils/utils'
 type SimpleNavItem = { href: Route; label: string }
 
 const NAV_TEXT = {
-  base: 'text-foreground dark:text-muted-foreground select-none',
-  hover: 'hover:text-white focus:text-white dark:hover:text-primary-foreground dark:focus:text-primary-foreground',
-  active: 'text-white dark:text-primary-foreground',
+  base: 'text-primary-foreground/80 select-none',
+  hover: 'hover:text-foreground focus:text-foreground',
+  active: 'text-foreground',
 } as const
 
 function getActiveIndex(items: readonly SimpleNavItem[], pathname: string) {
@@ -26,6 +27,7 @@ function getActiveIndex(items: readonly SimpleNavItem[], pathname: string) {
 
 export function NavLava() {
   const pathname = usePathname()
+  const activePath = useActivePath()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
   const linkRefs = React.useRef<Record<string, HTMLAnchorElement | null>>({})
   const didInitRef = React.useRef(false)
@@ -55,7 +57,7 @@ export function NavLava() {
   })
   const [hoveredKey, setHoveredKey] = React.useState<string | null>(null)
 
-  const activeIndex = React.useMemo(() => getActiveIndex(activeItems, pathname ?? ''), [activeItems, pathname])
+  const activeIndex = React.useMemo(() => getActiveIndex(activeItems, activePath ?? ''), [activeItems, activePath])
 
   const moveIndicatorTo = React.useCallback((key: string, animate: boolean) => {
     const container = containerRef.current
@@ -183,7 +185,8 @@ export function NavLava() {
     <nav className="hidden items-center nav:flex" aria-label="Primary">
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-lg p-1"
+        // On the primary-coloured header the indicator is cut out in the page background colour
+        className="relative flex items-center gap-1 p-1 [--primary:var(--background)]"
         onMouseLeave={handleMouseLeaveContainer}
         onBlur={handleBlurContainer}
         onKeyDown={handleKeyDown}
@@ -193,7 +196,7 @@ export function NavLava() {
 
         {baseItems.map(item => {
           const isExternal = item.href.startsWith('http')
-          const isActive = !item.href.startsWith('#') && item.href === pathname
+          const isActive = !item.href.startsWith('#') && item.href === activePath
           return (
             <NavLink
               key={item.href}
@@ -289,7 +292,7 @@ function NavLink(props: NavLinkProps) {
       href={href}
       ref={node => registerRef(href, node)}
       className={cn(
-        'relative z-10 mx-0.5 rounded-md px-3 py-2 text-sm font-medium transition-colors outline-none',
+        'relative z-10 mx-0.5 px-3 py-2 text-sm display-text transition-colors outline-none',
         NAV_TEXT.base,
         NAV_TEXT.hover,
         isActive && (!hoveredKey || hoveredKey === href) ? NAV_TEXT.active : undefined,

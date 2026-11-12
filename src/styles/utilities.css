@@ -8,8 +8,116 @@
   backdrop-filter: blur(2px);
 }
 
-@utility card-back-shadow {
-  filter: var(--card-back-shadow);
+/* One slime edge, reused as a mask everywhere slime hangs off something: flat on top, drips below. 260x20 tile. */
+:root {
+  --slime-edge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='20'%3E%3Cpath d='M0 0h260v3c-12 0-14 9-24 9s-12-9-26-9-16 15-27 15-9-15-24-15-18 6-30 6-14-6-28-6-13 11-23 11-11-11-25-11-17 4-26 4S10 3 0 3z'/%3E%3C/svg%3E");
+}
+
+/* Rows separated by a trail of slime, the same weight and colour as the Experience timeline */
+@utility slime-divide {
+  & > * + * {
+    position: relative;
+  }
+  & > * + *::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--primary) 40%, transparent);
+  }
+}
+
+/* The footer is the pool the slime collects in: the same edge, turned upside down, as its surface */
+@utility slime-pool {
+  position: relative;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 100%;
+    height: 20px;
+    background: var(--primary);
+    mask: var(--slime-edge) repeat-x;
+    scale: 1 -1;
+  }
+}
+
+/* A panel that landed with a splat: a rim of slime round it, lobes bulging out of the rim, and
+   droplets flung clear. The lobes are one circle per corner, copied along the edges with shadows,
+   so the splat fits a panel of any size. */
+@utility slime-splat-frame {
+  border-radius: 1.75rem;
+  box-shadow: 0 0 0 7px var(--primary);
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--primary);
+    pointer-events: none;
+    z-index: -1; /* under the panel's text, over its background */
+  }
+  &::before {
+    top: -17px;
+    left: 26px;
+    box-shadow:
+      74px 3px 0 -4px var(--primary),
+      168px -2px 0 3px var(--primary),
+      -44px 46px 0 -1px var(--primary),
+      -66px 96px 0 -7px var(--primary),
+      44px -26px 0 -8px var(--primary),
+      -52px -6px 0 -8px var(--primary);
+  }
+  &::after {
+    right: 30px;
+    bottom: -18px;
+    box-shadow:
+      -86px 4px 0 -3px var(--primary),
+      -188px -1px 0 2px var(--primary),
+      48px -52px 0 -1px var(--primary),
+      70px -18px 0 -8px var(--primary),
+      -132px 30px 0 -8px var(--primary),
+      54px 22px 0 -9px var(--primary);
+  }
+}
+
+/* Slime frame: soft corners, a rim of the theme colour and a glow pooling underneath */
+@utility slime-frame {
+  border-radius: 1.75rem;
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--primary) 75%, transparent),
+    0 18px 40px -18px var(--primary);
+}
+
+/* Organic blob outline that slowly reshapes itself */
+@utility slime-blob {
+  border-radius: 58% 42% 47% 53% / 46% 55% 45% 54%;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-morph 14s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes kd-morph {
+  33% {
+    border-radius: 44% 56% 58% 42% / 55% 44% 56% 45%;
+  }
+  66% {
+    border-radius: 52% 48% 41% 59% / 43% 58% 42% 57%;
+  }
+  to {
+    border-radius: 60% 40% 52% 48% / 52% 46% 54% 48%;
+  }
+}
+
+/* Display type: headings, HUD, menus, buttons */
+@utility display-text {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* Achievement popup 3D helpers */
@@ -40,6 +148,582 @@
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
+}
+
+/* Squishy entrance for things that change on selection: the chosen pet, a new score */
+@keyframes kd-pop {
+  from {
+    opacity: 0;
+    scale: 0.9 1.08;
+    translate: 0 10px;
+  }
+}
+
+@utility animate-pop {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-pop 0.45s var(--ease-jelly);
+  }
+}
+
+/* Background: flat bubbles of slime rising from the pool. --rest places them when motion is off.
+   The outer element travels; the skin inside it is what you see, and what pops. */
+.slime-bubble {
+  position: absolute;
+  bottom: -4rem;
+  translate: 0 calc(var(--rest) * -1vh);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-bubble linear infinite;
+  }
+}
+.slime-bubble-skin {
+  --slime-bubble: color-mix(in oklch, var(--primary) 16%, transparent);
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--slime-bubble);
+  &.popped {
+    opacity: 0;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: kd-bubble-pop 0.3s ease-out;
+    }
+  }
+  /* Droplets flung out by the pop: one dot, copied eight ways with shadows */
+  &.popped::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    margin: -3px;
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow:
+      0 -26px var(--slime-bubble),
+      18px -18px var(--slime-bubble),
+      26px 0 var(--slime-bubble),
+      18px 18px var(--slime-bubble),
+      0 26px var(--slime-bubble),
+      -18px 18px var(--slime-bubble),
+      -26px 0 var(--slime-bubble),
+      -18px -18px var(--slime-bubble);
+    @media (prefers-reduced-motion: no-preference) {
+      animation: kd-bubble-spray 0.45s ease-out;
+    }
+  }
+}
+@keyframes kd-bubble-pop {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.5;
+  }
+}
+@keyframes kd-bubble-spray {
+  from {
+    opacity: 1;
+    scale: 0.3;
+  }
+  to {
+    opacity: 0;
+    scale: 1.4;
+  }
+}
+@keyframes kd-bubble {
+  from {
+    translate: 0 0;
+  }
+  25% {
+    translate: var(--sway) -28vh;
+  }
+  50% {
+    translate: calc(var(--sway) * -0.6) -56vh;
+  }
+  75% {
+    translate: var(--sway) -84vh;
+  }
+  to {
+    translate: 0 -114vh;
+  }
+}
+
+/* The portrait pops like a bubble when clicked, flings droplets, then reforms */
+.avatar-pop {
+  opacity: 0;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-avatar-pop 0.28s ease-in;
+  }
+}
+.avatar-reform {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-avatar-reform 0.55s var(--ease-jelly);
+  }
+}
+.avatar-spray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: -0.55rem;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow:
+    0 -13rem var(--primary),
+    7.6rem -10.5rem var(--primary),
+    12.4rem -4rem var(--primary),
+    12.4rem 4rem var(--primary),
+    7.6rem 10.5rem var(--primary),
+    0 13rem var(--primary),
+    -7.6rem 10.5rem var(--primary),
+    -12.4rem 4rem var(--primary),
+    -12.4rem -4rem var(--primary),
+    -7.6rem -10.5rem var(--primary);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-bubble-spray 0.4s ease-out;
+  }
+}
+@keyframes kd-avatar-pop {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.2;
+  }
+}
+@keyframes kd-avatar-reform {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+/* On a phone a dialog or toast is nearly as wide as the screen, so the splat keeps to the top and
+   bottom edges: lobes and droplets off the sides would be cut off by the screen. */
+@media (max-width: 639px) {
+  .slime-splat-frame::before {
+    box-shadow:
+      74px 3px 0 -4px var(--primary),
+      168px -2px 0 3px var(--primary),
+      44px -26px 0 -8px var(--primary);
+  }
+  .slime-splat-frame::after {
+    box-shadow:
+      -86px 4px 0 -3px var(--primary),
+      -188px -1px 0 2px var(--primary),
+      -132px 30px 0 -8px var(--primary);
+  }
+  [data-sonner-toast] [data-content]::before {
+    box-shadow:
+      96px 4px 0 -4px var(--primary),
+      214px -2px 0 2px var(--primary),
+      30px 60px 0 -3px var(--primary),
+      150px 62px 0 1px var(--primary),
+      66px -26px 0 -8px var(--primary),
+      212px 84px 0 -8px var(--primary) !important;
+  }
+}
+
+/* Notifications are splats of slime: the same lobes and droplets, sized for the toast's fixed width.
+   They hang off the toast's content element, because the toast library moves the toast's own
+   ::before and ::after around while a toast is pressed or swiped. It is placed against the toast. */
+[data-sonner-toast] [data-content]::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 44px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  pointer-events: none;
+  z-index: -1; /* under the toast's text */
+  box-shadow:
+    96px 4px 0 -4px var(--primary),
+    214px -2px 0 2px var(--primary),
+    -52px 40px 0 -2px var(--primary),
+    302px 36px 0 -1px var(--primary),
+    30px 60px 0 -3px var(--primary),
+    150px 62px 0 1px var(--primary),
+    262px 58px 0 -4px var(--primary),
+    -74px 6px 0 -8px var(--primary),
+    66px -26px 0 -8px var(--primary),
+    334px 2px 0 -8px var(--primary),
+    212px 84px 0 -8px var(--primary);
+}
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  background: var(--primary) !important;
+  border: 2px solid var(--background) !important;
+  color: var(--primary-foreground) !important;
+}
+
+/* Windows 98 window for the time travel game. It looks like 1999 in every theme, so the colours
+   are fixed here rather than taken from the theme. */
+.win98-window {
+  padding: 3px;
+  border: 2px solid;
+  border-color: #fff #404040 #404040 #fff;
+  border-radius: 0;
+  background: #c0c0c0;
+  box-shadow:
+    inset 1px 1px 0 #dfdfdf,
+    inset -1px -1px 0 #808080;
+  color: #000;
+  font-family: Tahoma, 'MS Sans Serif', Verdana, sans-serif;
+}
+.win98-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 3px 3px 6px;
+  background: #000080;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.win98-raised {
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  border-radius: 0;
+  background: #c0c0c0;
+}
+.win98-pressed {
+  border-color: #808080 #fff #fff #808080;
+  background: #d8d8d8;
+}
+/* Only buttons press in. A raised panel must not, or clicking anything inside it inverts its edges. */
+button.win98-raised:active {
+  border-color: #808080 #fff #fff #808080;
+}
+.win98-sunken {
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+}
+.win98-led {
+  padding: 0 4px;
+  background: #000;
+  color: #f00;
+  font-family: var(--font-vt323), monospace;
+  font-size: 28px;
+  line-height: 1;
+}
+.mine-cell {
+  display: grid;
+  width: var(--cell, 30px);
+  height: var(--cell, 30px);
+  place-items: center;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  border-radius: 0;
+  background: #c0c0c0;
+  font-size: calc(var(--cell, 30px) * 0.5);
+  font-weight: 800;
+  line-height: 1;
+  &:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+  }
+  &[data-open='true'] {
+    border: 1px solid #808080;
+  }
+  &[data-adjacent='1'] {
+    color: #00f;
+  }
+  &[data-adjacent='2'] {
+    color: #008000;
+  }
+  &[data-adjacent='3'] {
+    color: #f00;
+  }
+  &[data-adjacent='4'] {
+    color: #000080;
+  }
+  &[data-adjacent='5'] {
+    color: #800000;
+  }
+  &[data-adjacent='6'] {
+    color: #008080;
+  }
+}
+
+/* Slime critters: they breathe, blink, and wobble when poked. The wobble is triggered by hovering
+   the element around the critter, which stays still, so a pointer on its edge does not flicker. */
+@media (prefers-reduced-motion: no-preference) {
+  :hover > .slime-critter {
+    animation: kd-wobble 0.7s var(--ease-jelly);
+  }
+}
+.slime-critter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-breathe 4s ease-in-out infinite;
+  }
+}
+/* Critter moods, set on <html> by SlimeCritters */
+.critter-seat {
+  transition: translate 0.3s var(--ease-jelly);
+}
+html[data-critter-mood='duck'] .critter-seat {
+  translate: 0 75%;
+}
+html[data-critter-mood='duck'] .critter-seat-hanging {
+  translate: 0 -75%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-critter-mood='cheer'] .slime-critter {
+    animation: kd-critter-cheer 0.7s var(--ease-jelly) 2;
+  }
+}
+html[data-critter-mood='startled'] .slime-critter-eye {
+  scale: 1.3;
+  animation: none;
+}
+@keyframes kd-critter-cheer {
+  35% {
+    translate: 0 -45%;
+    scale: 0.92 1.12;
+  }
+  70% {
+    translate: 0 0;
+    scale: 1.1 0.9;
+  }
+}
+
+.slime-critter-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-critter-blink 5.5s infinite;
+  }
+}
+/* A popped critter: droplets fly out, and a moment later it swells back up out of the slime */
+.slime-splash {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin: -0.25rem;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow:
+    0 -2.6rem var(--primary),
+    1.7rem -2rem var(--primary),
+    2.7rem -0.6rem var(--primary),
+    2.2rem 1.2rem var(--primary),
+    -2.2rem 1.2rem var(--primary),
+    -2.7rem -0.6rem var(--primary),
+    -1.7rem -2rem var(--primary);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-bubble-spray 0.45s ease-out;
+  }
+}
+.slime-critter-regrow {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-critter-regrow 0.6s var(--ease-jelly);
+  }
+}
+@keyframes kd-critter-regrow {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes kd-breathe {
+  50% {
+    scale: 1.04 0.95;
+  }
+}
+@keyframes kd-critter-blink {
+  0%,
+  93%,
+  100% {
+    scale: 1;
+  }
+  96% {
+    scale: 1 0.1;
+  }
+}
+
+/* Small and short screens have no spare room at the edges: the corner critters would sit on the
+   content, so only the scroll cue stays, and it is smaller. */
+@media (max-width: 639px), (max-height: 599px) {
+  .slime-critters {
+    display: none;
+  }
+  /* The scroll cue moves to the right-hand corner, clear of the left-aligned content */
+  .scroll-cue-well {
+    right: 0.75rem !important;
+    left: auto !important;
+    width: 3.5rem !important;
+    height: 3rem !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* The grid only shows where it is part of the look: the snake board, Windows 98 and the Matrix.
+   Those have no slime bubbles or critters. */
+.circuit-grid {
+  display: none;
+}
+html[data-snake] .circuit-grid,
+.dotcom .circuit-grid,
+.matrix .circuit-grid {
+  display: block;
+}
+html[data-snake] :is(.slime-bubbles, .slime-pop-count, .slime-critters),
+.dotcom :is(.slime-bubbles, .slime-pop-count, .slime-critters),
+.matrix :is(.slime-bubbles, .slime-pop-count, .slime-critters) {
+  display: none;
+}
+
+/* Header slime: the hanging drips trade lengths, slowly. Browsers without CSS `d` keep the static shape. */
+@keyframes kd-ooze {
+  50% {
+    d: path(
+      'M0 0h260v3c-12 0-14 4-24 4s-12-4-26-4-16 7-27 7-9-7-24-7-18 16-30 16-14-16-28-16-13 5-23 5-11-5-25-5-17 10-26 10S10 3 0 3z'
+    );
+  }
+}
+
+@utility slime-ooze {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-ooze 9s ease-in-out infinite;
+  }
+}
+
+/* Scroll cue: a critter in a well that ends at the pool's surface, so sinking hides it in the slime */
+.scroll-cue-well {
+  position: absolute;
+  bottom: calc(100% - 3px);
+  left: 50%;
+  width: 5rem;
+  height: 4.25rem;
+  margin-left: -2.5rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+.scroll-cue {
+  position: absolute;
+  inset: auto 0 0;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: translate 0.45s var(--ease-jelly);
+  &[data-sunk='true'] {
+    translate: 0 105%;
+    pointer-events: none;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--primary-foreground);
+    outline-offset: -4px;
+  }
+}
+.dotcom .scroll-cue-well,
+html[data-snake] .scroll-cue-well {
+  display: none;
+}
+
+/* The drop under the nav blob sags, then is pulled back in */
+@keyframes kd-drip {
+  0%,
+  100% {
+    translate: 0 -4px;
+  }
+  60% {
+    translate: 0 5px;
+  }
+}
+
+/* Picker rows: a blob of slime behind each row. No two neighbours share a shape. It is faint and
+   jiggles under the pointer, and is solid slime behind the chosen row. */
+.slime-row-blob {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.3rem 2rem 1.1rem 2.2rem / 2rem 1.2rem 2.1rem 1.3rem;
+  transition: background-color 0.2s;
+}
+label:nth-child(3n) > .slime-row-blob {
+  border-radius: 2rem 1.2rem 2.2rem 1.4rem / 1.3rem 2.1rem 1.2rem 2rem;
+}
+label:nth-child(3n + 1) > .slime-row-blob {
+  border-radius: 1.6rem 1.6rem 2.3rem 1.2rem / 2.2rem 1.4rem 1.6rem 1.9rem;
+}
+label:hover > .slime-row-blob {
+  background: color-mix(in oklch, var(--primary) 22%, transparent);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-wobble 0.7s var(--ease-jelly);
+  }
+}
+label:has(:checked) > .slime-row-blob {
+  background: var(--primary);
+}
+
+/* A swiped-to item slides in from the side it was pulled from */
+@keyframes kd-slide-in {
+  from {
+    opacity: 0;
+    translate: var(--slide-from) 0;
+  }
+}
+@utility animate-slide-from-right {
+  --slide-from: 40%;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-slide-in 0.35s var(--ease-jelly);
+  }
+}
+@utility animate-slide-from-left {
+  --slide-from: -40%;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: kd-slide-in 0.35s var(--ease-jelly);
+  }
+}
+
+/* Slime under the pointer: the shape goes lumpy and jiggles like jelly, and squashes flat when pressed */
+@utility slime-wobble {
+  transition:
+    border-radius 0.45s var(--ease-jelly),
+    scale 0.2s var(--ease-jelly),
+    background-color 0.2s;
+  &:hover,
+  &:focus-visible {
+    border-radius: 1.3rem 2rem 1.1rem 2.2rem / 2rem 1.2rem 2.1rem 1.3rem;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: kd-wobble 0.7s var(--ease-jelly);
+    }
+  }
+  &:active {
+    scale: 1.1 0.84;
+  }
+  /* The hit area. It reaches past the shape by more than the wobble and the press ever pull the
+     shape in, and it has square corners. Without it, a pointer resting on the edge is left
+     behind when the shape squashes, hover ends, the shape springs back under the pointer, and
+     the whole thing flickers. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -12% -3%;
+  }
+}
+/* Zero specificity, so a button that is positioned some other way keeps its own position */
+:where(.slime-wobble) {
+  position: relative;
+}
+
+/* Squash and stretch. It only ever gets narrower than its resting width by the easing's overshoot. */
+@keyframes kd-wobble {
+  25% {
+    scale: 1.1 0.9;
+  }
+  50% {
+    scale: 1 1.08;
+  }
+  75% {
+    scale: 1.03 0.97;
+  }
 }
 
 /* Theme Toggle overlay spin animation */
