@@ -78,7 +78,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="relative z-20 flex size-full flex-1 flex-col overflow-x-clip">
               <div className="layout-container flex h-full flex-1 flex-col">
                 <Header />
-                <main className="flex-1 pb-(--frame-bottom)">{children}</main>
+                <main className="flex-1 pb-(--frame-bottom)">
+                  {children}
+                  {/* The end of the page is a place the scroll may rest. Without it Safari pulls a
+                      page taller than the window back to its top, the only snap point it has. */}
+                  <div aria-hidden className="snap-end" />
+                </main>
                 <Footer />
               </div>
             </div>
