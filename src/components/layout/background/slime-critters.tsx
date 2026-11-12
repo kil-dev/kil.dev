@@ -15,13 +15,15 @@ type CritterBodyProps = {
   className?: string
   /** Offsets this critter's blink so they do not blink together. */
   blinkDelay?: string
+  /** Extra face parts, drawn in the 100x80 viewBox. */
+  children?: React.ReactNode
 }
 
 /**
  * One blob of slime with eyes: the pool (or the header drip) bulging into a little creature.
  * Its pupils follow the mouse wherever it is drawn, as long as <SlimeCritters> is mounted.
  */
-export function CritterBody({ hanging = false, arrow = false, className, blinkDelay }: CritterBodyProps) {
+export function CritterBody({ hanging = false, arrow = false, className, blinkDelay, children }: CritterBodyProps) {
   const eyeY = hanging ? 36 : 44
   return (
     <svg
@@ -60,6 +62,7 @@ export function CritterBody({ hanging = false, arrow = false, className, blinkDe
           strokeLinejoin="round"
         />
       )}
+      {children}
     </svg>
   )
 }

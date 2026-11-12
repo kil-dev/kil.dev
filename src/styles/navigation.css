@@ -147,26 +147,114 @@ html[data-has-pet-gallery='true'][data-pet-gallery-just-unlocked='true'] .js-pet
   }
 }
 
-/* Mobile nav particle animations (uses --tx/--ty CSS variables provided inline) */
-@keyframes kd-burst {
-  from {
-    transform: translate(-50%, -50%) translate(0, 0) scale(0.8);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
+/* Mobile menu: a sheet of the header's slime. It hangs behind the header's bottom edge and
+   stretches down when opened; the wrapper clips it while it is pulled up. */
+.mobile-nav-sheet {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  padding-bottom: 2.5rem;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s 0.3s;
+}
+.mobile-nav-sheet.is-open {
+  visibility: visible;
+  transition-delay: 0s;
+}
+.mobile-nav-goo {
+  position: relative;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  pointer-events: auto;
+  translate: 0 -100%;
+  transition: translate 0.3s ease-in;
+}
+.is-open > .mobile-nav-goo {
+  translate: 0 0;
+  transition: translate 0.55s var(--ease-jelly);
+}
+/* More slime above it, so the bounce at the end of the stretch never opens a gap under the header */
+.mobile-nav-goo::before {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 3rem;
+  content: '';
+  background: inherit;
+}
+
+/* The menu button's face: two bars for a mouth, which opens when the menu does */
+.mobile-nav-plain {
+  display: none;
+}
+.mobile-nav-bar,
+.mobile-nav-mouth {
+  transition:
+    opacity 0.2s,
+    scale 0.3s var(--ease-jelly);
+}
+.mobile-nav-mouth {
+  transform-origin: 50px 68px;
+  scale: 0;
+}
+[aria-expanded='true'] .mobile-nav-mouth {
+  scale: 1;
+}
+[aria-expanded='true'] .mobile-nav-bar {
+  opacity: 0;
+}
+/* The corner critters and the pop counter are drawn above the page, and so above the menu's
+   backdrop: they fade out with the page instead of staying lit */
+:is(.slime-critters, .slime-pop-count) {
+  transition:
+    opacity 0.2s,
+    visibility 0s;
+}
+html:has(#mobile-nav-trigger[aria-expanded='true']) :is(.slime-critters, .slime-pop-count) {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0s 0.2s;
+}
+
+/* On a phone the theme and social buttons leave the bar for the first row of the menu sheet */
+@media (max-width: 639px) {
+  .header-actions {
+    position: absolute;
+    top: 100%;
+    right: 1.25rem;
+    z-index: 1;
+    margin-top: 0.375rem;
     opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.15s,
+      visibility 0s 0.15s;
+  }
+  header:has(#mobile-nav-trigger[aria-expanded='true']) .header-actions {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.2s 0.2s,
+      visibility 0s;
+  }
+  /* The theme list opens over the slime sheet here, so its backdrop is the page colour the
+     list's text is made for */
+  .header-actions [aria-label='Close overlay'] {
+    background: color-mix(in oklch, var(--background) 82%, transparent);
   }
 }
 
-@keyframes kd-implosion {
-  from {
-    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
-    opacity: 0.9;
-  }
-  to {
-    transform: translate(-50%, -50%) translate(0, 0) scale(0.6);
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-sheet,
+  .mobile-nav-goo,
+  .is-open > .mobile-nav-goo,
+  .mobile-nav-mouth {
+    transition: none;
   }
 }
 

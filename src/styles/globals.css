@@ -40,17 +40,20 @@
   }
 }
 html {
-  scroll-snap-type: y mandatory;
   scroll-padding-block: var(--frame-top) var(--frame-bottom);
+}
+/* Only a page made of several pages snaps. A lone page taller than the window (achievements, the
+   pet gallery) has one snap point, its top, and Safari pulls the scroll back to it. */
+@media (min-height: 501px) {
+  html:has(main > .snap-start ~ .snap-start) {
+    scroll-snap-type: y mandatory;
+  }
 }
 /* A folded phone on its side is about 370px tall: too short to page through, and too short to
    give a third of the screen to the frame. The footer shrinks and the page scrolls freely. */
 @media (max-height: 500px) {
   :root {
     --frame-bottom: 3rem;
-  }
-  html {
-    scroll-snap-type: none;
   }
 }
 @media (prefers-reduced-motion: no-preference) {

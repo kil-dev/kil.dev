@@ -183,9 +183,18 @@ export async function waitForDomContentAndMain(page: Page) {
 }
 
 /**
+ * On a phone the theme and social buttons are inside the navigation menu: open it to reach them.
+ */
+export async function showHeaderActions(page: Page) {
+  const menuButton = page.locator('#mobile-nav-trigger[aria-expanded="false"]')
+  if ((page.viewportSize()?.width ?? 0) < 640) await menuButton.click()
+}
+
+/**
  * Open the theme menu
  */
 export async function openThemeMenu(page: Page) {
+  await showHeaderActions(page)
   // Select by aria-controls as the button has no accessible name
   const themeButton = page.locator('button[aria-controls="theme-options"]').first()
   // Wait for button to be visible and enabled before clicking

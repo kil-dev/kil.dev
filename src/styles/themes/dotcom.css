@@ -185,46 +185,30 @@
   transform: none !important;
 }
 
-/* Mobile nav buttons: square + Win98 bevel */
-.dotcom #mobile-nav-arc a {
-  color: #000 !important;
-  background: var(--win98-window) !important;
-  border: 2px solid var(--win98-shadow) !important;
-  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight) !important;
-  border-radius: 0 !important;
-  box-shadow:
-    inset 1px 1px 0 var(--win98-light),
-    inset -1px -1px 0 var(--win98-shadow) !important;
+/* Mobile menu: a grey drop-down menu with a navy selection, and a plain menu button */
+.dotcom .mobile-nav-goo {
+  color: #000;
+  background: var(--win98-window);
+  border: 2px solid;
+  border-color: var(--win98-hilight) var(--win98-darkshadow) var(--win98-darkshadow) var(--win98-hilight);
 }
-.dotcom #mobile-nav-arc a:hover,
-.dotcom #mobile-nav-arc a:focus {
-  color: #000 !important;
-  background: var(--win98-window) !important;
+.dotcom .mobile-nav-goo::before,
+.dotcom .mobile-nav-goo > svg,
+.dotcom .mobile-nav-critter {
+  display: none;
 }
-/* Icon chip inside mobile item */
-.dotcom #mobile-nav-arc a > span:first-child {
-  background: transparent !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+.dotcom .mobile-nav-plain {
+  display: block;
 }
-
-/* Mobile nav particle effects: disabled in this theme */
-.dotcom span[aria-hidden][class*='fixed'][class*='z-[109]'] {
-  display: none !important;
+.dotcom #mobile-nav a {
+  color: #000;
+  border-radius: 0;
+}
+.dotcom #mobile-nav a:is(:hover, :focus-visible, [aria-current='page']) {
+  color: #fff;
+  background: #000080;
 }
 
-/* Nothing in Windows 98 is round, glows, or wobbles */
-.dotcom *,
-.dotcom *::before,
-.dotcom *::after {
-  border-radius: 0 !important;
-}
-.dotcom .slime-blob,
-.dotcom .animate-pop,
-.dotcom .slime-wobble {
-  animation: none !important;
-}
-.dotcom :is([data-slot='button'], .kd-button),
 .dotcom fieldset label {
   scale: 1 !important;
   translate: 0 !important;
